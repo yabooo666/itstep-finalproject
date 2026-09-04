@@ -1,0 +1,439 @@
+/* Vehicle Filters Sidebar Component Styles */
+
+.vehicle-filters-sidebar {
+    width: 290px;
+    min-width: 290px;
+    background-color: var(--bg-card);
+    border-right: 1px solid var(--border-color);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+    padding: 24px 20px 40px 20px;
+    height: calc(100vh - 52px);
+    position: sticky;
+    top: 52px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.vehicle-filters-sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.vehicle-filters-sidebar::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+/* Header: Filter by & Reset all */
+.filters-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+}
+
+.filters-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.2px;
+}
+
+.filters-reset-btn {
+    background: none;
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.15s ease;
+}
+
+.filters-reset-btn span {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.filters-reset-btn:hover {
+    color: var(--text-primary);
+}
+
+/* Section Labels & Layout */
+.filter-section {
+    margin-bottom: 16px;
+}
+
+.section-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 10px;
+    user-select: none;
+}
+
+.section-label.mb-0 {
+    margin-bottom: 0;
+}
+
+.filter-divider {
+    height: 1px;
+    background-color: var(--border-light);
+    margin: 18px 0;
+}
+
+/* 1. Segmented Pill Groups (Rental Type, Transmission) */
+.pill-group {
+    display: flex;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+}
+
+.filter-pill {
+    flex: 1;
+    height: 32px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.filter-pill:hover {
+    color: var(--text-primary);
+}
+
+.filter-pill.active {
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] .filter-pill.active {
+    background-color: #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* 2. Sleek iOS Style Toggle Switch */
+.toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 9999px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 2px;
+    bottom: 2px;
+    background-color: var(--text-secondary);
+    transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 50%;
+}
+
+.switch input:checked + .slider {
+    background-color: var(--accent-dark);
+    border-color: var(--accent-dark);
+}
+
+.switch input:checked + .slider:before {
+    transform: translateX(20px);
+    background-color: var(--bg-main);
+}
+
+/* 3. Collapsible Sections (Chevrons) */
+.collapsible-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    padding: 2px 0;
+}
+
+.chevron-icon {
+    width: 15px;
+    height: 15px;
+    color: var(--text-muted);
+    transition: transform 0.2s ease, color 0.15s ease;
+}
+
+.collapsible:hover .chevron-icon {
+    color: var(--text-primary);
+}
+
+.collapsible-content {
+    display: none;
+    padding-top: 14px;
+}
+
+.collapsible.open .collapsible-content {
+    display: block;
+}
+
+.collapsible.open .chevron-icon {
+    transform: rotate(180deg);
+}
+
+/* 4. Price Histogram & Range Slider */
+.histogram-wrapper {
+    margin-bottom: 14px;
+    padding: 0 4px;
+}
+
+.histogram-bars {
+    height: 54px;
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    margin-bottom: 6px;
+}
+
+.hist-bar {
+    flex: 1;
+    background-color: rgba(255, 255, 255, 0.12);
+    border-radius: 2px 2px 0 0;
+    transition: background-color 0.15s ease;
+}
+
+[data-theme="light"] .hist-bar {
+    background-color: #e2e8f0;
+}
+
+.hist-bar.in-range {
+    background-color: var(--text-primary);
+}
+
+/* Dual Range Slider Track */
+.dual-range-track {
+    position: relative;
+    height: 4px;
+    background-color: var(--border-light);
+    border-radius: 2px;
+    margin: 10px 0 16px 0;
+}
+
+.track-highlight {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background-color: var(--text-primary);
+    border-radius: 2px;
+}
+
+.range-handle {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: var(--bg-card);
+    border: 2px solid var(--text-primary);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    transition: transform 0.15s ease;
+}
+
+.range-handle:hover {
+    transform: translate(-50%, -50%) scale(1.15);
+}
+
+/* Price Boxes: FROM / TO */
+.price-inputs-row {
+    display: flex;
+    gap: 10px;
+}
+
+.price-box {
+    flex: 1;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.price-box-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+}
+
+.price-box-val {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* 5. Dropdowns & Sub Filters */
+.filter-custom-select {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 13px;
+    color: var(--text-primary);
+    font-family: inherit;
+    outline: none;
+    cursor: pointer;
+}
+
+.sub-filter-row {
+    display: flex;
+    gap: 8px;
+}
+
+.filter-text-input {
+    flex: 1;
+    height: 38px;
+    padding: 0 12px;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 12.5px;
+    color: var(--text-primary);
+    font-family: inherit;
+    outline: none;
+}
+
+.filter-text-input.year-narrow {
+    width: 75px;
+    flex: none;
+}
+
+.filter-text-input:focus,
+.filter-custom-select:focus {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 6. 2-Column Checkboxes (Body Type & Fuel Type) */
+.checkbox-grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    row-gap: 12px;
+    column-gap: 8px;
+}
+
+.custom-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    width: 17px;
+    height: 17px;
+    background-color: var(--bg-input);
+    border: 1.5px solid var(--border-color);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+}
+
+.custom-checkbox:hover input ~ .checkmark {
+    border-color: var(--text-secondary);
+}
+
+.custom-checkbox input:checked ~ .checkmark {
+    background-color: var(--text-primary);
+    border-color: var(--text-primary);
+}
+
+.custom-checkbox input:checked ~ .checkmark:after {
+    content: "";
+    width: 4px;
+    height: 8px;
+    border: solid var(--bg-main);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-0.5px, -1px);
+    display: block;
+}
+
+.cb-label {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: color 0.15s ease;
+}
+
+.custom-checkbox input:checked ~ .cb-label {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Vehicles Page Flex Layout */
+.vehicles-page-layout {
+    display: flex;
+    width: 100%;
+    min-height: calc(100vh - 52px);
+}
+
+.vehicles-content-area {
+    flex: 1;
+    min-width: 0;
+    padding: 28px 32px;
+}

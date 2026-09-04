@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Auto Ultimate | Luxury & Everyday Car Rentals{% endblock %}
+
+{% block content %}
+<div style="max-width: 1300px; margin: 24px auto; padding: 0 28px;">
+    <!-- 1. Value / Trust Badges Strip (at the top) -->
+    {% include "components/trust_badges.html" %}
+
+    <!-- 2. Reusable Search & Filter Component -->
+    {% include "components/search_filter.html" %}
+
+    <!-- 3. How It Works (3-Step Process) -->
+    {% include "components/how_it_works.html" %}
+
+    <!-- 4. Frequently Asked Questions Accordion -->
+    {% include "components/faq.html" %}
+</div>
+{% endblock %}

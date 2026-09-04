@@ -1,0 +1,68 @@
+{% load static %}
+<!-- Vehicle Card Component (Catalog Grid Item) -->
+<div class="rental-car-card">
+    <!-- Top Metadata Bar -->
+    <div class="card-top-meta">
+        <div class="meta-left-group">
+            <!-- Distance & Walking Time -->
+            <div class="meta-stat meta-distance">
+                <svg class="walk-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="4" r="2"/>
+                    <path d="M15 22v-6l-3-3l-2 2v7"/>
+                    <path d="M9 13l2-3l3 2l3-2"/>
+                </svg>
+                <span class="dist-num">{{ car.distance }}</span>
+                <span class="dist-time">({{ car.walk_time }})</span>
+            </div>
+
+            <!-- Star Rating & Review Count -->
+            <div class="meta-stat meta-rating">
+                <svg class="star-icon" viewBox="0 0 24 24" fill="#eab308">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                <span class="rating-score">{{ car.rating }}</span>
+                <span class="rating-count">({{ car.review_count }})</span>
+            </div>
+        </div>
+
+        <!-- Favourite Heart Toggle Button -->
+        <button type="button" class="card-heart-btn {% if car.is_favourite %}favourited{% endif %}" onclick="toggleFavourite(this)" aria-label="Toggle favourite">
+            <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Center Vehicle Media (3D Viewport or Image) -->
+    <div class="card-img-container {% if car.model_3d %}has-3d-model{% endif %}">
+        {% if car.model_3d %}
+            <div class="card-3d-viewport" data-model-url="{% static car.model_3d %}" data-car-id="{{ car.id }}">
+                <div class="rotate-3d-badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                    </svg>
+                    <span>360° Drag</span>
+                </div>
+                <div class="model-loading-indicator">
+                    <div class="spinner-dot"></div>
+                    <span>Loading 3D...</span>
+                </div>
+            </div>
+        {% else %}
+            <img src="{% static car.image_url %}" alt="{{ car.brand }} {{ car.model }}" class="card-vehicle-image" loading="lazy">
+        {% endif %}
+    </div>
+
+    <!-- Bottom Name & Price Row -->
+    <div class="card-bottom-info">
+        <div class="info-left">
+            <h4 class="vehicle-title">{{ car.brand }} {{ car.model }}</h4>
+            <p class="vehicle-trim">{{ car.trim }}</p>
+        </div>
+
+        <div class="info-price">
+            <span class="price-val">₾{{ car.price_per_hour }}</span>
+            <span class="price-unit">/ hour</span>
+        </div>
+    </div>
+</div>

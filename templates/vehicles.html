@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Vehicles | Auto Ultimate{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="{% static 'css/vehicle_filters.css' %}?v=soft1">
+<link rel="stylesheet" href="{% static 'css/rental_catalog.css' %}?v=map2">
+{% endblock %}
+
+{% block content %}
+<div class="vehicles-page-layout">
+    <!-- Filter Pane (Directly next to main sidebar) -->
+    {% include "components/vehicle_filters.html" %}
+
+    <!-- Vehicles Catalog Area -->
+    <section class="vehicles-content-area" id="vehiclesMainContent">
+        <!-- Top Results Toolbar -->
+        <div class="results-top-bar">
+            <h2 class="results-heading">
+                <span class="results-count">{{ vehicles_count }}</span> vehicles to rent
+            </h2>
+
+            <div class="results-actions">
+                <!-- Sort Dropdown -->
+                <div class="sort-select-wrapper">
+                    <select class="sort-select" aria-label="Sort vehicles">
+                        <option value="closest">Closest to me</option>
+                        <option value="price_low">Price: Low to High</option>
+                        <option value="price_high">Price: High to Low</option>
+                        <option value="rating">Highest Rated</option>
+                    </select>
+                </div>
+
+                <!-- Show / Hide Map Button -->
+                <button type="button" class="show-map-btn" id="toggleMapBtn" aria-label="Toggle map view">
+                    <span class="btn-text">Show map</span>
+                    <svg class="map-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                        <line x1="8" y1="2" x2="8" y2="18"></line>
+                        <line x1="16" y1="6" x2="16" y2="22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Split-View Layout Container -->
+        <div class="vehicles-split-container" id="vehiclesSplitContainer">
+            <!-- Left Side: Cards Stream -->
+            <div class="vehicles-cards-stream" id="vehiclesCardsStream">
+                <div class="vehicles-grid-3col" id="vehiclesGrid3Col">
+                    {% for car in vehicles %}
+                        {% include "components/rental_card.html" with car=car %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Right Side: Interactive Split Map Panel -->
+            <aside class="vehicles-map-panel" id="vehiclesMapPanel" aria-label="Map of vehicles">
+                <!-- Top Floating Search Bar & Fullscreen Control -->
+                <div class="map-floating-header">
+                    <div class="map-search-bar">
+                        <svg class="search-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="text" id="mapSearchInput" class="map-search-input" placeholder="Search address or vehicles..." aria-label="Search map">
+                    </div>
+
+                    <button type="button" class="map-action-icon-btn" id="mapFullscreenBtn" title="Expand map" aria-label="Expand map">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 3 21 3 21 9"/>
+                            <polyline points="9 21 3 21 3 15"/>
+                            <line x1="21" y1="3" x2="14" y2="10"/>
+                            <line x1="3" y1="21" x2="10" y2="14"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Leaflet Map Mount Point -->
+                <div id="leafletMapMount" class="leaflet-map-mount"></div>
+
+                <!-- Map Floating Recenter GPS Button -->
+                <div class="map-floating-bottom-ctrls">
+                    <button type="button" class="map-recenter-btn" id="mapRecenterBtn" title="Recenter on Tbilisi" aria-label="Recenter map">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+                        </svg>
+                    </button>
+                </div>
+            </aside>
+        </div>
+    </section>
+</div>
+
+<!-- Embedded Vehicles JSON Data for Map Pins -->
+{{ vehicles_json|json_script:"vehiclesJsonData" }}
+
+<script>
+    // Interactive Favourite Heart Toggle
+    function toggleFavourite(btn) {
+        btn.classList.toggle('favourited');
+    }
+</script>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Leaflet.js Mapping Library -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{% static 'js/vehicles_map.js' %}?v=map5"></script>
+
+<!-- Three.js 3D Engine & Interactive Viewer -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="{% static 'js/car_3d_viewer.js' %}?v=resize1"></script>
+{% endblock %}
+

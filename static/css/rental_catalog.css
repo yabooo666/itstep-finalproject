@@ -1,0 +1,889 @@
+/* Vehicles Catalog & Cards Styles */
+
+/* 1. Results Header Toolbar */
+.results-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-bottom: 8px;
+}
+
+.results-heading {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+}
+
+.results-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Sort Dropdown */
+.sort-select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.sort-select {
+    height: 38px;
+    padding: 0 32px 0 14px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-family: inherit;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 14px 14px;
+    transition: all 0.15s ease;
+    box-shadow: var(--card-shadow);
+}
+
+.sort-select:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Show Map Button */
+.show-map-btn {
+    height: 38px;
+    padding: 0 16px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: var(--card-shadow);
+    transition: all 0.15s ease;
+}
+
+.show-map-btn:hover {
+    background-color: var(--bg-card-sub);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.show-map-btn.active {
+    background-color: #2563eb;
+    border-color: #3b82f6;
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+}
+
+.show-map-btn.active svg {
+    color: #ffffff;
+}
+
+.show-map-btn svg {
+    width: 16px;
+    height: 16px;
+    color: var(--text-secondary);
+}
+
+/* 2. 3-Column Catalog Grid */
+.vehicles-grid-3col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 1320px) {
+    .vehicles-grid-3col {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .vehicles-grid-3col {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 3. Rental Car Card */
+.rental-car-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    padding: 16px 18px 20px 18px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.rental-car-card:hover {
+    background-color: var(--bg-card-sub);
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow: var(--card-shadow-hover);
+    transform: translateY(-3px);
+}
+
+/* Card Top Metadata */
+.card-top-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.meta-left-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.meta-stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.meta-distance .walk-icon {
+    width: 14px;
+    height: 14px;
+    color: var(--text-muted);
+}
+
+.meta-distance .dist-num {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.meta-rating .star-icon {
+    width: 13px;
+    height: 13px;
+}
+
+.meta-rating .rating-score {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.meta-rating .rating-count {
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+/* Favourite Heart Button */
+.card-heart-btn {
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+}
+
+.card-heart-btn svg {
+    width: 19px;
+    height: 19px;
+    transition: all 0.2s ease;
+}
+
+.card-heart-btn:hover {
+    color: #ef4444;
+    transform: scale(1.15);
+}
+
+.card-heart-btn.favourited {
+    color: #ef4444;
+}
+
+.card-heart-btn.favourited svg {
+    fill: #ef4444;
+}
+
+/* Center Car Image / 3D Canvas */
+.card-img-container {
+    width: 100%;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 4px 0 10px 0;
+    position: relative;
+    padding: 0;
+}
+
+.card-vehicle-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 12px;
+    filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.6));
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.rental-car-card:hover .card-vehicle-image {
+    transform: scale(1.03);
+}
+
+/* Card Bottom Info */
+.card-bottom-info {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-light);
+}
+
+.info-left {
+    flex: 1;
+    min-width: 0;
+}
+
+.vehicle-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+    letter-spacing: -0.2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vehicle-trim {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.info-price {
+    text-align: right;
+    white-space: nowrap;
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+}
+
+.price-val {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+}
+
+.price-unit {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+/* 3D Viewport Styling */
+.card-img-container.has-3d-model {
+    cursor: grab;
+    user-select: none;
+}
+
+.card-img-container.has-3d-model:active {
+    cursor: grabbing;
+}
+
+.card-3d-viewport {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.canvas-3d-car {
+    width: 100% !important;
+    height: 100% !important;
+    outline: none;
+    display: block;
+}
+
+/* 360° Drag Badge */
+.rotate-3d-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(12, 12, 16, 0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--border-color);
+    padding: 3px 8px;
+    border-radius: 9999px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    pointer-events: none;
+    z-index: 5;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    letter-spacing: 0.2px;
+}
+
+.rotate-3d-badge svg {
+    width: 12px;
+    height: 12px;
+    color: #3b82f6;
+}
+
+/* Loading indicator */
+.model-loading-indicator {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(12, 12, 16, 0.85);
+    backdrop-filter: blur(6px);
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    z-index: 10;
+    transition: opacity 0.3s ease;
+}
+
+.spinner-dot {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    border-top-color: var(--text-primary);
+    border-radius: 50%;
+    animation: spin3d 0.8s linear infinite;
+}
+
+@keyframes spin3d {
+    to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   4. Split-View Interactive Map Layout
+   ========================================================================== */
+
+.vehicles-split-container {
+    width: 100%;
+    position: relative;
+}
+
+.vehicles-cards-stream {
+    width: 100%;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vehicles-map-panel {
+    display: none;
+}
+
+/* Active Split-View Mode */
+.split-view-active .vehicles-split-container {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.split-view-active .vehicles-cards-stream {
+    flex: 0 0 350px;
+    width: 350px;
+    max-width: 360px;
+    min-width: 320px;
+}
+
+.split-view-active .vehicles-grid-3col {
+    grid-template-columns: 1fr;
+    gap: 18px;
+}
+
+@media (max-width: 960px) {
+    .split-view-active .vehicles-split-container {
+        flex-direction: column-reverse;
+    }
+    .split-view-active .vehicles-cards-stream {
+        flex: 1 1 100%;
+        width: 100%;
+        max-width: 100%;
+    }
+    .split-view-active .vehicles-map-panel {
+        height: 420px;
+        position: relative;
+        top: 0;
+    }
+}
+
+.split-view-active .vehicles-map-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-width: 0;
+    height: calc(100vh - 140px);
+    position: sticky;
+    top: 100px;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    background: #0c0c10;
+    box-shadow: var(--card-shadow);
+    z-index: 20;
+    animation: mapSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes mapSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Fullscreen Map Mode */
+.vehicles-map-panel.is-fullscreen {
+    position: fixed;
+    inset: 20px;
+    width: auto;
+    height: auto;
+    z-index: 99999;
+    border-radius: 24px;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95);
+}
+
+/* Floating Search Bar on Map */
+.map-floating-header {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    right: 14px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.map-search-bar {
+    flex: 1;
+    max-width: 360px;
+    height: 42px;
+    background: rgba(12, 12, 16, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 9px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    pointer-events: auto;
+}
+
+[data-theme="light"] .map-search-bar {
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.map-search-bar .search-svg {
+    width: 16px;
+    height: 16px;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.map-search-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    font-family: inherit;
+}
+
+.map-search-input::placeholder {
+    color: var(--text-muted);
+}
+
+.map-action-icon-btn {
+    width: 42px;
+    height: 42px;
+    background: rgba(12, 12, 16, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    pointer-events: auto;
+    transition: all 0.2s ease;
+}
+
+[data-theme="light"] .map-action-icon-btn {
+    background: rgba(255, 255, 255, 0.92);
+    border-color: rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.map-action-icon-btn:hover {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #3b82f6;
+}
+
+.map-action-icon-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Leaflet Map Mount */
+.leaflet-map-mount {
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    background: #090a0d;
+}
+
+/* Recenter GPS Button */
+.map-floating-bottom-ctrls {
+    position: absolute;
+    bottom: 85px;
+    right: 12px;
+    z-index: 1000;
+    pointer-events: auto;
+}
+
+.map-recenter-btn {
+    width: 36px;
+    height: 36px;
+    background: rgba(12, 12, 16, 0.92);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3b82f6;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+    transition: all 0.2s ease;
+}
+
+[data-theme="light"] .map-recenter-btn {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(0, 0, 0, 0.12);
+}
+
+.map-recenter-btn:hover {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #3b82f6;
+    transform: scale(1.08);
+}
+
+.map-recenter-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Custom Car Pin Marker on Map */
+.custom-car-pin-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.map-car-pin {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #14151b;
+    border: 2px solid #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8), 0 0 10px rgba(59, 130, 246, 0.4);
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s;
+}
+
+.map-car-pin:hover {
+    transform: scale(1.25);
+    border-color: #3b82f6;
+    background: #1d4ed8;
+}
+
+.map-car-pin .car-svg {
+    width: 17px;
+    height: 17px;
+}
+
+/* Numbered Cluster Bubbles */
+.map-cluster-bubble {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #0f1015;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 11.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.75);
+}
+
+/* Walking Time Badge on Route */
+.walking-time-tag {
+    background: rgba(12, 12, 16, 0.92);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(59, 130, 246, 0.5);
+    border-radius: 9999px;
+    padding: 3px 8px;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #60a5fa;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    letter-spacing: 0.1px;
+}
+
+.walking-time-tag svg {
+    width: 12px;
+    height: 12px;
+}
+
+/* User Location Pulse */
+.user-location-pulse-wrapper {
+    position: relative;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-pulse-center {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #3b82f6;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 8px #3b82f6;
+    position: relative;
+    z-index: 2;
+}
+
+.user-pulse-wave {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(59, 130, 246, 0.4);
+    animation: userPulse 1.8s ease-out infinite;
+}
+
+@keyframes userPulse {
+    0% { transform: scale(0.6); opacity: 1; }
+    100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* Custom Floating Vehicle Card Popup on Map */
+.custom-leaflet-popup .leaflet-popup-content-wrapper {
+    background: #0d0e13 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 16px !important;
+    padding: 0 !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.95), 0 0 20px rgba(59, 130, 246, 0.15) !important;
+    color: #ffffff !important;
+    overflow: hidden;
+}
+
+[data-theme="light"] .custom-leaflet-popup .leaflet-popup-content-wrapper {
+    background: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.12) !important;
+    color: #111827 !important;
+}
+
+.custom-leaflet-popup .leaflet-popup-tip {
+    background: #0d0e13 !important;
+}
+
+[data-theme="light"] .custom-leaflet-popup .leaflet-popup-tip {
+    background: #ffffff !important;
+}
+
+.custom-leaflet-popup .leaflet-popup-content {
+    margin: 0 !important;
+    line-height: 1.4 !important;
+}
+
+.map-vehicle-card-popup {
+    padding: 14px 15px;
+    width: 240px;
+}
+
+.popup-top-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.popup-rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.popup-rating .star-svg {
+    width: 12px;
+    height: 12px;
+}
+
+.popup-rating .count {
+    color: var(--text-muted);
+    font-size: 10.5px;
+}
+
+.popup-heart {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.popup-heart.favourited {
+    color: #ef4444;
+}
+
+.popup-heart svg {
+    width: 16px;
+    height: 16px;
+}
+
+.popup-car-header {
+    margin-bottom: 12px;
+}
+
+.popup-car-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 2px;
+    letter-spacing: -0.2px;
+}
+
+[data-theme="light"] .popup-car-name {
+    color: #111827;
+}
+
+.popup-car-trim {
+    font-size: 11px;
+    font-weight: 500;
+    color: #9ca3af;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.popup-action-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .popup-action-row {
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+.popup-book-btn {
+    flex: 1;
+    height: 32px;
+    background: #2563eb;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    font-family: inherit;
+}
+
+.popup-book-btn:hover {
+    background: #1d4ed8;
+}
+
+.popup-price-tag {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.popup-price-tag .price-num {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+[data-theme="light"] .popup-price-tag .price-num {
+    color: #111827;
+}
+
+.popup-price-tag .price-unit {
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+
+

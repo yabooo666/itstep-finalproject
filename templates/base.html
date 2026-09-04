@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Auto Ultimate | Car Rental{% endblock %}</title>
+
+    <!-- Theme Initialization Script: Default to pure OLED dark -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('auto_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+
+    <!-- Global Base Styles (with cache busters) -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=soft1">
+    <!-- Component Styles (Modular) -->
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}?v=soft1">
+    <link rel="stylesheet" href="{% static 'css/header.css' %}?v=soft1">
+    <link rel="stylesheet" href="{% static 'css/search_filter.css' %}?v=soft1">
+    <link rel="stylesheet" href="{% static 'css/vehicle_card.css' %}?v=soft1">
+    <link rel="stylesheet" href="{% static 'css/trust_features.css' %}?v=soft1">
+    <link rel="stylesheet" href="{% static 'css/faq.css' %}?v=soft1">
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}?v=soft1">
+    <link rel="stylesheet" href="{% static 'css/auth_modal.css' %}?v=auth1">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <div class="app-layout">
+        <!-- Reusable Sidebar Component -->
+        {% include "components/sidebar.html" %}
+
+        <!-- Main Content Area -->
+        <div class="main-wrapper">
+            <!-- Reusable Top Header Component -->
+            {% include "components/header.html" %}
+
+            <!-- Page Content Block -->
+            <main class="page-content">
+                {% block content %}
+                {% endblock %}
+            </main>
+
+            <!-- Reusable Footer Component -->
+            {% include "components/footer.html" %}
+        </div>
+    </div>
+
+    <!-- Global Theme Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeBtn = document.getElementById('themeToggleBtn');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function() {
+                    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+                    const next = current === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    localStorage.setItem('auto_theme', next);
+                });
+            }
+        });
+    </script>
+
+    <!-- Reusable Login / Register Popup Modal -->
+    {% include "components/auth_modal.html" %}
+
+    <script src="{% static 'js/auth_modal.js' %}?v=auth1"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

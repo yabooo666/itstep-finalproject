@@ -1,0 +1,197 @@
+/* Header / Navbar Component Styles */
+
+.site-header {
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    height: 52px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.header-container {
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Left Section */
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.brand-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--text-primary);
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.brand-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.05;
+}
+
+.brand-name {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+}
+
+.brand-sub {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+}
+
+/* Right Section: Theme Toggle & Auth Pill Group */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background-color: var(--border-light);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    padding: 0;
+}
+
+.theme-toggle-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+    transform: translateY(-0.5px);
+}
+
+.theme-toggle-btn svg {
+    width: 17px;
+    height: 17px;
+}
+
+/* Sun/Moon visibility depending on data-theme */
+[data-theme="dark"] .theme-toggle-btn .moon-icon {
+    display: none;
+}
+
+[data-theme="dark"] .theme-toggle-btn .sun-icon {
+    display: block;
+    color: #fbbf24;
+}
+
+:root:not([data-theme="dark"]) .theme-toggle-btn .sun-icon {
+    display: none;
+}
+
+:root:not([data-theme="dark"]) .theme-toggle-btn .moon-icon {
+    display: block;
+}
+
+/* Premium Auth Pill Group */
+.auth-pill-group {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--border-light);
+    padding: 3px;
+    border-radius: 9px;
+    border: 1px solid var(--border-color);
+}
+
+.auth-pill-btn {
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 5px 13px;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    line-height: 1;
+}
+
+.auth-pill-btn svg {
+    width: 13.5px;
+    height: 13.5px;
+    flex-shrink: 0;
+}
+
+.auth-login-btn {
+    color: var(--text-secondary);
+}
+
+.auth-login-btn:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-card);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.auth-register-btn {
+    background-color: var(--accent-dark);
+    color: var(--bg-main);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] .auth-register-btn {
+    background-color: #f8fafc;
+    color: #0b0f19;
+}
+
+.auth-register-btn:hover {
+    opacity: 0.92;
+    transform: translateY(-0.5px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Hide duplicate header brand on desktop since it is in the sidebar */
+@media (min-width: 769px) {
+    .main-wrapper .header-brand {
+        display: none;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .site-header {
+        padding: 0 16px;
+    }
+}

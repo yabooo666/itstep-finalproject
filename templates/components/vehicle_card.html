@@ -1,0 +1,76 @@
+<!-- Reusable Vehicle Card Component -->
+<div class="vehicle-card">
+    <!-- Card Media & Badges -->
+    <div class="card-media">
+        <img src="{{ car.image }}" alt="{{ car.brand }} {{ car.model }}" class="card-img" loading="lazy">
+        <span class="badge-year">{{ car.year }}</span>
+        <button type="button" class="card-fav-btn" title="Add to Favourites" aria-label="Favourite">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Card Body -->
+    <div class="card-body">
+        <!-- Title & Location (Stacked for perfect alignment) -->
+        <div class="card-header-info">
+            <h3 class="car-title">{{ car.brand }} {{ car.model }}</h3>
+            <div class="car-city-row">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                </svg>
+                <span>{{ car.city }}</span>
+            </div>
+        </div>
+
+        <!-- Specs Badges -->
+        <div class="card-specs">
+            <!-- Seats -->
+            <span class="spec-pill" title="Seating Capacity">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                </svg>
+                <span>{{ car.capacity }} Seats</span>
+            </span>
+
+            <!-- Transmission -->
+            <span class="spec-pill" title="Transmission">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                <span>{{ car.transmission }}</span>
+            </span>
+
+            <!-- Fuel Tank -->
+            <span class="spec-pill" title="Fuel Tank Capacity">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 22V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v17"/>
+                    <path d="M13 10h4a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2v0a2 2 0 0 0 2-2V9l-3-3"/>
+                    <circle cx="8" cy="8" r="1.5"/>
+                </svg>
+                <span>{{ car.fuel_capacity }}L</span>
+            </span>
+        </div>
+
+        <!-- Footer: Price & Action -->
+        <div class="card-footer">
+            <div class="price-group">
+                <div class="price-amount-wrap">
+                    <span class="price-number">{{ car.price }}</span>
+                    <span class="price-currency">₾</span>
+                </div>
+                <span class="price-period">per day</span>
+            </div>
+            <a href="/vehicles/{{ car.id }}" class="rent-btn">
+                <span>Rent Now</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14m-7-7l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+</div>

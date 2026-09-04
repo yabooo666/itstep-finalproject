@@ -1,0 +1,61 @@
+<!-- Header Component (Reusable across all pages) -->
+<header class="site-header">
+    <div class="header-container">
+        <!-- Left: Brand Logo (for mobile / standalone) -->
+        <div class="header-left">
+            <a href="/" class="header-brand" aria-label="Auto Ultimate Home">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5.5 17.5C4 16 3 13.5 4 10C5.5 4.5 12 3 17 4.5C20.5 5.5 21.5 8 20 12C18.5 16 14.5 19.5 9 19C7.5 19 6.2 18.2 5.5 17.5Z" fill="white"/>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-name">AUTO</span>
+                    <span class="brand-sub">ULTIMATE</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Right: Theme Toggle & Premium Auth Actions -->
+        <div class="header-right">
+            <!-- Dark / Light Mode Toggle Button -->
+            <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle dark/light mode" title="Toggle dark/light mode">
+                <!-- Moon Icon (shown in light mode) -->
+                <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+                <!-- Sun Icon (shown in dark mode) -->
+                <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"/>
+                    <line x1="12" y1="1" x2="12" y2="3"/>
+                    <line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    <line x1="1" y1="12" x2="3" y2="12"/>
+                    <line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+            </button>
+
+            <!-- Auth Pill Group -->
+            <div class="auth-pill-group">
+                <a href="#login" class="auth-pill-btn auth-login-btn" data-open-auth="login" aria-haspopup="dialog">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>
+                    </svg>
+                    <span>Login</span>
+                </a>
+                <a href="#register" class="auth-pill-btn auth-register-btn" data-open-auth="register" aria-haspopup="dialog">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="8.5" cy="7" r="4"/>
+                        <line x1="20" y1="8" x2="20" y2="14"/>
+                        <line x1="23" y1="11" x2="17" y2="11"/>
+                    </svg>
+                    <span>Register</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
