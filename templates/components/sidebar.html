@@ -1,5 +1,11 @@
 <!-- Sidebar Component (Reusable across all pages) -->
-<aside class="site-sidebar">
+<aside class="site-sidebar" id="siteSidebar">
+    <!-- Toggle Collapse/Expand Button with < and > -->
+    <button type="button" class="sidebar-toggle-btn" id="sidebarToggleBtn" title="Toggle Sidebar (Collapse / Expand)" aria-label="Toggle Sidebar">
+        <span class="toggle-icon-lt">&lt;</span>
+        <span class="toggle-icon-gt">&gt;</span>
+    </button>
+
     <!-- Brand Logo Header -->
     <div class="sidebar-header">
         <a href="/" class="sidebar-brand" aria-label="Auto Ultimate">
@@ -19,14 +25,14 @@
     <nav class="sidebar-nav">
         <!-- Top Navigation Links -->
         <div class="nav-group">
-            <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}">
+            <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}" title="Home">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
                 <span>Home</span>
             </a>
 
-            <a href="/vehicles/" class="nav-item {% if '/vehicles' in request.path %}active{% endif %}">
+            <a href="/vehicles/" class="nav-item {% if '/vehicles' in request.path %}active{% endif %}" title="Vehicles">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                     <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-4.66l.12-.34h13.77l.11.34V17z"/>
                     <circle cx="7.5" cy="14.5" r="1.5"/>
@@ -35,21 +41,21 @@
                 <span>Vehicles</span>
             </a>
 
-            <a href="/favourites/" class="nav-item {% if '/favourites' in request.path %}active{% endif %}">
+            <a href="/favourites/" class="nav-item {% if '/favourites' in request.path %}active{% endif %}" title="Favourites">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
                 <span>Favourites</span>
             </a>
 
-            <a href="/notifications/" class="nav-item {% if '/notifications' in request.path %}active{% endif %}">
+            <a href="/notifications/" class="nav-item {% if '/notifications' in request.path %}active{% endif %}" title="Notifications">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
                 <span>Notifications</span>
             </a>
 
-            <a href="/chat/" class="nav-item {% if '/chat' in request.path %}active{% endif %}">
+            <a href="/chat/" class="nav-item {% if '/chat' in request.path %}active{% endif %}" title="Chat">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
@@ -110,3 +116,30 @@
         </div>
     </nav>
 </aside>
+
+<!-- Sidebar Collapse / Expand Controller Script -->
+<script>
+    (function() {
+        const sidebar = document.getElementById('siteSidebar');
+        const toggleBtn = document.getElementById('sidebarToggleBtn');
+        const mainWrapper = document.querySelector('.main-wrapper');
+
+        // Restore saved preference
+        if (localStorage.getItem('sidebar_collapsed') === 'true') {
+            sidebar?.classList.add('collapsed');
+            mainWrapper?.classList.add('sidebar-collapsed');
+        }
+
+        if (toggleBtn && sidebar) {
+            toggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isCollapsed = sidebar.classList.toggle('collapsed');
+                if (mainWrapper) {
+                    mainWrapper.classList.toggle('sidebar-collapsed', isCollapsed);
+                }
+                localStorage.setItem('sidebar_collapsed', isCollapsed ? 'true' : 'false');
+                window.dispatchEvent(new Event('resize'));
+            });
+        }
+    })();
+</script>

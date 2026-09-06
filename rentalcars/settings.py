@@ -72,17 +72,17 @@ ASGI_APPLICATION = 'rentalcars.asgi.application'
 # Database configuration
 # Supports 'postgresql' and 'sqlite'
 
-DB_ENGINE = os.getenv('DB_ENGINE', 'sqlite').strip().lower()
+DB_ENGINE = os.getenv('DB_ENGINE', 'postgresql').strip().lower()
 
 if DB_ENGINE in ('postgresql', 'postgres', 'psql'):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('DB_NAME', 'postgres'),
-            'USER': os.getenv('DB_USER', 'postgres'),
-            'PASSWORD': os.getenv('DB_PASSWORD', ''),
-            'HOST': os.getenv('DB_HOST', 'localhost'),
-            'PORT': os.getenv('DB_PORT', '5432'),
+            'NAME': os.getenv('DB_NAME', 'rentalcars'),
+            'USER': os.getenv('DB_USER', 'admin'),
+            'PASSWORD': os.getenv('DB_PASSWORD', 'ylexar'),
+            'HOST': os.getenv('DB_HOST', '5.83.153.60'),
+            'PORT': os.getenv('DB_PORT', '5020'),
         }
     }
 else:

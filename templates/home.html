@@ -1,19 +1,53 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Auto Ultimate | Luxury & Everyday Car Rentals{% endblock %}
+{% block title %}Auto Ultimate | Cyberpunk Metropolis 3D Experience{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/cyberpunk_city.css' %}?v=monochrome_v12">
+{% endblock %}
 
 {% block content %}
-<div style="max-width: 1300px; margin: 24px auto; padding: 0 28px;">
-    <!-- 1. Value / Trust Badges Strip (at the top) -->
-    {% include "components/trust_badges.html" %}
+<!-- Full-Viewport Cyberpunk City 3D Stage (100% Clean View) -->
+<div class="cyberpunk-city-wrapper" id="cyberpunkCityWrapper">
 
-    <!-- 2. Reusable Search & Filter Component -->
-    {% include "components/search_filter.html" %}
+    <!-- Three.js Canvas Mount (Fixed in Viewport) -->
+    <div class="cyberpunk-canvas-mount" id="cyberpunkCanvasMount"></div>
 
-    <!-- 3. How It Works (3-Step Process) -->
-    {% include "components/how_it_works.html" %}
+    <!-- Atmospheric Vignette -->
+    <div class="cyberpunk-vignette"></div>
 
-    <!-- 4. Frequently Asked Questions Accordion -->
-    {% include "components/faq.html" %}
+    <!-- Streaming Progress & Loading Overlay -->
+    <div class="cyberpunk-loading-overlay" id="cyberpunkLoadingOverlay">
+        <div class="cyberpunk-loader-box">
+            <div class="cyberpunk-spinner-ring"></div>
+            <div class="cyberpunk-loading-title">Cyberpunk Metropolis</div>
+            <div class="cyberpunk-progress-container">
+                <div class="cyberpunk-progress-bar" id="cyberpunkProgressBar"></div>
+            </div>
+            <div class="cyberpunk-loading-status" id="cyberpunkLoadingStatus">Initializing 3D World...</div>
+        </div>
+    </div>
+
+    <!-- Natural Scroll Track (Drives camera smoothly along the 9 pattern waypoints) -->
+    <div class="cyberpunk-scroll-track" id="cyberpunkScrollTrack"></div>
+
 </div>
+{% endblock %}
+
+{% block footer %}
+<!-- FOOTER EXPLICITLY REMOVED FROM HOME PAGE ONLY -->
+{% endblock %}
+
+{% block extra_js %}
+<!-- Three.js CDN & Cyberpunk 3D Engine -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="{% static 'js/cyberpunk_city.js' %}?v=monochrome_v12"></script>
 {% endblock %}

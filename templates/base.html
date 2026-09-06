@@ -17,7 +17,7 @@
     <!-- Global Base Styles (with cache busters) -->
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=soft1">
     <!-- Component Styles (Modular) -->
-    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}?v=soft1">
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}?v=collapse_v1">
     <link rel="stylesheet" href="{% static 'css/header.css' %}?v=soft1">
     <link rel="stylesheet" href="{% static 'css/search_filter.css' %}?v=soft1">
     <link rel="stylesheet" href="{% static 'css/vehicle_card.css' %}?v=soft1">
@@ -46,7 +46,9 @@
             </main>
 
             <!-- Reusable Footer Component -->
+            {% block footer %}
             {% include "components/footer.html" %}
+            {% endblock %}
         </div>
     </div>
 

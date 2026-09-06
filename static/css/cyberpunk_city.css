@@ -1,0 +1,497 @@
+/* ==========================================================================
+   Cyberpunk City 3D Cinematic Scroll Experience
+   ========================================================================== */
+
+.cyberpunk-city-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    background: #05070f;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Fixed Three.js Viewport */
+.cyberpunk-canvas-mount {
+    position: fixed;
+    top: 52px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: calc(100vh - 52px);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.cyberpunk-canvas-mount canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    outline: none;
+}
+
+/* Atmospheric Vignette & Color Grade Overlay */
+.cyberpunk-vignette {
+    position: fixed;
+    top: 52px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 2;
+    background: radial-gradient(circle at 50% 50%, transparent 40%, rgba(5, 7, 15, 0.4) 80%, rgba(5, 7, 15, 0.85) 100%),
+                linear-gradient(to bottom, rgba(5, 7, 15, 0.3) 0%, transparent 15%, transparent 85%, rgba(5, 7, 15, 0.7) 100%);
+}
+
+/* ==========================================================================
+   Holographic 3D Cards (Rendered via CSS3D in True Spatial Perspective)
+   ========================================================================== */
+
+.cyber-card-3d {
+    width: 380px;
+    padding: 24px 26px;
+    border-radius: 14px;
+    background: rgba(12, 12, 16, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.95), 0 0 15px rgba(255, 255, 255, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    position: relative;
+    overflow: hidden;
+    pointer-events: auto;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #ffffff;
+    transition: box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1), border-color 220ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: box-shadow;
+}
+
+.cyber-card-3d:hover {
+    border-color: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 24px 48px -10px rgba(0, 0, 0, 0.98), 0 0 25px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Translucent Background Watermark Icon (Monochrome Titanium) */
+.card-bg-watermark {
+    position: absolute;
+    right: -14px;
+    bottom: -16px;
+    width: 145px;
+    height: 145px;
+    opacity: 0.035;
+    pointer-events: none;
+    color: #ffffff;
+    transform: rotate(-10deg);
+    transition: opacity 250ms cubic-bezier(0.16, 1, 0.3, 1), transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1;
+}
+
+.cyber-card-3d:hover .card-bg-watermark {
+    opacity: 0.09;
+    transform: rotate(0deg) scale(1.05);
+}
+
+/* Content Container above watermark */
+.card-content {
+    position: relative;
+    z-index: 5;
+    pointer-events: auto;
+}
+
+/* Hairline corner ticks (Titanium Silver) */
+.cyber-card-3d::before,
+.cyber-card-3d::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-color: rgba(255, 255, 255, 0.45);
+    pointer-events: none;
+    z-index: 3;
+}
+
+.cyber-card-3d::before {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid;
+    border-left: 2px solid;
+    border-top-left-radius: 14px;
+}
+
+.cyber-card-3d::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 2px solid;
+    border-right: 2px solid;
+    border-bottom-right-radius: 14px;
+}
+
+/* Card Header Badge (Monochrome Gray/White) */
+.cyber-card-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    margin-bottom: 12px;
+}
+
+.cyber-card-tag-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+}
+
+/* Card Titles */
+.cyber-card-title {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: #ffffff;
+    line-height: 1.3;
+    margin: 0 0 6px 0;
+}
+
+.cyber-card-sub {
+    font-size: 12px;
+    font-weight: 400;
+    color: #9ca3af;
+    line-height: 1.45;
+    margin-bottom: 16px;
+}
+
+/* Feature Bullets / Rows */
+.cyber-card-features {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.cyber-feature-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #cbd5e1;
+}
+
+.cyber-feature-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #ffffff;
+    transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cyber-feature-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+.cyber-card-3d:hover .cyber-feature-icon {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ==========================================================================
+   Card 5: Enlarged Luxury Monochrome Search Terminal
+   ========================================================================== */
+.cyber-card-3d.card-search-terminal {
+    width: 500px;
+    padding: 32px 34px;
+    border-radius: 16px;
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.98), 0 0 30px rgba(255, 255, 255, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.cyber-card-3d.card-search-terminal:hover {
+    border-color: rgba(255, 255, 255, 0.45);
+    box-shadow: 0 36px 70px -15px rgba(0, 0, 0, 1), 0 0 40px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/*
+   CSS3DRenderer applies a perspective transform to the terminal card. Its
+   descendants remain visible but are not reliable native hit targets in
+   Chromium, so JavaScript creates fixed-position button proxies over them.
+*/
+.cyberpunk-terminal-hit-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 11000;
+    pointer-events: none;
+}
+
+.cyberpunk-terminal-hit-target {
+    position: fixed;
+    display: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    cursor: pointer;
+    pointer-events: auto;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.cyberpunk-terminal-hit-target:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.9);
+    outline-offset: 2px;
+}
+
+.cyber-card-3d.card-search-terminal .cyber-card-title {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.cyber-card-3d.card-search-terminal .cyber-card-sub {
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.terminal-locations-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+    margin-bottom: 14px;
+}
+
+.terminal-loc-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer !important;
+    transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none;
+    position: relative;
+    z-index: 10;
+    pointer-events: auto !important;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.terminal-loc-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+}
+
+.terminal-loc-btn.active {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.25);
+}
+
+.terminal-loc-btn:active {
+    transform: scale(0.97);
+}
+
+.terminal-loc-btn svg,
+.terminal-loc-btn span {
+    pointer-events: none !important;
+}
+
+.terminal-loc-btn svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    color: currentColor;
+}
+
+.terminal-quick-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.terminal-filter-pill {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+    cursor: pointer !important;
+    transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    z-index: 10;
+    pointer-events: auto !important;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.terminal-filter-pill:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.terminal-filter-pill.active {
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.terminal-filter-pill:active {
+    transform: scale(0.97);
+}
+
+/* Primary Action Button on Terminal */
+.cyber-card-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 13px 20px;
+    border-radius: 9px;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    text-decoration: none;
+    background: #ffffff;
+    border: 1px solid #ffffff;
+    color: #000000;
+    cursor: pointer !important;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.25);
+    transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    z-index: 10;
+    pointer-events: auto !important;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.cyber-card-btn:hover {
+    background: #e2e8f0;
+    color: #000000;
+    box-shadow: 0 8px 28px rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.cyber-card-btn:active {
+    transform: scale(0.97);
+}
+.cyberpunk-scroll-track {
+    width: 100%;
+    height: 550vh;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+/* Loading Overlay */
+.cyberpunk-loading-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #05070f;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.cyberpunk-loader-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 320px;
+    text-align: center;
+}
+
+.cyberpunk-spinner-ring {
+    position: relative;
+    width: 64px;
+    height: 64px;
+}
+
+.cyberpunk-spinner-ring::before,
+.cyberpunk-spinner-ring::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid transparent;
+}
+
+.cyberpunk-spinner-ring::before {
+    border-top-color: #00f0ff;
+    border-right-color: #00f0ff;
+    animation: ringSpin 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+}
+
+.cyberpunk-spinner-ring::after {
+    border-bottom-color: #ff007f;
+    border-left-color: #ff007f;
+    animation: ringSpin 1.6s linear infinite reverse;
+}
+
+@keyframes ringSpin {
+    to { transform: rotate(360deg); }
+}
+
+.cyberpunk-loading-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #f8fafc;
+    text-transform: uppercase;
+}
+
+.cyberpunk-progress-container {
+    width: 100%;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    position: relative;
+}
+
+.cyberpunk-progress-bar {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #00f0ff, #ff007f);
+    box-shadow: 0 0 12px #00f0ff;
+    transition: width 0.2s ease;
+}
+
+.cyberpunk-loading-status {
+    font-size: 12px;
+    font-weight: 600;
+    color: #94a3b8;
+    letter-spacing: 1px;
+}
