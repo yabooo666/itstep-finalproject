@@ -1,14 +1,15 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Auto Ultimate | Car Rental{% endblock %}</title>
+    <title>{% block title %}Gruzin Auto | Car Rental{% endblock %}</title>
 
     <!-- Theme Initialization Script: Default to pure OLED dark -->
     <script>
-        (function() {
+        (function () {
             const savedTheme = localStorage.getItem('auto_theme') || 'dark';
             document.documentElement.setAttribute('data-theme', savedTheme);
         })();
@@ -18,26 +19,31 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=soft1">
     <!-- Component Styles (Modular) -->
     <link rel="stylesheet" href="{% static 'css/sidebar.css' %}?v=collapse_v1">
-    <link rel="stylesheet" href="{% static 'css/header.css' %}?v=soft1">
+    <link rel="stylesheet" href="{% static 'css/header.css' %}?v=soft2">
     <link rel="stylesheet" href="{% static 'css/search_filter.css' %}?v=soft1">
-    <link rel="stylesheet" href="{% static 'css/vehicle_card.css' %}?v=soft1">
+    <link rel="stylesheet" href="{% static 'css/vehicle_card.css' %}?v=eye_v5">
     <link rel="stylesheet" href="{% static 'css/trust_features.css' %}?v=soft1">
     <link rel="stylesheet" href="{% static 'css/faq.css' %}?v=soft1">
     <link rel="stylesheet" href="{% static 'css/footer.css' %}?v=soft1">
-    <link rel="stylesheet" href="{% static 'css/auth_modal.css' %}?v=auth1">
-    
+    <link rel="stylesheet" href="{% static 'css/auth_modal.css' %}?v=auth2">
+
     {% block extra_css %}{% endblock %}
 </head>
+
 <body>
 
-    <div class="app-layout">
+    <div class="app-layout {% block layout_class %}{% endblock %}">
         <!-- Reusable Sidebar Component -->
+        {% block sidebar %}
         {% include "components/sidebar.html" %}
+        {% endblock %}
 
         <!-- Main Content Area -->
-        <div class="main-wrapper">
+        <div class="main-wrapper {% block main_wrapper_class %}{% endblock %}">
             <!-- Reusable Top Header Component -->
+            {% block header %}
             {% include "components/header.html" %}
+            {% endblock %}
 
             <!-- Page Content Block -->
             <main class="page-content">
@@ -54,10 +60,10 @@
 
     <!-- Global Theme Toggle Script -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const themeBtn = document.getElementById('themeToggleBtn');
             if (themeBtn) {
-                themeBtn.addEventListener('click', function() {
+                themeBtn.addEventListener('click', function () {
                     const current = document.documentElement.getAttribute('data-theme') || 'dark';
                     const next = current === 'dark' ? 'light' : 'dark';
                     document.documentElement.setAttribute('data-theme', next);
@@ -70,8 +76,9 @@
     <!-- Reusable Login / Register Popup Modal -->
     {% include "components/auth_modal.html" %}
 
-    <script src="{% static 'js/auth_modal.js' %}?v=auth1"></script>
+    <script src="{% static 'js/auth_modal.js' %}?v=auth2"></script>
 
     {% block extra_js %}{% endblock %}
 </body>
+
 </html>

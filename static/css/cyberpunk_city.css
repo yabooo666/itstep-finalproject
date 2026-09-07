@@ -11,30 +11,30 @@
     -webkit-user-select: none;
 }
 
-/* Fixed Three.js Viewport */
+/* Fixed Three.js Viewport (100% Full Viewport) */
 .cyberpunk-canvas-mount {
     position: fixed;
-    top: 52px;
+    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    width: 100%;
-    height: calc(100vh - 52px);
+    width: 100vw;
+    height: 100vh;
     z-index: 1;
     pointer-events: none;
 }
 
 .cyberpunk-canvas-mount canvas {
     display: block;
-    width: 100% !important;
-    height: 100% !important;
+    width: 100vw !important;
+    height: 100vh !important;
     outline: none;
 }
 
 /* Atmospheric Vignette & Color Grade Overlay */
 .cyberpunk-vignette {
     position: fixed;
-    top: 52px;
+    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
@@ -42,6 +42,123 @@
     z-index: 2;
     background: radial-gradient(circle at 50% 50%, transparent 40%, rgba(5, 7, 15, 0.4) 80%, rgba(5, 7, 15, 0.85) 100%),
                 linear-gradient(to bottom, rgba(5, 7, 15, 0.3) 0%, transparent 15%, transparent 85%, rgba(5, 7, 15, 0.7) 100%);
+}
+
+/* ==========================================================================
+   Floating Minimalist Luxury Brand Bar
+   ========================================================================== */
+.home-floating-nav {
+    position: fixed;
+    top: 24px;
+    left: 28px;
+    right: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.home-nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    pointer-events: auto;
+    padding: 8px 18px 8px 10px;
+    border-radius: 999px;
+    background: rgba(12, 14, 20, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.home-nav-brand:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.85), 0 0 25px rgba(255, 255, 255, 0.08);
+    transform: translateY(-1px);
+}
+
+.brand-monogram {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #05070f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brand-monogram svg {
+    width: 14px;
+    height: 14px;
+}
+
+.brand-titles {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-name {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.brand-tag {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: #94a3b8;
+}
+
+.home-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    pointer-events: auto;
+}
+
+.home-nav-cta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-decoration: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.home-nav-cta:hover {
+    background: #ffffff;
+    color: #05070f;
+    border-color: #ffffff;
+    box-shadow: 0 12px 32px rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.home-nav-cta svg {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.2s ease;
+}
+
+.home-nav-cta:hover svg {
+    transform: translateX(3px);
 }
 
 /* ==========================================================================
@@ -410,88 +527,377 @@
     visibility: hidden;
 }
 
-/* Loading Overlay */
+/* ==========================================================================
+   Full-Viewport 3D World Loading Screen (White / Gray / Black Luxury Design)
+   ========================================================================== */
 .cyberpunk-loading-overlay {
     position: fixed;
     inset: 0;
-    z-index: 50;
+    z-index: 9999;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: #05070f;
-    transition: opacity 0.5s ease, visibility 0.5s ease;
+    background: #03050a;
+    overflow: hidden;
+    transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.75s ease;
 }
 
-.cyberpunk-loader-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    width: 320px;
-    text-align: center;
-}
-
-.cyberpunk-spinner-ring {
-    position: relative;
-    width: 64px;
-    height: 64px;
-}
-
-.cyberpunk-spinner-ring::before,
-.cyberpunk-spinner-ring::after {
-    content: '';
+/* Fullscreen Three.js 3D World Canvas */
+.loader-3d-fullscreen-canvas {
     position: absolute;
     inset: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    display: block;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Cinematic Atmospheric Vignette */
+.loader-vignette-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background: 
+        radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(3, 5, 10, 0.55) 75%, #03050a 100%),
+        linear-gradient(to bottom, rgba(3, 5, 10, 0.6) 0%, transparent 20%, transparent 80%, rgba(3, 5, 10, 0.8) 100%);
+}
+
+/* Futuristic HUD / Telemetry Interface */
+.loader-hud-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 30px 36px 36px;
+    pointer-events: none;
+    z-index: 10;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Top HUD Diagnostic Ribbon */
+.loader-hud-top {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.loader-hud-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 18px 8px 10px;
+    border-radius: 999px;
+    background: rgba(12, 14, 20, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+}
+
+.loader-hud-badge-icon {
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
-    border: 3px solid transparent;
+    background: #ffffff;
+    color: #03050a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.cyberpunk-spinner-ring::before {
-    border-top-color: #00f0ff;
-    border-right-color: #00f0ff;
-    animation: ringSpin 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+.loader-hud-badge-icon svg {
+    width: 13px;
+    height: 13px;
 }
 
-.cyberpunk-spinner-ring::after {
-    border-bottom-color: #ff007f;
-    border-left-color: #ff007f;
-    animation: ringSpin 1.6s linear infinite reverse;
+.loader-hud-brand-text {
+    display: flex;
+    flex-direction: column;
 }
 
-@keyframes ringSpin {
+.hud-brand-title {
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.hud-brand-sub {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: #94a3b8;
+}
+
+.loader-hud-telemetry-cluster {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.hud-cluster-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding: 6px 14px;
+    border-radius: 8px;
+    background: rgba(12, 14, 20, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hud-item-label {
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #64748b;
+}
+
+.hud-item-val {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    color: #e2e8f0;
+}
+
+/* Center Optical Targeting Reticle */
+.loader-hud-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 220px;
+    height: 220px;
+    pointer-events: none;
+}
+
+.hud-center-ring {
+    position: absolute;
+    inset: 20px;
+    border-radius: 50%;
+    border: 1px dashed rgba(255, 255, 255, 0.16);
+    animation: hudRingSpin 24s linear infinite;
+}
+
+@keyframes hudRingSpin {
     to { transform: rotate(360deg); }
 }
 
-.cyberpunk-loading-title {
-    font-size: 16px;
+.hud-reticle-crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 14px;
+    height: 14px;
+    transform: translate(-50%, -50%);
+}
+
+.hud-reticle-crosshair::before,
+.hud-reticle-crosshair::after {
+    content: '';
+    position: absolute;
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.hud-reticle-crosshair::before {
+    top: 0;
+    bottom: 0;
+    left: 6px;
+    width: 2px;
+}
+
+.hud-reticle-crosshair::after {
+    left: 0;
+    right: 0;
+    top: 6px;
+    height: 2px;
+}
+
+.hud-center-bracket-tl,
+.hud-center-bracket-tr,
+.hud-center-bracket-bl,
+.hud-center-bracket-br {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.hud-center-bracket-tl { top: 0; left: 0; border-top: 2px solid; border-left: 2px solid; }
+.hud-center-bracket-tr { top: 0; right: 0; border-top: 2px solid; border-right: 2px solid; }
+.hud-center-bracket-bl { bottom: 0; left: 0; border-bottom: 2px solid; border-left: 2px solid; }
+.hud-center-bracket-br { bottom: 0; right: 0; border-bottom: 2px solid; border-right: 2px solid; }
+
+.hud-center-tag {
+    position: absolute;
+    bottom: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: ui-monospace, monospace;
+    font-size: 8.5px;
     font-weight: 700;
     letter-spacing: 2px;
-    color: #f8fafc;
+    color: rgba(255, 255, 255, 0.4);
+    white-space: nowrap;
+}
+
+/* Bottom HUD Mission Control Dashboard */
+.loader-hud-bottom {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader-hud-panel {
+    width: 580px;
+    max-width: 94vw;
+    padding: 24px 28px 20px;
+    background: rgba(10, 13, 20, 0.85);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    box-shadow: 
+        0 30px 80px -10px rgba(0, 0, 0, 0.95),
+        0 0 35px rgba(255, 255, 255, 0.03),
+        inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    pointer-events: auto;
+}
+
+.loader-hud-panel-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.loader-hud-status-col {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.loader-hud-beacon-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+}
+
+.loader-hud-beacon-pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 10px #ffffff;
+    animation: beaconGlow 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes beaconGlow {
+    from { opacity: 0.35; transform: scale(0.85); }
+    to { opacity: 1; transform: scale(1.2); }
+}
+
+.loader-hud-status-text {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #ffffff;
     text-transform: uppercase;
 }
 
-.cyberpunk-progress-container {
+.loader-hud-detail-text {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10.5px;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
+}
+
+/* Big Numeric Percentage Readout */
+.loader-hud-pct-block {
+    display: flex;
+    align-items: baseline;
+}
+
+.loader-hud-pct-val {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 32px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.35);
+}
+
+/* Precision Progress Track */
+.loader-hud-progress-track {
     width: 100%;
-    height: 6px;
+    height: 5px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.08);
     overflow: hidden;
     position: relative;
 }
 
-.cyberpunk-progress-bar {
+.loader-hud-progress-bar {
     height: 100%;
     width: 0%;
     border-radius: 999px;
-    background: linear-gradient(90deg, #00f0ff, #ff007f);
-    box-shadow: 0 0 12px #00f0ff;
-    transition: width 0.2s ease;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.3) 0%, #ffffff 100%);
+    box-shadow: 0 0 16px rgba(255, 255, 255, 0.9);
+    transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.cyberpunk-loading-status {
-    font-size: 12px;
-    font-weight: 600;
-    color: #94a3b8;
-    letter-spacing: 1px;
+/* Telemetry Flags Row */
+.loader-hud-flags-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
+
+.hud-flag-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    color: #94a3b8;
+}
+
+.hud-flag-badge svg {
+    width: 11px;
+    height: 11px;
+    color: #cbd5e1;
+    flex-shrink: 0;
+}
+
+.hud-flag-interact {
+    background: transparent;
+    border-color: transparent;
+    font-family: ui-monospace, monospace;
+    color: #64748b;
+    font-size: 9px;
+}
+

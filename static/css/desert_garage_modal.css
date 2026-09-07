@@ -1,0 +1,164 @@
+/* ==========================================================================
+   3D Desert Garage Modal Popup Styles (Luxury Monochrome Aesthetic)
+   ========================================================================== */
+
+.desert-garage-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.32s ease;
+}
+
+.desert-garage-modal.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* Deep Blurred Backdrop */
+.garage-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(3, 5, 10, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+/* Central Viewport Container */
+.garage-modal-container {
+    position: relative;
+    width: 95vw;
+    height: 92vh;
+    max-width: 1680px;
+    background: #03050a;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 
+        0 40px 100px -20px rgba(0, 0, 0, 0.98),
+        0 0 45px rgba(255, 255, 255, 0.03),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transform: scale(0.96) translateY(8px);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 2;
+}
+
+.desert-garage-modal.open .garage-modal-container {
+    transform: scale(1) translateY(0);
+}
+
+/* Minimalist Circular Close Button (No Text) */
+.garage-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(15, 18, 26, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+}
+
+.garage-close-btn svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s ease;
+}
+
+.garage-close-btn:hover {
+    background: #ffffff;
+    border-color: #ffffff;
+    color: #05070f;
+    transform: scale(1.08) rotate(90deg);
+    box-shadow: 0 0 24px rgba(255, 255, 255, 0.45);
+}
+
+.garage-close-btn:active {
+    transform: scale(0.95);
+}
+
+/* Three.js 3D Canvas Mount Point */
+.desert-garage-canvas-mount {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.desert-garage-canvas-mount:active {
+    cursor: grabbing;
+}
+
+.desert-garage-canvas-mount canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    outline: none;
+}
+
+/* Discreet Loading Spinner */
+.garage-loading-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(3, 5, 10, 0.92);
+    z-index: 50;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.garage-loading-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.garage-loader-spinner {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #ffffff;
+    animation: garageSpin 0.9s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+@keyframes garageSpin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+    .garage-modal-container {
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        border-radius: 0;
+        border: none;
+    }
+
+    .garage-close-btn {
+        top: 16px;
+        right: 16px;
+        width: 40px;
+        height: 40px;
+    }
+}

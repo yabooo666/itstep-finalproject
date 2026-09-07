@@ -5,14 +5,16 @@ URL configuration for core project.
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from vehicles import views as vehicles_views
 from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('accounts.urls')),
+    path('vehicles/', include('vehicles.urls')),
+    path('favourites/', vehicles_views.favourites_view, name='favourites'),
     path('', views.home, name='home'),
-    path('vehicles/', views.vehicles, name='vehicles'),
-    path('favourites/', views.favourites, name='favourites'),
     path('notifications/', views.notifications, name='notifications'),
     path('chat/', views.chat, name='chat'),
 ]

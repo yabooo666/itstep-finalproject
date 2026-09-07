@@ -26,9 +26,14 @@ function initCyberpunkCity() {
     const loadingOverlay = document.getElementById('cyberpunkLoadingOverlay');
     const progressBar = document.getElementById('cyberpunkProgressBar');
     const loadingStatus = document.getElementById('cyberpunkLoadingStatus');
+    const loadingPct = document.getElementById('cyberpunkLoadingPct');
+    const loadingDetail = document.getElementById('cyberpunkLoadingDetail');
+
+    // Initialize 3D Gyroscopic Mini Loader immediately
+    const miniLoader = initMiniLoader3D();
 
     let width = window.innerWidth;
-    let height = window.innerHeight - 52;
+    let height = window.innerHeight;
 
     // ------------------------------------------------------------------
     // 1. SCENE, CAMERA & OPTIMIZED RENDERER
@@ -61,10 +66,10 @@ function initCyberpunkCity() {
     const cssRenderer = new CSS3DRenderer();
     cssRenderer.setSize(width, height);
     cssRenderer.domElement.style.position = 'fixed';
-    cssRenderer.domElement.style.top = '52px';
+    cssRenderer.domElement.style.top = '0';
     cssRenderer.domElement.style.left = '0';
-    cssRenderer.domElement.style.width = '100%';
-    cssRenderer.domElement.style.height = 'calc(100vh - 52px)';
+    cssRenderer.domElement.style.width = '100vw';
+    cssRenderer.domElement.style.height = '100vh';
     // CSS3D transforms are rendered visually, but Chromium can miss pointer
     // events on deeply transformed descendants. Keep this layer transparent
     // to hit-testing and route terminal clicks by screen coordinates below.
@@ -556,13 +561,28 @@ function initCyberpunkCity() {
     function checkAllReady() {
         if (cityLoaded && (statueLoaded || true)) {
             if (progressBar) progressBar.style.width = '100%';
-            if (loadingStatus) loadingStatus.textContent = 'Metropolis Ready!';
+            if (loadingPct) loadingPct.textContent = '100%';
+            if (loadingStatus) loadingStatus.textContent = 'METROPOLIS READY';
+            if (loadingDetail) loadingDetail.textContent = 'ALL ASSETS STREAMED & SYNCED';
+
+            // Trigger Cinematic 3D Warp Flight in Loader World
+            if (miniLoader && typeof miniLoader.triggerWarp === 'function') {
+                miniLoader.triggerWarp();
+            }
+
             setTimeout(() => {
                 if (loadingOverlay) {
                     loadingOverlay.style.opacity = '0';
-                    setTimeout(() => { loadingOverlay.style.visibility = 'hidden'; }, 500);
+                    loadingOverlay.style.transform = 'scale(1.04)';
+                    setTimeout(() => { 
+                        loadingOverlay.style.visibility = 'hidden'; 
+                        if (miniLoader && typeof miniLoader.dispose === 'function') {
+                            miniLoader.dispose();
+                        }
+                        updateScrollFraction();
+                    }, 700);
                 }
-            }, 300);
+            }, 450);
         }
     }
 
@@ -620,15 +640,29 @@ function initCyberpunkCity() {
                 const loadedMB = (progress.loaded / 1024 / 1024).toFixed(1);
                 const totalMB = (progress.total / 1024 / 1024).toFixed(1);
                 if (progressBar) progressBar.style.width = `${pct}%`;
-                if (loadingStatus) loadingStatus.textContent = `Streaming Metropolis: ${pct}% (${loadedMB} MB / ${totalMB} MB)`;
+                if (loadingPct) loadingPct.textContent = `${pct}%`;
+                if (loadingDetail) loadingDetail.textContent = `STREAMING ASSETS: ${loadedMB} MB / ${totalMB} MB`;
+
+                if (loadingStatus) {
+                    if (pct < 30) {
+                        loadingStatus.textContent = 'STREAMING 3D GEOMETRY...';
+                    } else if (pct < 65) {
+                        loadingStatus.textContent = 'PARSING HIGHWAY & ARCHITECTURE...';
+                    } else if (pct < 92) {
+                        loadingStatus.textContent = 'CALIBRATING CAMERA CORRIDORS...';
+                    } else {
+                        loadingStatus.textContent = 'FINALIZING HDR SHADERS...';
+                    }
+                }
             } else if (progress.loaded > 0) {
                 const loadedMB = (progress.loaded / 1024 / 1024).toFixed(1);
-                if (loadingStatus) loadingStatus.textContent = `Streaming Metropolis: ${loadedMB} MB loaded...`;
+                if (loadingDetail) loadingDetail.textContent = `STREAMING ASSETS: ${loadedMB} MB LOADED`;
             }
         },
         (err) => {
             console.error('Error loading cyberpunk_city.glb:', err);
-            if (loadingStatus) loadingStatus.textContent = 'Error loading 3D map. Check console.';
+            if (loadingStatus) loadingStatus.textContent = 'ERROR LOADING 3D ASSETS';
+            if (loadingDetail) loadingDetail.textContent = 'CHECK CONSOLE LOGS';
         }
     );
 
@@ -927,11 +961,11 @@ function initCyberpunkCity() {
     animate();
 
     // ------------------------------------------------------------------
-    // 9. WINDOW RESIZE
+    // 9. WINDOW RESIZE (FULL VIEWPORT)
     // ------------------------------------------------------------------
     window.addEventListener('resize', () => {
         width = window.innerWidth;
-        height = window.innerHeight - 52;
+        height = window.innerHeight;
         if (width && height) {
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
@@ -941,4 +975,236 @@ function initCyberpunkCity() {
             updateScrollFraction();
         }
     });
+}
+
+// ==========================================================================
+// Immersive Full-Viewport Three.js 3D World Loader Scene
+// ==========================================================================
+function initMiniLoader3D() {
+    const canvas = document.getElementById('loader3dCanvas');
+    if (!canvas) return null;
+
+    let animId = null;
+    let isDisposed = false;
+    let isWarping = false;
+
+    try {
+        const miniRenderer = new THREE.WebGLRenderer({
+            canvas: canvas,
+            alpha: false,
+            antialias: true,
+            powerPreference: 'high-performance'
+        });
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        miniRenderer.setSize(width, height);
+        miniRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+        miniRenderer.outputColorSpace = THREE.SRGBColorSpace;
+
+        const miniScene = new THREE.Scene();
+        miniScene.background = new THREE.Color(0x020408);
+        miniScene.fog = new THREE.FogExp2(0x020408, 0.016);
+
+        const miniCamera = new THREE.PerspectiveCamera(48, width / height, 0.1, 400);
+        miniCamera.position.set(0, 3.4, 16);
+        miniCamera.lookAt(0, 1.2, 0);
+
+        // Interactive Mouse / Cursor Parallax
+        let targetCamX = 0;
+        let targetCamY = 3.4;
+
+        const onMouseMove = (e) => {
+            const nx = (e.clientX / window.innerWidth) * 2 - 1;
+            const ny = -(e.clientY / window.innerHeight) * 2 + 1;
+            targetCamX = nx * 3.8;
+            targetCamY = 3.4 + ny * 1.8;
+        };
+        window.addEventListener('mousemove', onMouseMove, { passive: true });
+
+        // 1. Infinite Moving Wireframe Ground Grid World
+        const gridHelper = new THREE.GridHelper(260, 64, 0xffffff, 0x1e293b);
+        gridHelper.position.y = -2.2;
+        miniScene.add(gridHelper);
+
+        // 2. Flanking Futuristic Monolithic Glass Columns
+        const columnsGroup = new THREE.Group();
+        miniScene.add(columnsGroup);
+
+        const colMaterial = new THREE.MeshStandardMaterial({
+            color: 0x060912,
+            roughness: 0.18,
+            metalness: 0.9
+        });
+        const colEdgeMaterial = new THREE.LineBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.38
+        });
+
+        const colPositions = [
+            [-8, -10], [-10, 0], [-11, 10], [-7, 20], [-9, -25], [-12, -35],
+            [8, -10], [10, 0], [11, 10], [7, 20], [9, -25], [12, -35]
+        ];
+
+        const geometriesToDispose = [gridHelper.geometry];
+        const materialsToDispose = [gridHelper.material, colMaterial, colEdgeMaterial];
+
+        colPositions.forEach(([x, z], idx) => {
+            const colH = 8 + (idx % 4) * 3.5;
+            const colGeo = new THREE.BoxGeometry(1.2, colH, 1.2);
+            geometriesToDispose.push(colGeo);
+            const colMesh = new THREE.Mesh(colGeo, colMaterial);
+            colMesh.position.set(x, -2.2 + colH / 2, z);
+
+            const edgesGeo = new THREE.EdgesGeometry(colGeo);
+            geometriesToDispose.push(edgesGeo);
+            const edgeLines = new THREE.LineSegments(edgesGeo, colEdgeMaterial);
+            colMesh.add(edgeLines);
+
+            columnsGroup.add(colMesh);
+        });
+
+        // 3. Central Hero Gyroscopic Telemetry Orb Complex
+        const heroGroup = new THREE.Group();
+        heroGroup.position.set(0, 1.4, 0);
+        miniScene.add(heroGroup);
+
+        // Ring 1 (Outer Platinum Titanium Ring)
+        const ring1Geo = new THREE.TorusGeometry(3.6, 0.038, 16, 80);
+        geometriesToDispose.push(ring1Geo);
+        const ring1Mat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9 });
+        materialsToDispose.push(ring1Mat);
+        const ring1 = new THREE.Mesh(ring1Geo, ring1Mat);
+        heroGroup.add(ring1);
+
+        // Ring 2 (Middle Tilted Silver Ring)
+        const ring2Geo = new THREE.TorusGeometry(2.7, 0.03, 16, 64);
+        geometriesToDispose.push(ring2Geo);
+        const ring2Mat = new THREE.MeshBasicMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.7 });
+        materialsToDispose.push(ring2Mat);
+        const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
+        ring2.rotation.x = Math.PI / 3.4;
+        heroGroup.add(ring2);
+
+        // Ring 3 (Inner Counter-Rotating Titanium Ring)
+        const ring3Geo = new THREE.TorusGeometry(1.85, 0.024, 16, 48);
+        geometriesToDispose.push(ring3Geo);
+        const ring3Mat = new THREE.MeshBasicMaterial({ color: 0x64748b, transparent: true, opacity: 0.55 });
+        materialsToDispose.push(ring3Mat);
+        const ring3 = new THREE.Mesh(ring3Geo, ring3Mat);
+        ring3.rotation.y = Math.PI / 3.8;
+        heroGroup.add(ring3);
+
+        // Wireframe Crystalline Core (Icosahedron)
+        const coreGeo = new THREE.IcosahedronGeometry(0.95, 1);
+        geometriesToDispose.push(coreGeo);
+        const coreMat = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.95 });
+        materialsToDispose.push(coreMat);
+        const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+        heroGroup.add(coreMesh);
+
+        // Central Luminous Seed
+        const seedGeo = new THREE.SphereGeometry(0.35, 16, 16);
+        geometriesToDispose.push(seedGeo);
+        const seedMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        materialsToDispose.push(seedMat);
+        const seedMesh = new THREE.Mesh(seedGeo, seedMat);
+        heroGroup.add(seedMesh);
+
+        // 4. Cosmic Particle / Star Swarm
+        const partCount = 450;
+        const partPos = new Float32Array(partCount * 3);
+        for (let i = 0; i < partCount; i++) {
+            partPos[i * 3] = (Math.random() - 0.5) * 110;
+            partPos[i * 3 + 1] = Math.random() * 45 - 2;
+            partPos[i * 3 + 2] = (Math.random() - 0.5) * 110;
+        }
+        const partGeo = new THREE.BufferGeometry();
+        partGeo.setAttribute('position', new THREE.BufferAttribute(partPos, 3));
+        geometriesToDispose.push(partGeo);
+        const partMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.09, transparent: true, opacity: 0.85 });
+        materialsToDispose.push(partMat);
+        const starField = new THREE.Points(partGeo, partMat);
+        miniScene.add(starField);
+
+        // 5. Studio Lighting
+        const ambLight = new THREE.AmbientLight(0xffffff, 0.9);
+        miniScene.add(ambLight);
+
+        const keyLight = new THREE.DirectionalLight(0xffffff, 2.4);
+        keyLight.position.set(15, 25, 20);
+        miniScene.add(keyLight);
+
+        const rimLight = new THREE.DirectionalLight(0x94a3b8, 1.6);
+        rimLight.position.set(-15, -10, -20);
+        miniScene.add(rimLight);
+
+        // Resize Listener
+        const onResize = () => {
+            if (isDisposed) return;
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            miniCamera.aspect = w / h;
+            miniCamera.updateProjectionMatrix();
+            miniRenderer.setSize(w, h);
+            miniRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+        };
+        window.addEventListener('resize', onResize);
+
+        // Animation Loop
+        function renderLoader() {
+            if (isDisposed) return;
+            animId = requestAnimationFrame(renderLoader);
+
+            // Forward Flight Movement along Ground Grid
+            gridHelper.position.z = ((Date.now() * 0.0035) % 4.06);
+
+            // Gyroscope Orbital Rotations
+            ring1.rotation.z += 0.014;
+            ring2.rotation.x += 0.018;
+            ring2.rotation.y += 0.012;
+            ring3.rotation.z -= 0.022;
+            ring3.rotation.x -= 0.01;
+            coreMesh.rotation.y += 0.024;
+            coreMesh.rotation.x += 0.016;
+
+            // Cosmic Stars Slow Rotation
+            starField.rotation.y += 0.0006;
+
+            // Smooth Mouse Parallax
+            miniCamera.position.x += (targetCamX - miniCamera.position.x) * 0.05;
+            miniCamera.position.y += (targetCamY - miniCamera.position.y) * 0.05;
+            miniCamera.lookAt(0, 1.2, 0);
+
+            // Warp Acceleration on Ready
+            if (isWarping) {
+                miniCamera.position.z -= 0.65;
+                miniCamera.fov = Math.min(105, miniCamera.fov + 0.85);
+                miniCamera.updateProjectionMatrix();
+                heroGroup.scale.multiplyScalar(1.025);
+            }
+
+            miniRenderer.render(miniScene, miniCamera);
+        }
+        renderLoader();
+
+        return {
+            triggerWarp: () => {
+                isWarping = true;
+            },
+            dispose: () => {
+                isDisposed = true;
+                if (animId) cancelAnimationFrame(animId);
+                window.removeEventListener('mousemove', onMouseMove);
+                window.removeEventListener('resize', onResize);
+
+                geometriesToDispose.forEach(g => { try { g.dispose(); } catch (e) {} });
+                materialsToDispose.forEach(m => { try { m.dispose(); } catch (e) {} });
+                miniRenderer.dispose();
+            }
+        };
+    } catch (e) {
+        console.warn('Full-world 3D loader init error:', e);
+        return null;
+    }
 }

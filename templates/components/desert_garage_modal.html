@@ -1,0 +1,23 @@
+{% load static %}
+<!-- 3D Desert Garage Fullscreen Modal Popup -->
+<div id="desertGarageModal" class="desert-garage-modal" aria-hidden="true">
+    <div class="garage-modal-backdrop" id="garageBackdrop"></div>
+
+    <div class="garage-modal-container">
+        <!-- Minimalist Close Button (No Text) -->
+        <button type="button" class="garage-close-btn" id="garageCloseBtn" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+        </button>
+
+        <!-- 3D Canvas Mount Point -->
+        <div id="desertGarageCanvasMount" class="desert-garage-canvas-mount"></div>
+
+        <!-- Subtle Loading Indicator -->
+        <div class="garage-loading-overlay" id="garageLoadingOverlay">
+            <div class="garage-loader-spinner"></div>
+        </div>
+    </div>
+</div>

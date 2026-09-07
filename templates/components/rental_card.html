@@ -25,12 +25,33 @@
             </div>
         </div>
 
-        <!-- Favourite Heart Toggle Button -->
-        <button type="button" class="card-heart-btn {% if car.is_favourite %}favourited{% endif %}" onclick="toggleFavourite(this)" aria-label="Toggle favourite">
-            <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-            </svg>
-        </button>
+        <div class="card-top-actions">
+            <!-- 3D Desert Garage View Button (Eye Icon) -->
+            <button type="button" 
+                    class="card-garage-eye-btn" 
+                    data-car-id="{{ car.id }}" 
+                    data-car-title="{{ car.brand }} {{ car.model }}"
+                    {% if car.model_3d %}data-model-url="{% static car.model_3d %}"{% else %}data-model-url="{% static 'models/bmw_m4_convertible_g83_2021.glb' %}"{% endif %}
+                    title="Inspect in 3D Desert Garage" 
+                    aria-label="View in 3D Desert Garage">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+            </button>
+
+            <!-- Favourite Heart Toggle Button -->
+            <button type="button" 
+                    class="card-heart-btn {% if car.is_favourite %}favourited{% endif %}" 
+                    data-car-id="{{ car.id }}" 
+                    onclick="handleToggleFavourite(event, this, {{ car.id }})" 
+                    title="Save to favourites" 
+                    aria-label="Toggle favourite">
+                <svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+            </button>
+        </div>
     </div>
 
     <!-- Center Vehicle Media (3D Viewport or Image) -->

@@ -1,7 +1,7 @@
 ---
 name: vehicle-3d-pipeline
 description: >-
-  Ingest, calibrate, optimize, and test 3D car models for the Auto Ultimate showroom.
+  Ingest, calibrate, optimize, and test 3D car models for the Gruzin Auto showroom.
   Use when adding new 3D car models (.glb, .gltf, .fbx, .dae, .obj), fixing scaling
   or orientation issues, debugging car_3d_viewer.js, or optimizing card loading performance.
 ---

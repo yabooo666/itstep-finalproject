@@ -275,3 +275,81 @@
     color: #6b7280;
     max-width: 400px;
 }
+
+/* Card Top Action Buttons (Eye & Heart) */
+.card-top-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-shrink: 0 !important;
+    z-index: 10 !important;
+}
+
+.card-garage-eye-btn {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    flex-shrink: 0 !important;
+    background: rgba(255, 255, 255, 0.07) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    color: var(--text-secondary, #94a3b8) !important;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    padding: 0 !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+}
+
+.card-garage-eye-btn svg {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    display: block !important;
+    stroke: currentColor !important;
+    fill: none !important;
+    pointer-events: none !important;
+}
+
+.card-garage-eye-btn:hover {
+    background: #ffffff !important;
+    border-color: #ffffff !important;
+    color: #05070f !important;
+    transform: scale(1.12) !important;
+    box-shadow: 0 0 18px rgba(255, 255, 255, 0.45) !important;
+}
+
+.card-heart-btn {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    flex-shrink: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    color: var(--text-muted, #64748b) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    padding: 0 !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+}
+
+.card-heart-btn svg {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    display: block !important;
+    pointer-events: none !important;
+}
+

@@ -1,4 +1,4 @@
-// Auto Ultimate - Interactive Split-View Map Controller (Leaflet.js + Tbilisi Coordinates)
+// Gruzin Auto - Interactive Split-View Map Controller (Leaflet.js + Tbilisi Coordinates)
 
 let isMapOpen = false;
 let mapInstance = null;
@@ -108,7 +108,7 @@ function initSplitViewMap() {
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
             const vehicles = getVehiclesData();
-            const filtered = vehicles.filter(v => 
+            const filtered = vehicles.filter(v =>
                 v.brand.toLowerCase().includes(query) ||
                 v.model.toLowerCase().includes(query) ||
                 (v.location_name && v.location_name.toLowerCase().includes(query))

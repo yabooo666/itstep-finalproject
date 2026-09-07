@@ -1,31 +1,172 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Auto Ultimate | Cyberpunk Metropolis 3D Experience{% endblock %}
+{% block title %}Gruzin Auto | Cyberpunk Metropolis 3D Experience{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/cyberpunk_city.css' %}?v=monochrome_v12">
+<link rel="stylesheet" href="{% static 'css/cyberpunk_city.css' %}?v=monochrome_v15">
 {% endblock %}
 
+{% block sidebar %}
+<!-- SIDEBAR EXPLICITLY REMOVED FROM HOME PAGE ONLY -->
+{% endblock %}
+
+{% block header %}
+<!-- HEADER EXPLICITLY REMOVED FROM HOME PAGE ONLY -->
+{% endblock %}
+
+{% block footer %}
+<!-- FOOTER EXPLICITLY REMOVED FROM HOME PAGE ONLY -->
+{% endblock %}
+
+{% block layout_class %}homepage-fullscreen{% endblock %}
+{% block main_wrapper_class %}homepage-main-wrapper{% endblock %}
+
 {% block content %}
-<!-- Full-Viewport Cyberpunk City 3D Stage (100% Clean View) -->
+<!-- Full-Viewport Cyberpunk City 3D Stage (100% Uninterrupted Clean View) -->
 <div class="cyberpunk-city-wrapper" id="cyberpunkCityWrapper">
 
-    <!-- Three.js Canvas Mount (Fixed in Viewport) -->
+    <!-- Floating Minimalist Luxury Brand Bar -->
+    <header class="home-floating-nav">
+        <a href="/" class="home-nav-brand">
+            <div class="brand-monogram">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" />
+                    <line x1="12" y1="22" x2="12" y2="15.5" />
+                    <polyline points="22 8.5 12 15.5 2 8.5" />
+                </svg>
+            </div>
+            <div class="brand-titles">
+                <span class="brand-name">Gruzin Auto</span>
+                <span class="brand-tag">3D METROPOLIS</span>
+            </div>
+        </a>
+
+        <div class="home-nav-actions">
+            <a href="{% url 'vehicles' %}" class="home-nav-cta">
+                <span>EXPLORE FLEET</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </a>
+        </div>
+    </header>
+
+    <!-- Three.js Canvas Mount (Fixed Full Viewport) -->
     <div class="cyberpunk-canvas-mount" id="cyberpunkCanvasMount"></div>
 
     <!-- Atmospheric Vignette -->
     <div class="cyberpunk-vignette"></div>
 
-    <!-- Streaming Progress & Loading Overlay -->
+    <!-- ====================================================================
+         IMMERSIVE FULL-VIEWPORT 3D WORLD LOADING EXPERIENCE (Three.js)
+         ==================================================================== -->
     <div class="cyberpunk-loading-overlay" id="cyberpunkLoadingOverlay">
-        <div class="cyberpunk-loader-box">
-            <div class="cyberpunk-spinner-ring"></div>
-            <div class="cyberpunk-loading-title">Cyberpunk Metropolis</div>
-            <div class="cyberpunk-progress-container">
-                <div class="cyberpunk-progress-bar" id="cyberpunkProgressBar"></div>
+        <!-- Fullscreen Three.js 3D World Canvas -->
+        <canvas id="loader3dCanvas" class="loader-3d-fullscreen-canvas"></canvas>
+
+        <!-- Cinematic Vignette Overlay -->
+        <div class="loader-vignette-overlay"></div>
+
+        <!-- Futuristic Luxury Monochrome HUD Interface -->
+        <div class="loader-hud-layer">
+            <!-- Top HUD Diagnostic Ribbon -->
+            <div class="loader-hud-top">
+                <div class="loader-hud-brand">
+                    <div class="loader-hud-badge-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" />
+                            <line x1="12" y1="22" x2="12" y2="15.5" />
+                            <polyline points="22 8.5 12 15.5 2 8.5" />
+                        </svg>
+                    </div>
+                    <div class="loader-hud-brand-text">
+                        <span class="hud-brand-title">Gruzin Auto</span>
+                        <span class="hud-brand-sub">SPATIAL 3D SHOWROOM</span>
+                    </div>
+                </div>
+
+                <div class="loader-hud-telemetry-cluster">
+                    <div class="hud-cluster-item">
+                        <span class="hud-item-label">SECTOR</span>
+                        <span class="hud-item-val">TBILISI [41.7151° N, 44.8271° E]</span>
+                    </div>
+                    <div class="hud-cluster-item">
+                        <span class="hud-item-label">PIPELINE</span>
+                        <span class="hud-item-val">THREE.JS R160 • HDR PBR</span>
+                    </div>
+                </div>
             </div>
-            <div class="cyberpunk-loading-status" id="cyberpunkLoadingStatus">Initializing 3D World...</div>
+
+            <!-- Center Viewport Targeting Reticle -->
+            <div class="loader-hud-center">
+                <div class="hud-reticle-crosshair"></div>
+                <div class="hud-center-bracket-tl"></div>
+                <div class="hud-center-bracket-tr"></div>
+                <div class="hud-center-bracket-bl"></div>
+                <div class="hud-center-bracket-br"></div>
+                <div class="hud-center-ring"></div>
+                <div class="hud-center-tag">3D CORE LOCK</div>
+            </div>
+
+            <!-- Bottom HUD Mission Control Dashboard -->
+            <div class="loader-hud-bottom">
+                <div class="loader-hud-panel">
+                    <!-- Progress Metrics Header -->
+                    <div class="loader-hud-panel-row">
+                        <div class="loader-hud-status-col">
+                            <div class="loader-hud-beacon-wrap">
+                                <span class="loader-hud-beacon-pulse"></span>
+                                <span class="loader-hud-beacon-dot"></span>
+                                <span class="loader-hud-status-text" id="cyberpunkLoadingStatus">INITIALIZING 3D SPATIAL
+                                    ENGINE...</span>
+                            </div>
+                            <div class="loader-hud-detail-text" id="cyberpunkLoadingDetail">STREAMING ASSETS: 0.0 MB /
+                                164.2 MB</div>
+                        </div>
+
+                        <!-- Big Numeric Percentage Readout -->
+                        <div class="loader-hud-pct-block">
+                            <span class="loader-hud-pct-val" id="cyberpunkLoadingPct">0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Luminous Titanium Progress Bar -->
+                    <div class="loader-hud-progress-track">
+                        <div class="loader-hud-progress-bar" id="cyberpunkProgressBar"></div>
+                    </div>
+
+                    <!-- Telemetry Flags & Micro-Badges -->
+                    <div class="loader-hud-flags-row">
+                        <div class="hud-flag-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                                <line x1="8" y1="21" x2="16" y2="21" />
+                                <line x1="12" y1="17" x2="12" y2="21" />
+                            </svg>
+                            <span>WEBGL 2.0</span>
+                        </div>
+                        <div class="hud-flag-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 6v6l4 2" />
+                            </svg>
+                            <span>60 FPS TARGET</span>
+                        </div>
+                        <div class="hud-flag-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                            </svg>
+                            <span>CENTRIPETAL SPLINES</span>
+                        </div>
+                        <div class="hud-flag-badge hud-flag-interact">
+                            <span>[ MOVE MOUSE TO EXPLORE 3D SCENE ]</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -33,10 +174,6 @@
     <div class="cyberpunk-scroll-track" id="cyberpunkScrollTrack"></div>
 
 </div>
-{% endblock %}
-
-{% block footer %}
-<!-- FOOTER EXPLICITLY REMOVED FROM HOME PAGE ONLY -->
 {% endblock %}
 
 {% block extra_js %}
@@ -49,5 +186,5 @@
   }
 }
 </script>
-<script type="module" src="{% static 'js/cyberpunk_city.js' %}?v=monochrome_v12"></script>
+<script type="module" src="{% static 'js/cyberpunk_city.js' %}?v=monochrome_v15"></script>
 {% endblock %}

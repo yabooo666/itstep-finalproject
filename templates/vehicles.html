@@ -1,12 +1,15 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Vehicles | Auto Ultimate{% endblock %}
+{% block title %}
+{% if is_favourites_page %}Favourites | Gruzin Auto{% else %}Vehicles | Gruzin Auto{% endif %}
+{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="{% static 'css/vehicle_filters.css' %}?v=soft1">
-<link rel="stylesheet" href="{% static 'css/rental_catalog.css' %}?v=map2">
+<link rel="stylesheet" href="{% static 'css/rental_catalog.css' %}?v=eye_v5">
+<link rel="stylesheet" href="{% static 'css/desert_garage_modal.css' %}?v=eye_v5">
 {% endblock %}
 
 {% block content %}
@@ -19,7 +22,11 @@
         <!-- Top Results Toolbar -->
         <div class="results-top-bar">
             <h2 class="results-heading">
+                {% if is_favourites_page %}
+                <span class="results-count">{{ vehicles_count }}</span> saved favourites
+                {% else %}
                 <span class="results-count">{{ vehicles_count }}</span> vehicles to rent
+                {% endif %}
             </h2>
 
             <div class="results-actions">
@@ -36,7 +43,8 @@
                 <!-- Show / Hide Map Button -->
                 <button type="button" class="show-map-btn" id="toggleMapBtn" aria-label="Toggle map view">
                     <span class="btn-text">Show map</span>
-                    <svg class="map-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="map-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
                         <line x1="8" y1="2" x2="8" y2="18"></line>
                         <line x1="16" y1="6" x2="16" y2="22"></line>
@@ -51,7 +59,49 @@
             <div class="vehicles-cards-stream" id="vehiclesCardsStream">
                 <div class="vehicles-grid-3col" id="vehiclesGrid3Col">
                     {% for car in vehicles %}
-                        {% include "components/rental_card.html" with car=car %}
+                    {% include "components/rental_card.html" with car=car %}
+                    {% empty %}
+                    <!-- Empty State View -->
+                    <div class="empty-vehicles-state" style="grid-column: 1 / -1; padding: 60px 20px; text-align: center; background: var(--bg-card, #0e121b); border-radius: 16px; border: 1px solid var(--border-subtle, rgba(255,255,255,0.08)); margin: 20px 0;">
+                        <div style="font-size: 38px; margin-bottom: 14px;">{% if is_favourites_page %}❤️{% else %}🏎️{% endif %}</div>
+                        <h3 style="color: var(--text-primary, #ffffff); font-size: 19px; font-weight: 700; margin: 0 0 8px;">
+                            {% if is_favourites_page %}
+                                {% if login_required_notice %}
+                                    Sign In to View Your Favourites
+                                {% else %}
+                                    No Favourite Vehicles Saved Yet
+                                {% endif %}
+                            {% else %}
+                                No Vehicles Found
+                            {% endif %}
+                        </h3>
+                        <p style="color: var(--text-secondary, #94a3b8); font-size: 14px; max-width: 440px; margin: 0 auto 24px; line-height: 1.5;">
+                            {% if is_favourites_page %}
+                                {% if login_required_notice %}
+                                    Save your favorite luxury vehicles to your personal garage and inspect them anytime.
+                                {% else %}
+                                    Explore the fleet and tap the heart icon on any vehicle to save it here for fast access.
+                                {% endif %}
+                            {% else %}
+                                We couldn't find any vehicles matching your current search or filters. Try adjusting your filters.
+                            {% endif %}
+                        </p>
+                        {% if is_favourites_page %}
+                            {% if login_required_notice %}
+                                <button type="button" class="auth-pill-btn auth-register-btn" onclick="window.openAuthModal ? window.openAuthModal('login') : null" style="padding: 10px 26px; font-size: 14px; border-radius: 10px; cursor: pointer;">
+                                    Sign In / Register
+                                </button>
+                            {% else %}
+                                <a href="{% url 'vehicles' %}" class="auth-pill-btn auth-register-btn" style="display: inline-block; padding: 10px 26px; font-size: 14px; border-radius: 10px; text-decoration: none;">
+                                    Browse All Vehicles
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'vehicles' %}" class="auth-pill-btn auth-register-btn" style="display: inline-block; padding: 10px 26px; font-size: 14px; border-radius: 10px; text-decoration: none;">
+                                Clear Filters
+                            </a>
+                        {% endif %}
+                    </div>
                     {% endfor %}
                 </div>
             </div>
@@ -61,19 +111,23 @@
                 <!-- Top Floating Search Bar & Fullscreen Control -->
                 <div class="map-floating-header">
                     <div class="map-search-bar">
-                        <svg class="search-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"/>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        <svg class="search-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
                         </svg>
-                        <input type="text" id="mapSearchInput" class="map-search-input" placeholder="Search address or vehicles..." aria-label="Search map">
+                        <input type="text" id="mapSearchInput" class="map-search-input"
+                            placeholder="Search address or vehicles..." aria-label="Search map">
                     </div>
 
-                    <button type="button" class="map-action-icon-btn" id="mapFullscreenBtn" title="Expand map" aria-label="Expand map">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="15 3 21 3 21 9"/>
-                            <polyline points="9 21 3 21 3 15"/>
-                            <line x1="21" y1="3" x2="14" y2="10"/>
-                            <line x1="3" y1="21" x2="10" y2="14"/>
+                    <button type="button" class="map-action-icon-btn" id="mapFullscreenBtn" title="Expand map"
+                        aria-label="Expand map">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 3 21 3 21 9" />
+                            <polyline points="9 21 3 21 3 15" />
+                            <line x1="21" y1="3" x2="14" y2="10" />
+                            <line x1="3" y1="21" x2="10" y2="14" />
                         </svg>
                     </button>
                 </div>
@@ -83,9 +137,11 @@
 
                 <!-- Map Floating Recenter GPS Button -->
                 <div class="map-floating-bottom-ctrls">
-                    <button type="button" class="map-recenter-btn" id="mapRecenterBtn" title="Recenter on Tbilisi" aria-label="Recenter map">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+                    <button type="button" class="map-recenter-btn" id="mapRecenterBtn" title="Recenter on Tbilisi"
+                        aria-label="Recenter map">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="3 11 22 2 13 21 11 13 3 11" />
                         </svg>
                     </button>
                 </div>
@@ -97,12 +153,116 @@
 <!-- Embedded Vehicles JSON Data for Map Pins -->
 {{ vehicles_json|json_script:"vehiclesJsonData" }}
 
+<!-- Favourites & Recents Real-Time Interaction Script -->
 <script>
-    // Interactive Favourite Heart Toggle
-    function toggleFavourite(btn) {
-        btn.classList.toggle('favourited');
+    function getCsrfToken() {
+        const cookie = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('csrftoken='));
+        return cookie ? cookie.split('=')[1] : '';
     }
+
+    // Toggle Favourite with Real Database Sync
+    async function handleToggleFavourite(event, btn, carId) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        const currentlyFav = btn.classList.contains('favourited');
+        // Optimistic UI toggle
+        btn.classList.toggle('favourited');
+
+        try {
+            const resp = await fetch(`/vehicles/${carId}/favourite/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            const data = await resp.json();
+
+            if (resp.status === 401 || data.login_required) {
+                // Revert heart
+                btn.classList.toggle('favourited', currentlyFav);
+                if (window.openAuthModal) {
+                    window.openAuthModal('login');
+                }
+                return;
+            }
+
+            if (data.success) {
+                btn.classList.toggle('favourited', data.is_favourite);
+            } else {
+                btn.classList.toggle('favourited', currentlyFav);
+            }
+        } catch (err) {
+            console.error('Failed to toggle favourite:', err);
+            btn.classList.toggle('favourited', currentlyFav);
+        }
+    }
+
+    // Track Recently Viewed Vehicle
+    async function trackVehicleView(carId) {
+        if (!carId) return;
+        try {
+            const resp = await fetch(`/vehicles/${carId}/track-view/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            const data = await resp.json();
+            if (data.success && data.recents && data.recents.length > 0) {
+                updateSidebarRecents(data.recents);
+            }
+        } catch (e) {
+            // Silently ignore background tracking error
+        }
+    }
+
+    function updateSidebarRecents(recentsList) {
+        const container = document.getElementById('sidebarRecentsList');
+        if (!container) return;
+
+        let html = '';
+        recentsList.forEach(car => {
+            html += `
+                <a href="/vehicles/?q=${encodeURIComponent(car.model)}" class="recent-card" title="${car.brand} ${car.model}">
+                    <div class="recent-thumb">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-4.66l.12-.34h13.77l.11.34V17z" />
+                            <circle cx="7.5" cy="14.5" r="1.5" />
+                            <circle cx="16.5" cy="14.5" r="1.5" />
+                        </svg>
+                    </div>
+                    <div class="recent-info">
+                        <span class="recent-name">${car.brand} ${car.model}</span>
+                        <span class="recent-meta">₾${car.price_per_hour} / hr</span>
+                    </div>
+                </a>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    // Auto-track view when clicking 3D Desert Garage Eye Icon
+    document.addEventListener('click', (e) => {
+        const eyeBtn = e.target.closest('.card-garage-eye-btn');
+        if (eyeBtn) {
+            const carId = eyeBtn.getAttribute('data-car-id');
+            if (carId) trackVehicleView(carId);
+        }
+    });
 </script>
+
+<!-- Reusable 3D Desert Garage Modal Popup -->
+{% include "components/desert_garage_modal.html" %}
 
 {% endblock %}
 
@@ -121,5 +281,5 @@
 }
 </script>
 <script type="module" src="{% static 'js/car_3d_viewer.js' %}?v=resize1"></script>
+<script type="module" src="{% static 'js/desert_garage_viewer.js' %}?v=g2"></script>
 {% endblock %}
-

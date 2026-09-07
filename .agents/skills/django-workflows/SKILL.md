@@ -1,14 +1,14 @@
 ---
 name: django-workflows
 description: >-
-  Manage, run, test, and migrate the Django backend for Auto Ultimate.
+  Manage, run, test, and migrate the Django backend for Gruzin Auto.
   Use when running the development server, managing migrations, switching between
   PostgreSQL and SQLite, creating database models, or debugging Django errors.
 ---
 
 # Django Development & Backend Workflows
 
-This skill provides step-by-step procedures for managing the Auto Ultimate Django 5.1+ backend.
+This skill provides step-by-step procedures for managing the Gruzin Auto Django 5.1+ backend.
 
 ---
 

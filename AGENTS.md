@@ -1,6 +1,6 @@
-# Auto Ultimate — Codebase Architecture & Agent Guide
+# Gruzin Auto — Codebase Architecture & Agent Guide
 
-Welcome to the **Auto Ultimate** codebase! This repository is a high-performance, immersive luxury & sports car rental web application built with **Django 5.1+**, **Three.js (r160)**, and **Leaflet.js**, featuring an OLED-dark cyberpunk aesthetic and interactive 3D showroom environments.
+Welcome to the **Gruzin Auto** codebase! This repository is a high-performance, immersive luxury & sports car rental web application built with **Django 5.1+**, **Three.js (r160)**, and **Leaflet.js**, featuring an OLED-dark cyberpunk aesthetic and interactive 3D showroom environments.
 
 ---
 
