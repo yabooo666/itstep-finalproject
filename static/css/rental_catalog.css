@@ -32,67 +32,72 @@
 .sort-select {
     height: 38px;
     padding: 0 32px 0 14px;
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
+    background-color: #09090c !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
     border-radius: 10px;
     font-size: 13px;
     font-weight: 600;
-    color: var(--text-primary);
+    color: #ffffff !important;
     font-family: inherit;
     outline: none;
     cursor: pointer;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ffffff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
     background-size: 14px 14px;
     transition: all 0.15s ease;
-    box-shadow: var(--card-shadow);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
 }
 
 .sort-select:hover {
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.sort-select option {
+    background-color: #09090c !important;
+    color: #ffffff !important;
 }
 
 /* Show Map Button */
 .show-map-btn {
     height: 38px;
     padding: 0 16px;
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
+    background-color: #09090c !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
     border-radius: 10px;
     font-size: 13px;
     font-weight: 600;
-    color: var(--text-primary);
+    color: #ffffff !important;
     font-family: inherit;
     display: inline-flex;
     align-items: center;
     gap: 8px;
     cursor: pointer;
-    box-shadow: var(--card-shadow);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
     transition: all 0.15s ease;
 }
 
 .show-map-btn:hover {
-    background-color: var(--bg-card-sub);
-    border-color: rgba(255, 255, 255, 0.1);
+    background-color: #121217 !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
 }
 
 .show-map-btn.active {
-    background-color: #2563eb;
-    border-color: #3b82f6;
-    color: #ffffff;
-    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    background-color: #ffffff !important;
+    border-color: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: 0 4px 14px rgba(255, 255, 255, 0.25) !important;
 }
 
 .show-map-btn.active svg {
-    color: #ffffff;
+    color: #000000 !important;
 }
 
 .show-map-btn svg {
     width: 16px;
     height: 16px;
-    color: var(--text-secondary);
+    color: #a1a1aa !important;
 }
 
 /* 2. 3-Column Catalog Grid */
@@ -116,11 +121,11 @@
 
 /* 3. Rental Car Card */
 .rental-car-card {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
+    background-color: #09090c !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
     border-radius: 18px;
     padding: 16px 18px 20px 18px;
-    box-shadow: var(--card-shadow);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -130,9 +135,9 @@
 }
 
 .rental-car-card:hover {
-    background-color: var(--bg-card-sub);
-    border-color: rgba(255, 255, 255, 0.06);
-    box-shadow: var(--card-shadow-hover);
+    background-color: #121217 !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.95);
     transform: translateY(-3px);
 }
 
@@ -201,14 +206,14 @@
     min-width: 32px;
     min-height: 32px;
     flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: #18181b !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
     border-radius: 50%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: var(--text-secondary, #94a3b8);
+    color: #a1a1aa !important;
     transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     padding: 0;
     outline: none;
@@ -228,9 +233,9 @@
 }
 
 .card-garage-eye-btn:hover {
-    background: #ffffff;
-    border-color: #ffffff;
-    color: #05070f;
+    background: #ffffff !important;
+    border-color: #ffffff !important;
+    color: #000000 !important;
     transform: scale(1.12);
     box-shadow: 0 0 18px rgba(255, 255, 255, 0.45);
 }
@@ -239,18 +244,6 @@
     transform: scale(0.95);
 }
 
-[data-theme="light"] .card-garage-eye-btn {
-    background: rgba(0, 0, 0, 0.05);
-    border-color: rgba(0, 0, 0, 0.1);
-    color: #475569;
-}
-
-[data-theme="light"] .card-garage-eye-btn:hover {
-    background: #0f172a;
-    border-color: #0f172a;
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
-}
 
 /* Favourite Heart Button */
 .card-heart-btn {
@@ -266,7 +259,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: var(--text-muted, #64748b);
+    color: #71717a !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0;
     outline: none;
@@ -284,16 +277,16 @@
 }
 
 .card-heart-btn:hover {
-    color: #ef4444;
+    color: #ffffff !important;
     transform: scale(1.15);
 }
 
 .card-heart-btn.favourited {
-    color: #ef4444;
+    color: #ffffff !important;
 }
 
 .card-heart-btn.favourited svg {
-    fill: #ef4444;
+    fill: #ffffff !important;
 }
 
 /* Center Car Image / 3D Canvas */
@@ -429,7 +422,7 @@
 .rotate-3d-badge svg {
     width: 12px;
     height: 12px;
-    color: #3b82f6;
+    color: #ffffff;
 }
 
 /* Loading indicator */
@@ -586,12 +579,6 @@
     pointer-events: auto;
 }
 
-[data-theme="light"] .map-search-bar {
-    background: rgba(255, 255, 255, 0.92);
-    border-color: rgba(0, 0, 0, 0.12);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-}
-
 .map-search-bar .search-svg {
     width: 16px;
     height: 16px;
@@ -632,16 +619,11 @@
     transition: all 0.2s ease;
 }
 
-[data-theme="light"] .map-action-icon-btn {
-    background: rgba(255, 255, 255, 0.92);
-    border-color: rgba(0, 0, 0, 0.12);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-}
 
 .map-action-icon-btn:hover {
-    background: #2563eb;
-    color: #ffffff;
-    border-color: #3b82f6;
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
 }
 
 .map-action-icon-btn svg {
@@ -676,21 +658,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #3b82f6;
+    color: #ffffff;
     cursor: pointer;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
     transition: all 0.2s ease;
 }
 
-[data-theme="light"] .map-recenter-btn {
-    background: rgba(255, 255, 255, 0.95);
-    border-color: rgba(0, 0, 0, 0.12);
-}
-
 .map-recenter-btn:hover {
-    background: #2563eb;
-    color: #ffffff;
-    border-color: #3b82f6;
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
     transform: scale(1.08);
 }
 
@@ -716,15 +693,16 @@
     align-items: center;
     justify-content: center;
     color: #ffffff;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8), 0 0 10px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 255, 255, 0.2);
     cursor: pointer;
     transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s;
 }
 
 .map-car-pin:hover {
     transform: scale(1.25);
-    border-color: #3b82f6;
-    background: #1d4ed8;
+    border-color: #ffffff;
+    background: #ffffff;
+    color: #000000;
 }
 
 .map-car-pin .car-svg {
@@ -752,12 +730,12 @@
 .walking-time-tag {
     background: rgba(12, 12, 16, 0.92);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(59, 130, 246, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 9999px;
     padding: 3px 8px;
     font-size: 10.5px;
     font-weight: 700;
-    color: #60a5fa;
+    color: #e2e8f0;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -784,9 +762,9 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: #3b82f6;
-    border: 2px solid #ffffff;
-    box-shadow: 0 0 8px #3b82f6;
+    background: #ffffff;
+    border: 2px solid #000000;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
     position: relative;
     z-index: 2;
 }
@@ -796,7 +774,7 @@
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    background: rgba(59, 130, 246, 0.4);
+    background: rgba(255, 255, 255, 0.3);
     animation: userPulse 1.8s ease-out infinite;
 }
 
@@ -805,29 +783,18 @@
     100% { transform: scale(1.6); opacity: 0; }
 }
 
-/* Custom Floating Vehicle Card Popup on Map */
 .custom-leaflet-popup .leaflet-popup-content-wrapper {
-    background: #0d0e13 !important;
+    background: #09090c !important;
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
     border-radius: 16px !important;
     padding: 0 !important;
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.95), 0 0 20px rgba(59, 130, 246, 0.15) !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.95), 0 0 20px rgba(255, 255, 255, 0.1) !important;
     color: #ffffff !important;
     overflow: hidden;
 }
 
-[data-theme="light"] .custom-leaflet-popup .leaflet-popup-content-wrapper {
-    background: #ffffff !important;
-    border-color: rgba(0, 0, 0, 0.12) !important;
-    color: #111827 !important;
-}
-
 .custom-leaflet-popup .leaflet-popup-tip {
-    background: #0d0e13 !important;
-}
-
-[data-theme="light"] .custom-leaflet-popup .leaflet-popup-tip {
-    background: #ffffff !important;
+    background: #09090c !important;
 }
 
 .custom-leaflet-popup .leaflet-popup-content {
@@ -877,7 +844,7 @@
 }
 
 .popup-heart.favourited {
-    color: #ef4444;
+    color: #ffffff;
 }
 
 .popup-heart svg {
@@ -895,10 +862,6 @@
     color: #ffffff;
     margin-bottom: 2px;
     letter-spacing: -0.2px;
-}
-
-[data-theme="light"] .popup-car-name {
-    color: #111827;
 }
 
 .popup-car-trim {
@@ -919,16 +882,12 @@
     border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-[data-theme="light"] .popup-action-row {
-    border-color: rgba(0, 0, 0, 0.08);
-}
-
 .popup-book-btn {
     flex: 1;
     height: 32px;
-    background: #2563eb;
-    color: #ffffff;
-    font-weight: 700;
+    background: #ffffff;
+    color: #000000;
+    font-weight: 800;
     font-size: 12px;
     border: none;
     border-radius: 8px;
@@ -938,7 +897,7 @@
 }
 
 .popup-book-btn:hover {
-    background: #1d4ed8;
+    background: #e2e8f0;
 }
 
 .popup-price-tag {
@@ -950,10 +909,6 @@
     font-size: 14.5px;
     font-weight: 800;
     color: #ffffff;
-}
-
-[data-theme="light"] .popup-price-tag .price-num {
-    color: #111827;
 }
 
 .popup-price-tag .price-unit {

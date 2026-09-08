@@ -1,11 +1,10 @@
-/* Site Footer Styles */
+/* Site Footer Styles - Pure OLED Jet Black */
 
 .site-footer {
-    background: var(--bg-card);
-    border-top: 1px solid var(--border-color);
+    background: #000000 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
     padding: 48px 32px 24px 32px;
     margin-top: auto;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .footer-container {
@@ -37,7 +36,7 @@
 .footer-brand .brand-icon {
     width: 34px;
     height: 34px;
-    background: var(--text-primary);
+    background: #ffffff !important;
     border-radius: 9px;
     display: flex;
     align-items: center;
@@ -47,18 +46,19 @@
 .footer-brand .brand-icon svg {
     width: 20px;
     height: 20px;
+    fill: #000000 !important;
 }
 
 .footer-brand .brand-name {
     font-size: 14px;
     font-weight: 800;
-    color: var(--text-primary);
+    color: #ffffff !important;
     line-height: 1.1;
 }
 
 .footer-desc {
     font-size: 13px;
-    color: var(--text-secondary);
+    color: #a1a1aa !important;
     line-height: 1.6;
     max-width: 320px;
 }
@@ -67,7 +67,7 @@
 .footer-col h4 {
     font-size: 13px;
     font-weight: 700;
-    color: var(--text-primary);
+    color: #ffffff !important;
     margin-bottom: 16px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -82,13 +82,13 @@
 
 .footer-links a {
     font-size: 13px;
-    color: var(--text-secondary);
+    color: #a1a1aa !important;
     text-decoration: none;
     transition: color 0.15s ease;
 }
 
 .footer-links a:hover {
-    color: var(--text-primary);
+    color: #ffffff !important;
 }
 
 /* Contact Column */
@@ -97,26 +97,26 @@
     align-items: center;
     gap: 8px;
     font-size: 13px;
-    color: var(--text-secondary);
+    color: #a1a1aa !important;
     margin-bottom: 10px;
 }
 
 .footer-contact-item svg {
     width: 15px;
     height: 15px;
-    color: var(--text-muted);
+    color: #71717a !important;
     flex-shrink: 0;
 }
 
 /* Bottom Bar */
 .footer-bottom {
     padding-top: 24px;
-    border-top: 1px solid var(--border-light);
+    border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
     display: flex;
     align-items: center;
     justify-content: space-between;
     font-size: 12px;
-    color: var(--text-muted);
+    color: #71717a !important;
     flex-wrap: wrap;
     gap: 12px;
 }
@@ -127,13 +127,13 @@
 }
 
 .footer-legal-links a {
-    color: var(--text-muted);
+    color: #71717a !important;
     text-decoration: none;
     transition: color 0.15s ease;
 }
 
 .footer-legal-links a:hover {
-    color: var(--text-secondary);
+    color: #a1a1aa !important;
 }
 
 @media (max-width: 900px) {

@@ -17,7 +17,7 @@
 
             <!-- Star Rating & Review Count -->
             <div class="meta-stat meta-rating">
-                <svg class="star-icon" viewBox="0 0 24 24" fill="#eab308">
+                <svg class="star-icon" viewBox="0 0 24 24" fill="#ffffff">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                 </svg>
                 <span class="rating-score">{{ car.rating }}</span>
@@ -74,16 +74,18 @@
         {% endif %}
     </div>
 
-    <!-- Bottom Name & Price Row -->
-    <div class="card-bottom-info">
-        <div class="info-left">
-            <h4 class="vehicle-title">{{ car.brand }} {{ car.model }}</h4>
-            <p class="vehicle-trim">{{ car.trim }}</p>
-        </div>
+    <!-- Bottom Name & Price Row (Links to Vehicle Detail Page) -->
+    <a href="{% url 'vehicle_detail' vehicle_id=car.id %}" class="card-bottom-info-link" style="text-decoration: none; color: inherit; display: block;">
+        <div class="card-bottom-info">
+            <div class="info-left">
+                <h4 class="vehicle-title">{{ car.brand }} {{ car.model }}</h4>
+                <p class="vehicle-trim">{{ car.trim }}</p>
+            </div>
 
-        <div class="info-price">
-            <span class="price-val">₾{{ car.price_per_hour }}</span>
-            <span class="price-unit">/ hour</span>
+            <div class="info-price">
+                <span class="price-val">₾{{ car.daily_price|default:car.price_per_hour }}</span>
+                <span class="price-unit">{% if car.daily_price %}/ day{% else %}/ hr{% endif %}</span>
+            </div>
         </div>
-    </div>
+    </a>
 </div>

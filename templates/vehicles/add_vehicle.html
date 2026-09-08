@@ -1,0 +1,760 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Add Vehicle | Gruzin Auto{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/add_vehicle.css' %}?v=mono_fix_v7">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
+
+{% block content %}
+<div class="add-vehicle-container">
+    <!-- Breadcrumb & Back Link -->
+    <div class="add-header-nav">
+        <a href="{% url 'vehicles' %}" class="back-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            <span>Back to Catalog</span>
+        </a>
+        <div class="add-badge">
+            <span class="pulse-dot"></span>
+            <span>List Your Vehicle</span>
+        </div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="add-vehicle-card">
+        <div class="add-card-header">
+            <h1 class="add-title">Add Vehicle to Catalog</h1>
+            <p class="add-desc">
+                Provide your vehicle specifications, select its location on the interactive map, and upload your 3D car model (.glb format).
+            </p>
+        </div>
+
+        {% if error %}
+        <div class="form-alert error-alert">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>{{ error }}</span>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'add_vehicle' %}" enctype="multipart/form-data" class="add-car-form" id="addVehicleForm">
+            {% csrf_token %}
+
+            <!-- Section 1: Vehicle Specifications -->
+            <div class="form-section">
+                <h3 class="section-heading">
+                    <span class="sec-num">01</span>
+                    <span>Vehicle Specifications</span>
+                </h3>
+
+                <div class="fields-grid-3">
+                    <!-- Brand -->
+                    <div class="form-group">
+                        <label for="carBrand" class="form-label">Brand *</label>
+                        <input type="text" id="carBrand" name="brand" class="form-input" placeholder="e.g. Mercedes-Benz, BMW, Porsche" required>
+                    </div>
+
+                    <!-- Model -->
+                    <div class="form-group">
+                        <label for="carModel" class="form-label">Model *</label>
+                        <input type="text" id="carModel" name="model" class="form-input" placeholder="e.g. E320, M4, 911 GT3" required>
+                    </div>
+
+                    <!-- Year -->
+                    <div class="form-group">
+                        <label for="carYear" class="form-label">Year of Manufacture *</label>
+                        <input type="number" id="carYear" name="year" class="form-input" min="1990" max="2026" value="2023" required>
+                    </div>
+                </div>
+
+                <div class="fields-grid-3">
+                    <!-- Daily Price -->
+                    <div class="form-group">
+                        <label for="carPrice" class="form-label">Daily Rental Rate (₾ GEL) *</label>
+                        <div class="input-with-adornment">
+                            <span class="adornment-prefix">₾</span>
+                            <input type="number" id="carPrice" name="daily_price" class="form-input with-prefix" placeholder="120" min="10" step="1" required>
+                            <span class="adornment-suffix">/ day</span>
+                        </div>
+                    </div>
+
+                    <!-- Seats / Capacity -->
+                    <div class="form-group">
+                        <label for="carSeats" class="form-label">Seating Capacity *</label>
+                        <select id="carSeats" name="seats" class="form-select" required>
+                            <option value="2">2 Seats (Coupe / Roadster)</option>
+                            <option value="4" selected>4 Seats (Sports Coupe / Sedan)</option>
+                            <option value="5">5 Seats (Executive Sedan / SUV)</option>
+                            <option value="6">6 Seats</option>
+                            <option value="7">7+ Seats (Minivan / Full SUV)</option>
+                        </select>
+                    </div>
+
+                    <!-- Transmission -->
+                    <div class="form-group">
+                        <label for="carTransmission" class="form-label">Transmission *</label>
+                        <select id="carTransmission" name="transmission" class="form-select" required>
+                            <option value="Automatic" selected>Automatic</option>
+                            <option value="Manual">Manual</option>
+                            <option value="Tiptronic">Tiptronic</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="fields-grid-2">
+                    <!-- Fuel Tank Capacity -->
+                    <div class="form-group">
+                        <label for="carFuel" class="form-label">Fuel Tank Capacity (Liters) *</label>
+                        <div class="input-with-adornment">
+                            <input type="number" id="carFuel" name="fuel_capacity" class="form-input" placeholder="65" min="20" max="150" value="65" required>
+                            <span class="adornment-suffix">Liters</span>
+                        </div>
+                    </div>
+
+                    <!-- Trim / Package -->
+                    <div class="form-group">
+                        <label for="carTrim" class="form-label">Trim & Equipment Package</label>
+                        <input type="text" id="carTrim" name="trim" class="form-input" placeholder="e.g. AMG Line, M Sport Package, Full Option">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Contact & Interactive Map Location Picker -->
+            <div class="form-section">
+                <h3 class="section-heading">
+                    <span class="sec-num">02</span>
+                    <span>Contact & Location</span>
+                </h3>
+
+                <div class="fields-grid-2">
+                    <!-- Owner Phone (Auto-filled & Readonly) -->
+                    <div class="form-group">
+                        <div class="label-with-badge">
+                            <label for="carPhone" class="form-label">Owner Contact Phone *</label>
+                            <span class="auto-fill-tag">✓ Auto-filled from profile</span>
+                        </div>
+                        <input type="text" id="carPhone" name="owner_phone" class="form-input readonly-input" value="{{ user_phone }}" readonly required>
+                        <span class="field-hint">Your verified phone number is automatically linked to this listing.</span>
+                    </div>
+
+                    <!-- City (Auto-updated from Map) -->
+                    <div class="form-group">
+                        <div class="label-with-badge">
+                            <label for="carCity" class="form-label">City *</label>
+                            <span class="auto-detect-tag" id="cityDetectedBadge">Auto-detected from map</span>
+                        </div>
+                        <select id="carCity" name="city" class="form-select" required>
+                            <option value="Tbilisi" selected>Tbilisi</option>
+                            <option value="Batumi">Batumi</option>
+                            <option value="Kutaisi">Kutaisi</option>
+                            <option value="Rustavi">Rustavi</option>
+                            <option value="Kaspi">Kaspi</option>
+                            <option value="Gori">Gori</option>
+                            <option value="Mtskheta">Mtskheta</option>
+                            <option value="Borjomi">Borjomi</option>
+                            <option value="Telavi">Telavi</option>
+                            <option value="Zugdidi">Zugdidi</option>
+                            <option value="Poti">Poti</option>
+                            <option value="Kobuleti">Kobuleti</option>
+                            <option value="Sighnaghi">Sighnaghi</option>
+                            <option value="Akhaltsikhe">Akhaltsikhe</option>
+                            <option value="Gudauri">Gudauri</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Direct Address Input & Interactive Map Trigger -->
+                <div class="form-group" style="margin-top: 14px;">
+                    <label for="carLocationName" class="form-label">Parking & Pickup Address *</label>
+                    <div class="address-direct-input-wrap">
+                        <input type="text" id="carLocationName" name="location_name" class="form-input address-input-field"
+                            value="Rustaveli Ave, Tbilisi" placeholder="Write parking address directly (e.g. 15 Rustaveli Ave, Tbilisi)..." required>
+                        <button type="button" class="btn-open-map-picker" id="openMapPickerBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                                <line x1="8" y1="2" x2="8" y2="18"></line>
+                                <line x1="16" y1="6" x2="16" y2="22"></line>
+                            </svg>
+                            <span>Pick on Map</span>
+                        </button>
+                    </div>
+                    <div class="location-current-meta" id="displayLocationMeta">
+                        <span class="meta-coords" id="displayLocationCoords">Coordinates: 41.7151° N, 44.8271° E</span>
+                    </div>
+                    <span class="field-hint">You can write your address directly above, or click "Pick on Map" to pinpoint it visually.</span>
+                </div>
+
+                <!-- Hidden inputs for coordinates -->
+                <input type="hidden" id="carLat" name="lat" value="41.7151">
+                <input type="hidden" id="carLng" name="lng" value="44.8271">
+            </div>
+
+            <!-- Section 3: 3D Car Model Upload (.glb format) -->
+            <div class="form-section">
+                <h3 class="section-heading">
+                    <span class="sec-num">03</span>
+                    <span>3D Model Asset (.GLB Format)</span>
+                </h3>
+                <p class="glb-desc">
+                    Upload your interactive 3D car model in <strong>.GLB</strong> format. The model will be rendered directly in our interactive 360° showroom and Desert Garage inspector.
+                </p>
+
+                <!-- GLB Upload Dropzone -->
+                <div class="glb-upload-dropzone" id="glbDropzone">
+                    <input type="file" id="model3dInput" name="model_3d_file" accept=".glb" class="glb-file-input">
+                    
+                    <div class="dropzone-inner" id="dropzoneEmpty">
+                        <div class="cube-icon-wrap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                                <line x1="12" y1="22.08" x2="12" y2="12"/>
+                            </svg>
+                        </div>
+                        <h4 class="dropzone-heading">Drag & drop your .GLB car model here</h4>
+                        <p class="dropzone-sub">or <span class="browse-link">browse from your computer</span></p>
+                        <span class="format-badge">Supported: .GLB (glTF 2.0 Binary)</span>
+                    </div>
+
+                    <!-- File Selected State (Hidden initially) -->
+                    <div class="dropzone-inner-selected" id="dropzoneSelected" style="display: none;">
+                        <div class="selected-icon-wrap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                        </div>
+                        <div class="file-details">
+                            <span class="selected-file-name" id="selectedFileName">model.glb</span>
+                            <span class="selected-file-size" id="selectedFileSize">0 MB</span>
+                        </div>
+                        <button type="button" class="btn-change-file" id="changeFileBtn">Change 3D Model</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Action Bar -->
+            <div class="form-submit-bar">
+                <a href="{% url 'vehicles' %}" class="btn-cancel">Cancel</a>
+                <button type="submit" class="btn-submit-car" id="submitCarBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <span>Publish Vehicle Listing</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Interactive Map Picker Modal Popup -->
+<div class="map-picker-modal-backdrop" id="mapPickerModal" style="display: none;">
+    <div class="map-picker-modal-card">
+        <!-- Header -->
+        <div class="modal-map-header">
+            <div class="header-titles">
+                <h3 class="modal-map-title">Pick Vehicle Location on Map</h3>
+                <p class="modal-map-subtitle">Click anywhere on the map or write an address below to pinpoint vehicle parking position.</p>
+            </div>
+            <button type="button" class="modal-close-icon-btn" id="closeMapModalBtn" aria-label="Close modal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+
+        <!-- Address Search & Direct Write Bar -->
+        <div class="modal-address-bar">
+            <div class="address-input-wrapper">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="modalAddressInput" class="modal-address-input"
+                    placeholder="Write address directly (e.g. 24 Chavchavadze Ave, Tbilisi)..."
+                    autocomplete="off" spellcheck="false">
+                <button type="button" class="btn-clear-address" id="btnClearAddress" title="Clear input" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <button type="button" class="btn-locate-address" id="btnLocateAddress">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                    <line x1="8" y1="2" x2="8" y2="18"></line>
+                    <line x1="16" y1="6" x2="16" y2="22"></line>
+                </svg>
+                <span>Locate on Map</span>
+            </button>
+        </div>
+
+        <!-- Geocoding Status Bar -->
+        <div class="map-geocoding-status" id="mapGeocodingStatus">
+            <span class="status-pin-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+            </span>
+            <span id="geocodingStatusText">Click anywhere to place pin or write address above</span>
+        </div>
+
+        <!-- Map Canvas Container -->
+        <div class="modal-map-canvas-wrap">
+            <div id="interactivePickerMap" class="picker-map-canvas"></div>
+            <div class="map-click-hint-badge">Drag marker or click anywhere to reposition</div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-map-footer">
+            <div class="coords-display">
+                <span class="label-tiny">Selected Location:</span>
+                <div class="coords-info-group">
+                    <span id="footerAddressText" class="coords-address">Rustaveli Ave, Tbilisi</span>
+                    <span class="coords-separator">•</span>
+                    <span id="liveCoordsDisplay" class="coords-numbers">41.7151° N, 44.8271° E</span>
+                </div>
+            </div>
+            <div class="modal-action-btns">
+                <button type="button" class="btn-cancel-modal" id="cancelMapModalBtn">Cancel</button>
+                <button type="button" class="btn-confirm-location" id="confirmLocationBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>Confirm Location</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // 1. GLB 3D Model File Upload Handler
+    const glbInput = document.getElementById('model3dInput');
+    const dropzone = document.getElementById('glbDropzone');
+    const emptyState = document.getElementById('dropzoneEmpty');
+    const selectedState = document.getElementById('dropzoneSelected');
+    const fileNameEl = document.getElementById('selectedFileName');
+    const fileSizeEl = document.getElementById('selectedFileSize');
+    const changeFileBtn = document.getElementById('changeFileBtn');
+
+    if (dropzone && glbInput) {
+        dropzone.addEventListener('click', (e) => {
+            if (e.target !== changeFileBtn) glbInput.click();
+        });
+
+        changeFileBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            glbInput.click();
+        });
+
+        glbInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (!file.name.toLowerCase().endsWith('.glb')) {
+                    alert('Please select a valid .glb 3D model file.');
+                    glbInput.value = '';
+                    return;
+                }
+                const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+                fileNameEl.textContent = file.name;
+                fileSizeEl.textContent = `${sizeMb} MB • 3D Model Ready`;
+                emptyState.style.display = 'none';
+                selectedState.style.display = 'flex';
+                dropzone.classList.add('has-file');
+            }
+        });
+
+        // Drag & Drop
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('drag-active');
+        });
+
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('drag-active');
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('drag-active');
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                const file = e.dataTransfer.files[0];
+                if (file.name.toLowerCase().endsWith('.glb')) {
+                    glbInput.files = e.dataTransfer.files;
+                    const event = new Event('change');
+                    glbInput.dispatchEvent(event);
+                } else {
+                    alert('Please upload a .glb 3D format file.');
+                }
+            }
+        });
+    }
+
+    // 2. Interactive Map Picker & Auto-City Detection
+    const mapModal = document.getElementById('mapPickerModal');
+    const openMapBtn = document.getElementById('openMapPickerBtn');
+    const closeMapBtn = document.getElementById('closeMapModalBtn');
+    const cancelMapBtn = document.getElementById('cancelMapModalBtn');
+    const confirmLocationBtn = document.getElementById('confirmLocationBtn');
+
+    const latInput = document.getElementById('carLat');
+    const lngInput = document.getElementById('carLng');
+    const locationNameInput = document.getElementById('carLocationName');
+    const citySelect = document.getElementById('carCity');
+    const displayLocationCoords = document.getElementById('displayLocationCoords');
+
+    // Modal elements
+    const modalAddressInput = document.getElementById('modalAddressInput');
+    const btnClearAddress = document.getElementById('btnClearAddress');
+    const btnLocateAddress = document.getElementById('btnLocateAddress');
+    const footerAddressText = document.getElementById('footerAddressText');
+
+    let pickerMap = null;
+    let pickerMarker = null;
+    let tempLat = parseFloat(latInput?.value) || 41.7151;
+    let tempLng = parseFloat(lngInput?.value) || 44.8271;
+    let tempCity = citySelect?.value || 'Tbilisi';
+    let tempAddress = locationNameInput?.value || 'Rustaveli Ave, Tbilisi';
+
+    // City Bounding Box Detection Helper (Fallback when geocoder is offline)
+    function detectCityFromCoordinates(lat, lng) {
+        // Kaspi approximate bounding box
+        if (lat >= 41.85 && lat <= 42.02 && lng >= 44.30 && lng <= 44.52) return 'Kaspi';
+        // Gori approximate bounding box
+        if (lat >= 41.93 && lat <= 42.05 && lng >= 44.05 && lng <= 44.20) return 'Gori';
+        // Mtskheta approximate bounding box
+        if (lat >= 41.80 && lat <= 41.88 && lng >= 44.66 && lng <= 44.75) return 'Mtskheta';
+        // Borjomi approximate bounding box
+        if (lat >= 41.80 && lat <= 41.88 && lng >= 43.34 && lng <= 43.45) return 'Borjomi';
+        // Tbilisi approximate bounding box
+        if (lat >= 41.60 && lat <= 41.85 && lng >= 44.65 && lng <= 45.00) return 'Tbilisi';
+        // Batumi approximate bounding box
+        if (lat >= 41.55 && lat <= 41.72 && lng >= 41.55 && lng <= 41.75) return 'Batumi';
+        // Kutaisi approximate bounding box
+        if (lat >= 42.20 && lat <= 42.32 && lng >= 42.60 && lng <= 42.78) return 'Kutaisi';
+        // Rustavi approximate bounding box
+        if (lat >= 41.48 && lat <= 41.60 && lng >= 44.95 && lng <= 45.10) return 'Rustavi';
+        // Telavi approximate bounding box
+        if (lat >= 41.88 && lat <= 41.96 && lng >= 45.42 && lng <= 45.55) return 'Telavi';
+        // Zugdidi approximate bounding box
+        if (lat >= 42.48 && lat <= 42.55 && lng >= 41.82 && lng <= 41.92) return 'Zugdidi';
+        // Poti approximate bounding box
+        if (lat >= 42.12 && lat <= 42.18 && lng >= 41.64 && lng <= 41.72) return 'Poti';
+        return null;
+    }
+
+    function updateDisplays(lat, lng, address, city) {
+        tempLat = lat;
+        tempLng = lng;
+        if (address) tempAddress = address;
+        if (city) {
+            tempCity = city;
+            // Dynamically select or create option in city select dropdown
+            if (citySelect) {
+                let optionExists = false;
+                for (let i = 0; i < citySelect.options.length; i++) {
+                    if (citySelect.options[i].value.toLowerCase() === city.toLowerCase()) {
+                        citySelect.selectedIndex = i;
+                        optionExists = true;
+                        break;
+                    }
+                }
+                if (!optionExists) {
+                    const newOpt = new Option(city, city, true, true);
+                    citySelect.add(newOpt);
+                    citySelect.value = city;
+                }
+            }
+        }
+
+        const coordsStr = `${tempLat.toFixed(4)}° N, ${tempLng.toFixed(4)}° E`;
+        const liveCoordsDisplay = document.getElementById('liveCoordsDisplay');
+        if (liveCoordsDisplay) liveCoordsDisplay.textContent = coordsStr;
+
+        if (footerAddressText) footerAddressText.textContent = tempAddress;
+        if (modalAddressInput && document.activeElement !== modalAddressInput) {
+            modalAddressInput.value = tempAddress;
+        }
+        if (btnClearAddress) {
+            btnClearAddress.style.display = modalAddressInput?.value ? 'flex' : 'none';
+        }
+        const statusText = document.getElementById('geocodingStatusText');
+        if (statusText) statusText.textContent = `${tempAddress} (${tempCity})`;
+    }
+
+    // Direct Address Search via Nominatim Geocoding API
+    async function searchAddressOnMap(query) {
+        if (!query || !query.trim()) return;
+        const cleanQuery = query.trim();
+        const btn = document.getElementById('btnLocateAddress');
+        const statusText = document.getElementById('geocodingStatusText');
+
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `
+                <div class="status-spinner"></div>
+                <span>Locating...</span>
+            `;
+        }
+        if (statusText) statusText.textContent = `Searching "${cleanQuery}"...`;
+
+        let found = false;
+
+        // 1. Search filtered to Georgia (countrycode: ge)
+        try {
+            const encoded = encodeURIComponent(cleanQuery);
+            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encoded}&countrycodes=ge&limit=1&addressdetails=1`, {
+                headers: { 'Accept-Language': 'en' }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    const item = data[0];
+                    const lat = parseFloat(item.lat);
+                    const lon = parseFloat(item.lon);
+                    tempLat = lat;
+                    tempLng = lon;
+                    tempAddress = cleanQuery;
+
+                    const addr = item.address || {};
+                    let rawCity = addr.city || addr.town || addr.village || addr.municipality || addr.county || addr.suburb || '';
+                    if (rawCity) {
+                        rawCity = rawCity.replace(/\s+(Municipality|District|Raioni|City|Urban-type settlement)$/i, '').trim();
+                    }
+                    tempCity = rawCity || detectCityFromCoordinates(lat, lon) || 'Tbilisi';
+
+                    if (pickerMap) pickerMap.setView([lat, lon], 15);
+                    if (pickerMarker) pickerMarker.setLatLng([lat, lon]);
+                    updateDisplays(tempLat, tempLng, tempAddress, tempCity);
+                    found = true;
+                }
+            }
+        } catch (e) {
+            console.warn('Georgia Nominatim search error:', e);
+        }
+
+        // 2. Global search fallback
+        if (!found) {
+            try {
+                const encoded = encodeURIComponent(cleanQuery);
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encoded}&limit=1&addressdetails=1`, {
+                    headers: { 'Accept-Language': 'en' }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.length > 0) {
+                        const item = data[0];
+                        const lat = parseFloat(item.lat);
+                        const lon = parseFloat(item.lon);
+                        tempLat = lat;
+                        tempLng = lon;
+                        tempAddress = cleanQuery;
+
+                        const addr = item.address || {};
+                        let rawCity = addr.city || addr.town || addr.village || addr.municipality || addr.county || addr.suburb || '';
+                        if (rawCity) {
+                            rawCity = rawCity.replace(/\s+(Municipality|District|Raioni|City|Urban-type settlement)$/i, '').trim();
+                        }
+                        tempCity = rawCity || detectCityFromCoordinates(lat, lon) || 'Tbilisi';
+
+                        if (pickerMap) pickerMap.setView([lat, lon], 15);
+                        if (pickerMarker) pickerMarker.setLatLng([lat, lon]);
+                        updateDisplays(tempLat, tempLng, tempAddress, tempCity);
+                        found = true;
+                    }
+                }
+            } catch (e) {
+                console.warn('Global Nominatim fallback error:', e);
+            }
+        }
+
+        // 3. Fallback: Accept typed address directly even if external API is slow
+        if (!found) {
+            tempAddress = cleanQuery;
+            updateDisplays(tempLat, tempLng, tempAddress, tempCity);
+            if (statusText) statusText.textContent = `Address set to "${cleanQuery}". You can fine-tune pin on map.`;
+        }
+
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                    <line x1="8" y1="2" x2="8" y2="18"></line>
+                    <line x1="16" y1="6" x2="16" y2="22"></line>
+                </svg>
+                <span>Locate on Map</span>
+            `;
+        }
+    }
+
+    // Reverse Geocoding with OpenStreetMap Nominatim
+    async function reverseGeocodeLocation(lat, lng) {
+        const statusText = document.getElementById('geocodingStatusText');
+        const coordsStr = `${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E`;
+        const liveCoordsDisplay = document.getElementById('liveCoordsDisplay');
+        if (liveCoordsDisplay) liveCoordsDisplay.textContent = coordsStr;
+
+        if (statusText) statusText.textContent = 'Resolving city & address...';
+
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3500);
+
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1`, {
+                headers: { 'Accept-Language': 'en' },
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            if (res.ok) {
+                const data = await res.json();
+                const addr = data.address || {};
+                
+                // Extract real city, town, village, or municipality name
+                let rawCity = addr.city || addr.town || addr.village || addr.municipality || addr.county || addr.suburb || '';
+                if (rawCity) {
+                    rawCity = rawCity.replace(/\s+(Municipality|District|Raioni|City|Urban-type settlement)$/i, '').trim();
+                }
+
+                const resolvedCity = rawCity || detectCityFromCoordinates(lat, lng) || 'Tbilisi';
+                const road = addr.road || addr.street || addr.neighbourhood || '';
+
+                tempCity = resolvedCity;
+                tempAddress = road ? `${road}, ${resolvedCity}` : `${resolvedCity}`;
+                updateDisplays(tempLat, tempLng, tempAddress, tempCity);
+                return;
+            }
+        } catch (e) {
+            console.warn('Nominatim reverse geocoding unavailable, using local coordinate bounding box:', e);
+        }
+
+        // Instant Local Bounding Box Fallback
+        const fallbackCity = detectCityFromCoordinates(lat, lng) || 'Tbilisi';
+        tempCity = fallbackCity;
+        tempAddress = `${fallbackCity} Location`;
+        updateDisplays(tempLat, tempLng, tempAddress, tempCity);
+    }
+
+    function initMap() {
+        if (pickerMap) {
+            pickerMap.invalidateSize();
+            return;
+        }
+
+        pickerMap = L.map('interactivePickerMap', {
+            zoomControl: true
+        }).setView([tempLat, tempLng], 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(pickerMap);
+
+        pickerMarker = L.marker([tempLat, tempLng], {
+            draggable: true
+        }).addTo(pickerMap);
+
+        pickerMarker.on('dragend', function(e) {
+            const pos = e.target.getLatLng();
+            tempLat = pos.lat;
+            tempLng = pos.lng;
+            reverseGeocodeLocation(tempLat, tempLng);
+        });
+
+        pickerMap.on('click', function(e) {
+            tempLat = e.latlng.lat;
+            tempLng = e.latlng.lng;
+            pickerMarker.setLatLng(e.latlng);
+            reverseGeocodeLocation(tempLat, tempLng);
+        });
+    }
+
+    openMapBtn?.addEventListener('click', () => {
+        mapModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        if (locationNameInput?.value.trim()) {
+            tempAddress = locationNameInput.value.trim();
+        }
+        if (modalAddressInput) {
+            modalAddressInput.value = tempAddress;
+        }
+        if (btnClearAddress) {
+            btnClearAddress.style.display = modalAddressInput?.value ? 'flex' : 'none';
+        }
+        if (footerAddressText) {
+            footerAddressText.textContent = tempAddress;
+        }
+
+        setTimeout(() => {
+            initMap();
+            if (pickerMap) {
+                pickerMap.invalidateSize();
+                pickerMap.setView([tempLat, tempLng], 14);
+                pickerMarker?.setLatLng([tempLat, tempLng]);
+            }
+            reverseGeocodeLocation(tempLat, tempLng);
+        }, 150);
+    });
+
+    function closeMap() {
+        mapModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    closeMapBtn?.addEventListener('click', closeMap);
+    cancelMapBtn?.addEventListener('click', closeMap);
+
+    // Modal Address Input Listeners
+    modalAddressInput?.addEventListener('input', (e) => {
+        tempAddress = e.target.value;
+        if (footerAddressText) footerAddressText.textContent = tempAddress || 'No address specified';
+        if (btnClearAddress) {
+            btnClearAddress.style.display = tempAddress ? 'flex' : 'none';
+        }
+    });
+
+    modalAddressInput?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            searchAddressOnMap(modalAddressInput.value);
+        }
+    });
+
+    btnLocateAddress?.addEventListener('click', () => {
+        searchAddressOnMap(modalAddressInput.value);
+    });
+
+    btnClearAddress?.addEventListener('click', () => {
+        if (modalAddressInput) {
+            modalAddressInput.value = '';
+            btnClearAddress.style.display = 'none';
+            modalAddressInput.focus();
+        }
+    });
+
+    // Main form direct address input
+    locationNameInput?.addEventListener('input', (e) => {
+        tempAddress = e.target.value;
+    });
+
+    // Confirm button in modal
+    confirmLocationBtn?.addEventListener('click', () => {
+        const finalAddress = modalAddressInput?.value.trim() || tempAddress;
+        tempAddress = finalAddress;
+
+        if (latInput) latInput.value = tempLat.toFixed(6);
+        if (lngInput) lngInput.value = tempLng.toFixed(6);
+        if (locationNameInput) locationNameInput.value = finalAddress;
+        if (citySelect) citySelect.value = tempCity;
+
+        if (displayLocationCoords) {
+            displayLocationCoords.textContent = `Coordinates: ${tempLat.toFixed(4)}° N, ${tempLng.toFixed(4)}° E`;
+        }
+        closeMap();
+    });
+</script>
+{% endblock %}

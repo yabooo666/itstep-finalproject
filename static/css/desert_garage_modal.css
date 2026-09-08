@@ -25,7 +25,7 @@
 .garage-modal-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(3, 5, 10, 0.88);
+    background: rgba(0, 0, 0, 0.92);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
 }
@@ -36,7 +36,7 @@
     width: 95vw;
     height: 92vh;
     max-width: 1680px;
-    background: #03050a;
+    background: #000000;
     border-radius: 20px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.12);
@@ -61,18 +61,18 @@
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: rgba(15, 18, 26, 0.75);
+    background: rgba(24, 24, 27, 0.85);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     z-index: 100;
     transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
 }
 
 .garage-close-btn svg {
@@ -84,7 +84,7 @@
 .garage-close-btn:hover {
     background: #ffffff;
     border-color: #ffffff;
-    color: #05070f;
+    color: #000000;
     transform: scale(1.08) rotate(90deg);
     box-shadow: 0 0 24px rgba(255, 255, 255, 0.45);
 }
@@ -121,7 +121,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(3, 5, 10, 0.92);
+    background: rgba(0, 0, 0, 0.95);
     z-index: 50;
     transition: opacity 0.4s ease, visibility 0.4s ease;
 }

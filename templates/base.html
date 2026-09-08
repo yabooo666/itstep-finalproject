@@ -7,25 +7,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Gruzin Auto | Car Rental{% endblock %}</title>
 
-    <!-- Theme Initialization Script: Default to pure OLED dark -->
+    <!-- Theme Initialization Script: Strictly Pure OLED Dark -->
     <script>
         (function () {
-            const savedTheme = localStorage.getItem('auto_theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('auto_theme', 'dark');
         })();
     </script>
 
     <!-- Global Base Styles (with cache busters) -->
-    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=soft1">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=mono_fix_v6">
     <!-- Component Styles (Modular) -->
-    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}?v=collapse_v1">
-    <link rel="stylesheet" href="{% static 'css/header.css' %}?v=soft2">
-    <link rel="stylesheet" href="{% static 'css/search_filter.css' %}?v=soft1">
-    <link rel="stylesheet" href="{% static 'css/vehicle_card.css' %}?v=eye_v5">
-    <link rel="stylesheet" href="{% static 'css/trust_features.css' %}?v=soft1">
-    <link rel="stylesheet" href="{% static 'css/faq.css' %}?v=soft1">
-    <link rel="stylesheet" href="{% static 'css/footer.css' %}?v=soft1">
-    <link rel="stylesheet" href="{% static 'css/auth_modal.css' %}?v=auth2">
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}?v=mono_fix_v7">
+    <link rel="stylesheet" href="{% static 'css/header.css' %}?v=mono_fix_v7">
+    <link rel="stylesheet" href="{% static 'css/search_filter.css' %}?v=mono_fix_v7">
+    <link rel="stylesheet" href="{% static 'css/vehicle_card.css' %}?v=mono_fix_v6">
+    <link rel="stylesheet" href="{% static 'css/trust_features.css' %}?v=mono_fix_v6">
+    <link rel="stylesheet" href="{% static 'css/faq.css' %}?v=mono_fix_v6">
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}?v=mono_fix_v6">
+    <link rel="stylesheet" href="{% static 'css/auth_modal.css' %}?v=mono_fix_v6">
 
     {% block extra_css %}{% endblock %}
 </head>
@@ -58,25 +58,10 @@
         </div>
     </div>
 
-    <!-- Global Theme Toggle Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const themeBtn = document.getElementById('themeToggleBtn');
-            if (themeBtn) {
-                themeBtn.addEventListener('click', function () {
-                    const current = document.documentElement.getAttribute('data-theme') || 'dark';
-                    const next = current === 'dark' ? 'light' : 'dark';
-                    document.documentElement.setAttribute('data-theme', next);
-                    localStorage.setItem('auto_theme', next);
-                });
-            }
-        });
-    </script>
-
     <!-- Reusable Login / Register Popup Modal -->
     {% include "components/auth_modal.html" %}
 
-    <script src="{% static 'js/auth_modal.js' %}?v=auth2"></script>
+    <script src="{% static 'js/auth_modal.js' %}?v=auth3"></script>
 
     {% block extra_js %}{% endblock %}
 </body>

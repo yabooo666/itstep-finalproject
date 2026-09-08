@@ -1,200 +1,153 @@
-<!-- Vehicle Filters Sidebar Component (Exact match to specification) -->
+<!-- Vehicle Filters Sidebar Component (100% Functional & Monochromatic Luxury Aesthetic) -->
 <aside class="vehicle-filters-sidebar" id="vehicleFiltersSidebar">
     <!-- Header: Filter by & Reset all -->
     <div class="filters-header">
         <h3 class="filters-title">Filter by</h3>
-        <button type="button" class="filters-reset-btn" id="resetFiltersBtn">
+        <a href="{% url 'vehicles' %}" class="filters-reset-btn" id="resetFiltersBtn">
             Reset all <span>&times;</span>
-        </button>
+        </a>
     </div>
 
-    <form id="vehicleFilterForm" class="filters-form" onsubmit="return false;">
-        <!-- 1. Rental Type -->
-        <div class="filter-section">
-            <label class="section-label">Rental Type</label>
-            <div class="pill-group" data-filter="rental-type">
-                <button type="button" class="filter-pill">Any</button>
-                <button type="button" class="filter-pill">Per day</button>
-                <button type="button" class="filter-pill active">Per hour</button>
-            </div>
-        </div>
+    <form id="vehicleFilterForm" class="filters-form" action="{% url 'vehicles' %}" method="GET">
+        <!-- Preserved Query & Sort Inputs -->
+        {% if selected_q %}
+        <input type="hidden" name="q" value="{{ selected_q }}">
+        {% endif %}
+        <input type="hidden" name="sort" id="filterSortInput" value="{{ selected_sort|default:'' }}">
 
-        <div class="filter-divider"></div>
-
-        <!-- 2. Available Now Only Toggle -->
-        <div class="filter-section toggle-row">
-            <span class="section-label mb-0">Available now only</span>
-            <label class="switch">
-                <input type="checkbox" id="availableNowToggle">
-                <span class="slider"></span>
-            </label>
-        </div>
-
-        <div class="filter-divider"></div>
-
-        <!-- 3. Price Range / Hour Histogram Slider -->
-        <div class="filter-section collapsible open" id="priceSection">
-            <div class="collapsible-header" onclick="toggleFilterSection('priceSection')">
-                <label class="section-label mb-0">Price Range / Hour</label>
+        <!-- 1. City / Location Filter -->
+        <div class="filter-section collapsible open" id="citySection">
+            <div class="collapsible-header" onclick="toggleFilterSection('citySection')">
+                <label class="section-label mb-0">City / Location</label>
                 <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="18 15 12 9 6 15"></polyline>
                 </svg>
             </div>
             <div class="collapsible-content">
-                <!-- Histogram Bars Visualization -->
-                <div class="histogram-wrapper">
-                    <div class="histogram-bars">
-                        <span class="hist-bar" style="height: 18%;"></span>
-                        <span class="hist-bar" style="height: 25%;"></span>
-                        <span class="hist-bar in-range" style="height: 38%;"></span>
-                        <span class="hist-bar in-range" style="height: 48%;"></span>
-                        <span class="hist-bar in-range" style="height: 55%;"></span>
-                        <span class="hist-bar in-range" style="height: 72%;"></span>
-                        <span class="hist-bar in-range" style="height: 85%;"></span>
-                        <span class="hist-bar in-range" style="height: 96%;"></span>
-                        <span class="hist-bar in-range" style="height: 100%;"></span>
-                        <span class="hist-bar in-range" style="height: 92%;"></span>
-                        <span class="hist-bar in-range" style="height: 88%;"></span>
-                        <span class="hist-bar in-range" style="height: 80%;"></span>
-                        <span class="hist-bar in-range" style="height: 70%;"></span>
-                        <span class="hist-bar in-range" style="height: 62%;"></span>
-                        <span class="hist-bar in-range" style="height: 48%;"></span>
-                        <span class="hist-bar in-range" style="height: 40%;"></span>
-                        <span class="hist-bar in-range" style="height: 35%;"></span>
-                        <span class="hist-bar in-range" style="height: 28%;"></span>
-                        <span class="hist-bar in-range" style="height: 32%;"></span>
-                        <span class="hist-bar in-range" style="height: 45%;"></span>
-                        <span class="hist-bar in-range" style="height: 60%;"></span>
-                        <span class="hist-bar" style="height: 70%;"></span>
-                        <span class="hist-bar" style="height: 76%;"></span>
-                        <span class="hist-bar" style="height: 82%;"></span>
-                        <span class="hist-bar" style="height: 86%;"></span>
-                    </div>
-
-                    <!-- Dual Handle Slider Track -->
-                    <div class="dual-range-track">
-                        <div class="track-highlight" style="left: 8%; right: 20%;"></div>
-                        <div class="range-handle handle-min" style="left: 8%;"></div>
-                        <div class="range-handle handle-max" style="left: 80%;"></div>
-                    </div>
-                </div>
-
-                <!-- From / To Price Inputs -->
-                <div class="price-inputs-row">
-                    <div class="price-box">
-                        <span class="price-box-label">FROM</span>
-                        <span class="price-box-val">$19.00</span>
-                    </div>
-                    <div class="price-box">
-                        <span class="price-box-label">TO</span>
-                        <span class="price-box-val">$98.50</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="filter-divider"></div>
-
-        <!-- 4. Car Brand (Collapsible Dropdown) -->
-        <div class="filter-section collapsible" id="brandSection">
-            <div class="collapsible-header" onclick="toggleFilterSection('brandSection')">
-                <label class="section-label mb-0">Car Brand</label>
-                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-            </div>
-            <div class="collapsible-content">
-                <select class="filter-custom-select" name="brand">
-                    <option value="">All Brands</option>
-                    <option value="mercedes">Mercedes-Benz</option>
-                    <option value="bmw">BMW</option>
-                    <option value="audi">Audi</option>
-                    <option value="porsche">Porsche</option>
-                    <option value="toyota">Toyota</option>
+                <select class="filter-custom-select" name="city" id="filterCitySelect">
+                    <option value="">All Locations</option>
+                    {% for c in available_cities %}
+                    <option value="{{ c }}" {% if selected_city|lower == c|lower %}selected{% endif %}>{{ c }}</option>
+                    {% empty %}
+                    <option value="Tbilisi" {% if selected_city|lower == 'tbilisi' %}selected{% endif %}>Tbilisi</option>
+                    <option value="Batumi" {% if selected_city|lower == 'batumi' %}selected{% endif %}>Batumi</option>
+                    <option value="Kutaisi" {% if selected_city|lower == 'kutaisi' %}selected{% endif %}>Kutaisi</option>
+                    <option value="Rustavi" {% if selected_city|lower == 'rustavi' %}selected{% endif %}>Rustavi</option>
+                    {% endfor %}
                 </select>
             </div>
         </div>
 
         <div class="filter-divider"></div>
 
-        <!-- 5. Car Model & Year (Collapsible Dropdown) -->
-        <div class="filter-section collapsible" id="modelSection">
-            <div class="collapsible-header" onclick="toggleFilterSection('modelSection')">
-                <label class="section-label mb-0">Car Model & Year</label>
-                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-            </div>
-            <div class="collapsible-content">
-                <div class="sub-filter-row">
-                    <input type="text" class="filter-text-input" placeholder="e.g. M4, E320, RS6">
-                    <input type="number" class="filter-text-input year-narrow" placeholder="Year" min="2000" max="2027">
-                </div>
-            </div>
-        </div>
-
-        <div class="filter-divider"></div>
-
-        <!-- 6. Body Type -->
-        <div class="filter-section collapsible open" id="bodyTypeSection">
-            <div class="collapsible-header" onclick="toggleFilterSection('bodyTypeSection')">
-                <label class="section-label mb-0">Body Type</label>
+        <!-- 2. Car Brand Filter -->
+        <div class="filter-section collapsible open" id="brandSection">
+            <div class="collapsible-header" onclick="toggleFilterSection('brandSection')">
+                <label class="section-label mb-0">Car Brand</label>
                 <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="18 15 12 9 6 15"></polyline>
                 </svg>
             </div>
             <div class="collapsible-content">
-                <div class="checkbox-grid-2col">
-                    <label class="custom-checkbox">
-                        <input type="checkbox" name="body_type" value="sedan" checked>
-                        <span class="checkmark"></span>
-                        <span class="cb-label">Sedan</span>
-                    </label>
-                    <label class="custom-checkbox">
-                        <input type="checkbox" name="body_type" value="wagon">
-                        <span class="checkmark"></span>
-                        <span class="cb-label">Wagon</span>
-                    </label>
+                <select class="filter-custom-select" name="brand" id="filterBrandSelect">
+                    <option value="">All Brands</option>
+                    {% for b in available_brands %}
+                    <option value="{{ b }}" {% if selected_brand|lower == b|lower %}selected{% endif %}>{{ b }}</option>
+                    {% empty %}
+                    <option value="BMW">BMW</option>
+                    <option value="Mercedes-Benz">Mercedes-Benz</option>
+                    <option value="Porsche">Porsche</option>
+                    <option value="Audi">Audi</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
 
-                    <label class="custom-checkbox">
-                        <input type="checkbox" name="body_type" value="coupe" checked>
-                        <span class="checkmark"></span>
-                        <span class="cb-label">Coupe</span>
-                    </label>
-                    <label class="custom-checkbox">
-                        <input type="checkbox" name="body_type" value="hatchback" checked>
-                        <span class="checkmark"></span>
-                        <span class="cb-label">Hatchback</span>
-                    </label>
+        <div class="filter-divider"></div>
 
-                    <label class="custom-checkbox">
-                        <input type="checkbox" name="body_type" value="pickup">
-                        <span class="checkmark"></span>
-                        <span class="cb-label">Pickup</span>
-                    </label>
-                    <label class="custom-checkbox">
-                        <input type="checkbox" name="body_type" value="sport_coupe">
-                        <span class="checkmark"></span>
-                        <span class="cb-label">Sport coupe</span>
-                    </label>
-
-                    <label class="custom-checkbox">
-                        <input type="checkbox" name="body_type" value="crossover" checked>
-                        <span class="checkmark"></span>
-                        <span class="cb-label">Crossover</span>
-                    </label>
-                    <label class="custom-checkbox">
-                        <input type="checkbox" name="body_type" value="van" checked>
-                        <span class="checkmark"></span>
-                        <span class="cb-label">Van</span>
-                    </label>
+        <!-- 3. Model & Keyword -->
+        <div class="filter-section collapsible open" id="modelSection">
+            <div class="collapsible-header" onclick="toggleFilterSection('modelSection')">
+                <label class="section-label mb-0">Model & Year</label>
+                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="18 15 12 9 6 15"></polyline>
+                </svg>
+            </div>
+            <div class="collapsible-content">
+                <div class="sub-filter-row">
+                    <input type="text" 
+                           name="model" 
+                           id="filterModelInput"
+                           class="filter-text-input" 
+                           placeholder="Model (e.g. M4, 911)" 
+                           value="{{ selected_model|default:'' }}">
+                    <input type="number" 
+                           name="year_min" 
+                           id="filterYearMinInput"
+                           class="filter-text-input year-narrow" 
+                           placeholder="Min" 
+                           min="1990" 
+                           max="2030" 
+                           value="{{ selected_year_min|default:'' }}">
+                    <input type="number" 
+                           name="year_max" 
+                           id="filterYearMaxInput"
+                           class="filter-text-input year-narrow" 
+                           placeholder="Max" 
+                           min="1990" 
+                           max="2030" 
+                           value="{{ selected_year_max|default:'' }}">
                 </div>
             </div>
         </div>
 
         <div class="filter-divider"></div>
 
-        <!-- 7. Transmission -->
+        <!-- 4. Daily Rental Rate Range (₾ GEL) -->
+        <div class="filter-section collapsible open" id="priceSection">
+            <div class="collapsible-header" onclick="toggleFilterSection('priceSection')">
+                <label class="section-label mb-0">Daily Rate (₾ GEL)</label>
+                <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="18 15 12 9 6 15"></polyline>
+                </svg>
+            </div>
+            <div class="collapsible-content">
+                <div class="price-inputs-row">
+                    <div class="price-box">
+                        <span class="price-box-label">MIN RATE</span>
+                        <div class="price-input-adorned">
+                            <span class="currency-sym">₾</span>
+                            <input type="number" 
+                                   name="price_min" 
+                                   id="filterPriceMin"
+                                   class="price-clean-input" 
+                                   placeholder="0" 
+                                   min="0" 
+                                   step="10" 
+                                   value="{{ selected_price_min|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="price-box">
+                        <span class="price-box-label">MAX RATE</span>
+                        <div class="price-input-adorned">
+                            <span class="currency-sym">₾</span>
+                            <input type="number" 
+                                   name="price_max" 
+                                   id="filterPriceMax"
+                                   class="price-clean-input" 
+                                   placeholder="1000" 
+                                   min="0" 
+                                   step="10" 
+                                   value="{{ selected_price_max|default:'' }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <!-- 5. Transmission -->
         <div class="filter-section collapsible open" id="transmissionSection">
             <div class="collapsible-header" onclick="toggleFilterSection('transmissionSection')">
                 <label class="section-label mb-0">Transmission</label>
@@ -203,72 +156,51 @@
                 </svg>
             </div>
             <div class="collapsible-content">
+                <input type="hidden" name="transmission" id="filterTransmissionInput" value="{{ selected_transmission|default:'' }}">
                 <div class="pill-group" data-filter="transmission">
-                    <button type="button" class="filter-pill active">Any</button>
-                    <button type="button" class="filter-pill">Automatic</button>
-                    <button type="button" class="filter-pill">Manual</button>
+                    <button type="button" class="filter-pill {% if not selected_transmission or selected_transmission == 'any' %}active{% endif %}" data-val="">Any</button>
+                    <button type="button" class="filter-pill {% if selected_transmission|lower == 'automatic' %}active{% endif %}" data-val="Automatic">Automatic</button>
+                    <button type="button" class="filter-pill {% if selected_transmission|lower == 'manual' %}active{% endif %}" data-val="Manual">Manual</button>
+                    <button type="button" class="filter-pill {% if selected_transmission|lower == 'tiptronic' %}active{% endif %}" data-val="Tiptronic">Tiptronic</button>
                 </div>
             </div>
         </div>
 
         <div class="filter-divider"></div>
 
-        <!-- 8. Fuel Type -->
-        <div class="filter-section collapsible open" id="fuelTypeSection">
-            <div class="collapsible-header" onclick="toggleFilterSection('fuelTypeSection')">
-                <label class="section-label mb-0">Fuel Type</label>
+        <!-- 6. Seating Capacity -->
+        <div class="filter-section collapsible open" id="capacitySection">
+            <div class="collapsible-header" onclick="toggleFilterSection('capacitySection')">
+                <label class="section-label mb-0">Seating Capacity</label>
                 <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="18 15 12 9 6 15"></polyline>
                 </svg>
             </div>
             <div class="collapsible-content">
-                <div class="checkbox-grid-2col">
-                    <label class="custom-checkbox">
-                        <input type="checkbox" name="fuel_type" value="gasoline" checked>
-                        <span class="checkmark"></span>
-                        <span class="cb-label">Gasoline</span>
-                    </label>
-                    <label class="custom-checkbox">
-                        <input type="checkbox" name="fuel_type" value="flex_fuel" checked>
-                        <span class="checkmark"></span>
-                        <span class="cb-label">Flex Fuel (E85)</span>
-                    </label>
-
-                    <label class="custom-checkbox">
-                        <input type="checkbox" name="fuel_type" value="diesel">
-                        <span class="checkmark"></span>
-                        <span class="cb-label">Diesel</span>
-                    </label>
-                    <label class="custom-checkbox">
-                        <input type="checkbox" name="fuel_type" value="hybrid">
-                        <span class="checkmark"></span>
-                        <span class="cb-label">Hybrid</span>
-                    </label>
-
-                    <label class="custom-checkbox">
-                        <input type="checkbox" name="fuel_type" value="electric" checked>
-                        <span class="checkmark"></span>
-                        <span class="cb-label">Electric</span>
-                    </label>
-                    <label class="custom-checkbox">
-                        <input type="checkbox" name="fuel_type" value="hydrogen">
-                        <span class="checkmark"></span>
-                        <span class="cb-label">Hydrogen</span>
-                    </label>
-
-                    <label class="custom-checkbox">
-                        <input type="checkbox" name="fuel_type" value="other">
-                        <span class="checkmark"></span>
-                        <span class="cb-label">Other</span>
-                    </label>
+                <input type="hidden" name="capacity" id="filterCapacityInput" value="{{ selected_capacity|default:'' }}">
+                <div class="pill-group" data-filter="capacity">
+                    <button type="button" class="filter-pill {% if not selected_capacity or selected_capacity == 'any' %}active{% endif %}" data-val="">Any</button>
+                    <button type="button" class="filter-pill {% if selected_capacity == '2' %}active{% endif %}" data-val="2">2</button>
+                    <button type="button" class="filter-pill {% if selected_capacity == '4' %}active{% endif %}" data-val="4">4</button>
+                    <button type="button" class="filter-pill {% if selected_capacity == '5' %}active{% endif %}" data-val="5">5</button>
+                    <button type="button" class="filter-pill {% if selected_capacity == '7' %}active{% endif %}" data-val="7">7+</button>
                 </div>
             </div>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <!-- Submit & Clear Actions -->
+        <div class="filter-action-footer">
+            <button type="submit" class="btn-apply-filter-sidebar" id="applyFilterBtn">
+                Apply Filters
+            </button>
         </div>
     </form>
 </aside>
 
 <script>
-    // Toggle collapsible accordion sections
+    // Collapsible accordion toggler
     function toggleFilterSection(sectionId) {
         const section = document.getElementById(sectionId);
         if (section) {
@@ -276,26 +208,56 @@
         }
     }
 
-    // Interactive Pill Selection
-    document.querySelectorAll('.pill-group .filter-pill').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const parent = this.closest('.pill-group');
-            parent.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
+    document.addEventListener('DOMContentLoaded', () => {
+        const filterForm = document.getElementById('vehicleFilterForm');
+        if (!filterForm) return;
 
-    // Reset All Filters
-    document.getElementById('resetFiltersBtn')?.addEventListener('click', function() {
-        const form = document.getElementById('vehicleFilterForm');
-        if (form) {
-            form.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-            form.querySelectorAll('.filter-pill').forEach((p, idx) => {
-                p.classList.remove('active');
-                if (idx === 0) p.classList.add('active');
+        // Synchronize Top Sort Dropdown into Filter Form
+        const topSortSelect = document.querySelector('.sort-select');
+        const filterSortInput = document.getElementById('filterSortInput');
+        if (topSortSelect && filterSortInput) {
+            // Set initial value
+            if (filterSortInput.value) {
+                topSortSelect.value = filterSortInput.value;
+            }
+            topSortSelect.addEventListener('change', () => {
+                filterSortInput.value = topSortSelect.value;
+                filterForm.submit();
             });
-            const toggle = document.getElementById('availableNowToggle');
-            if (toggle) toggle.checked = false;
         }
+
+        // Pill button selection handler (Transmission & Capacity)
+        document.querySelectorAll('.pill-group .filter-pill').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const group = this.closest('.pill-group');
+                const filterType = group.getAttribute('data-filter');
+                group.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+
+                const val = this.getAttribute('data-val');
+                if (filterType === 'transmission') {
+                    document.getElementById('filterTransmissionInput').value = val;
+                } else if (filterType === 'capacity') {
+                    document.getElementById('filterCapacityInput').value = val;
+                }
+                filterForm.submit();
+            });
+        });
+
+        // Auto-submit on select changes
+        const citySelect = document.getElementById('filterCitySelect');
+        const brandSelect = document.getElementById('filterBrandSelect');
+        citySelect?.addEventListener('change', () => filterForm.submit());
+        brandSelect?.addEventListener('change', () => filterForm.submit());
+
+        // Debounced submit on text inputs (Enter key or on change)
+        filterForm.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    filterForm.submit();
+                }
+            });
+        });
     });
 </script>

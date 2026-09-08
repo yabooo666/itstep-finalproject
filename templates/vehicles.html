@@ -7,9 +7,9 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="{% static 'css/vehicle_filters.css' %}?v=soft1">
-<link rel="stylesheet" href="{% static 'css/rental_catalog.css' %}?v=eye_v5">
-<link rel="stylesheet" href="{% static 'css/desert_garage_modal.css' %}?v=eye_v5">
+<link rel="stylesheet" href="{% static 'css/vehicle_filters.css' %}?v=mono_fix_v6">
+<link rel="stylesheet" href="{% static 'css/rental_catalog.css' %}?v=mono_fix_v6">
+<link rel="stylesheet" href="{% static 'css/desert_garage_modal.css' %}?v=mono_fix_v6">
 {% endblock %}
 
 {% block content %}
@@ -32,11 +32,12 @@
             <div class="results-actions">
                 <!-- Sort Dropdown -->
                 <div class="sort-select-wrapper">
-                    <select class="sort-select" aria-label="Sort vehicles">
-                        <option value="closest">Closest to me</option>
-                        <option value="price_low">Price: Low to High</option>
-                        <option value="price_high">Price: High to Low</option>
-                        <option value="rating">Highest Rated</option>
+                    <select class="sort-select" id="catalogTopSortSelect" aria-label="Sort vehicles">
+                        <option value="" {% if not selected_sort %}selected{% endif %}>Default Sorting</option>
+                        <option value="price_low" {% if selected_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_high" {% if selected_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                        <option value="rating" {% if selected_sort == 'rating' %}selected{% endif %}>Highest Rated</option>
+                        <option value="year" {% if selected_sort == 'year' %}selected{% endif %}>Newest Year</option>
                     </select>
                 </div>
 
@@ -61,10 +62,19 @@
                     {% for car in vehicles %}
                     {% include "components/rental_card.html" with car=car %}
                     {% empty %}
-                    <!-- Empty State View -->
-                    <div class="empty-vehicles-state" style="grid-column: 1 / -1; padding: 60px 20px; text-align: center; background: var(--bg-card, #0e121b); border-radius: 16px; border: 1px solid var(--border-subtle, rgba(255,255,255,0.08)); margin: 20px 0;">
-                        <div style="font-size: 38px; margin-bottom: 14px;">{% if is_favourites_page %}❤️{% else %}🏎️{% endif %}</div>
-                        <h3 style="color: var(--text-primary, #ffffff); font-size: 19px; font-weight: 700; margin: 0 0 8px;">
+                    <!-- Empty State View (Pure Monochrome) -->
+                    <div class="empty-vehicles-state" style="grid-column: 1 / -1; padding: 60px 20px; text-align: center; background: #09090c; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.08); margin: 20px 0; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);">
+                        <div style="width: 56px; height: 56px; border-radius: 50%; background: #18181b; border: 1px solid rgba(255, 255, 255, 0.15); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: #ffffff;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="24" height="24">
+                                {% if is_favourites_page %}
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                {% else %}
+                                <circle cx="11" cy="11" r="8"/>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                {% endif %}
+                            </svg>
+                        </div>
+                        <h3 style="color: #ffffff; font-size: 19px; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.2px;">
                             {% if is_favourites_page %}
                                 {% if login_required_notice %}
                                     Sign In to View Your Favourites
@@ -75,7 +85,7 @@
                                 No Vehicles Found
                             {% endif %}
                         </h3>
-                        <p style="color: var(--text-secondary, #94a3b8); font-size: 14px; max-width: 440px; margin: 0 auto 24px; line-height: 1.5;">
+                        <p style="color: #a1a1aa; font-size: 13.5px; max-width: 440px; margin: 0 auto 24px; line-height: 1.5;">
                             {% if is_favourites_page %}
                                 {% if login_required_notice %}
                                     Save your favorite luxury vehicles to your personal garage and inspect them anytime.
@@ -88,16 +98,16 @@
                         </p>
                         {% if is_favourites_page %}
                             {% if login_required_notice %}
-                                <button type="button" class="auth-pill-btn auth-register-btn" onclick="window.openAuthModal ? window.openAuthModal('login') : null" style="padding: 10px 26px; font-size: 14px; border-radius: 10px; cursor: pointer;">
+                                <button type="button" class="auth-pill-btn auth-register-btn" onclick="window.openAuthModal ? window.openAuthModal('login') : null" style="padding: 10px 26px; font-size: 13.5px; font-weight: 800; border-radius: 10px; cursor: pointer;">
                                     Sign In / Register
                                 </button>
                             {% else %}
-                                <a href="{% url 'vehicles' %}" class="auth-pill-btn auth-register-btn" style="display: inline-block; padding: 10px 26px; font-size: 14px; border-radius: 10px; text-decoration: none;">
+                                <a href="{% url 'vehicles' %}" class="auth-pill-btn auth-register-btn" style="display: inline-block; padding: 10px 26px; font-size: 13.5px; font-weight: 800; border-radius: 10px; text-decoration: none;">
                                     Browse All Vehicles
                                 </a>
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'vehicles' %}" class="auth-pill-btn auth-register-btn" style="display: inline-block; padding: 10px 26px; font-size: 14px; border-radius: 10px; text-decoration: none;">
+                            <a href="{% url 'vehicles' %}" class="auth-pill-btn auth-register-btn" style="display: inline-block; padding: 10px 26px; font-size: 13.5px; font-weight: 800; border-radius: 10px; text-decoration: none;">
                                 Clear Filters
                             </a>
                         {% endif %}

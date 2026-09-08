@@ -1,8 +1,8 @@
-/* Header / Navbar Component Styles */
+/* Header / Navbar Component Styles - Pure OLED Jet Black */
 
 .site-header {
-    background-color: var(--bg-card);
-    border-bottom: 1px solid var(--border-color);
+    background-color: #000000 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
     height: 52px;
     display: flex;
     align-items: center;
@@ -10,8 +10,7 @@
     position: sticky;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85);
 }
 
 .header-container {
@@ -40,7 +39,7 @@
 .brand-icon {
     width: 32px;
     height: 32px;
-    background: var(--text-primary);
+    background: #ffffff !important;
     border-radius: 9px;
     display: flex;
     align-items: center;
@@ -51,6 +50,7 @@
 .brand-icon svg {
     width: 18px;
     height: 18px;
+    fill: #000000 !important;
 }
 
 .brand-text {
@@ -62,77 +62,32 @@
 .brand-name {
     font-size: 13px;
     font-weight: 800;
-    color: var(--text-primary);
+    color: #ffffff !important;
     letter-spacing: 0.5px;
 }
 
 .brand-sub {
     font-size: 11px;
     font-weight: 800;
-    color: var(--text-primary);
+    color: #ffffff !important;
     letter-spacing: 0.5px;
 }
 
-/* Right Section: Theme Toggle & Auth Pill Group */
+/* Right Section */
 .header-right {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-/* Theme Toggle Button */
-.theme-toggle-btn {
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
-    background-color: var(--border-light);
-    border: 1px solid var(--border-color);
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    padding: 0;
-}
-
-.theme-toggle-btn:hover {
-    color: var(--text-primary);
-    border-color: var(--text-secondary);
-    transform: translateY(-0.5px);
-}
-
-.theme-toggle-btn svg {
-    width: 17px;
-    height: 17px;
-}
-
-/* Sun/Moon visibility depending on data-theme */
-[data-theme="dark"] .theme-toggle-btn .moon-icon {
-    display: none;
-}
-
-[data-theme="dark"] .theme-toggle-btn .sun-icon {
-    display: block;
-    color: #fbbf24;
-}
-
-:root:not([data-theme="dark"]) .theme-toggle-btn .sun-icon {
-    display: none;
-}
-
-:root:not([data-theme="dark"]) .theme-toggle-btn .moon-icon {
-    display: block;
-}
-
 /* Premium Auth Pill Group */
 .auth-pill-group {
     display: inline-flex;
     align-items: center;
-    background-color: var(--border-light);
+    background-color: #09090c !important;
     padding: 3px;
     border-radius: 9px;
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 
 .auth-pill-btn {
@@ -156,57 +111,106 @@
 }
 
 .auth-login-btn {
-    color: var(--text-secondary);
+    color: #a1a1aa !important;
 }
 
 .auth-login-btn:hover {
-    color: var(--text-primary);
-    background-color: var(--bg-card);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 .auth-register-btn {
-    background-color: var(--accent-dark);
-    color: var(--bg-main);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-}
-
-[data-theme="dark"] .auth-register-btn {
-    background-color: #f8fafc;
-    color: #0b0f19;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.15) !important;
 }
 
 .auth-register-btn:hover {
-    opacity: 0.92;
+    background-color: #e4e4e7 !important;
     transform: translateY(-0.5px);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* User Profile Badge (Logged In) */
-.user-profile-badge {
+/* Notifications Icon Button */
+.header-notif-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #09090c !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    color: #d4d4d8 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    position: relative;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    flex-shrink: 0;
+}
+
+.header-notif-btn svg {
+    width: 17px;
+    height: 17px;
+    stroke: currentColor;
+    transition: stroke 0.15s ease;
+}
+
+.header-notif-btn:hover {
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    transform: scale(1.06);
+}
+
+.notif-badge-dot {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.85);
+}
+
+/* User Profile Dropdown */
+.user-profile-dropdown-wrap {
+    position: relative;
+}
+
+.user-profile-trigger {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    background-color: var(--border-light);
-    border: 1px solid var(--border-color);
-    padding: 3px 6px 3px 4px;
+    background-color: #09090c !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    padding: 3px 12px 3px 4px;
     border-radius: 20px;
+    cursor: pointer;
     transition: all 0.2s ease;
+    font-family: inherit;
+    outline: none;
+}
+
+.user-profile-trigger:hover,
+.user-profile-dropdown-wrap.open .user-profile-trigger {
+    background-color: #18181b !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
 }
 
 .user-avatar-circle {
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    color: #ffffff;
+    background: #18181b !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
     font-size: 11.5px;
-    font-weight: 700;
+    font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
     letter-spacing: 0.5px;
-    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
     flex-shrink: 0;
 }
 
@@ -214,13 +218,14 @@
     display: flex;
     flex-direction: column;
     line-height: 1.15;
-    padding-right: 4px;
+    padding-right: 2px;
+    text-align: left;
 }
 
 .user-display-name {
     font-size: 13px;
     font-weight: 700;
-    color: var(--text-primary);
+    color: #ffffff !important;
     max-width: 150px;
     white-space: nowrap;
     overflow: hidden;
@@ -229,38 +234,173 @@
 
 .user-role-badge {
     font-size: 9.5px;
-    font-weight: 600;
-    color: #3b82f6;
+    font-weight: 700;
+    color: #71717a !important;
     letter-spacing: 0.4px;
     text-transform: uppercase;
 }
 
-.user-logout-btn {
-    display: inline-flex;
+.dropdown-chevron {
+    width: 13px;
+    height: 13px;
+    stroke: #71717a;
+    transition: transform 0.2s ease, stroke 0.2s ease;
+    margin-left: 2px;
+}
+
+.user-profile-dropdown-wrap.open .dropdown-chevron {
+    transform: rotate(180deg);
+    stroke: #ffffff;
+}
+
+/* Dropdown Menu Container */
+.user-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 230px;
+    background: #09090c !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.95);
+    padding: 8px;
+    display: none;
+    flex-direction: column;
+    z-index: 1050;
+    animation: menuFadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes menuFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.user-profile-dropdown-wrap.open .user-dropdown-menu {
+    display: flex;
+}
+
+.dropdown-user-header {
+    display: flex;
     align-items: center;
-    gap: 5px;
-    padding: 5px 9px;
-    border-radius: 12px;
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    color: #f87171;
-    font-size: 11.5px;
-    font-weight: 600;
+    gap: 10px;
+    padding: 8px 10px;
+}
+
+.dropdown-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #18181b !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+    font-size: 12px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.dropdown-user-meta {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+    min-width: 0;
+}
+
+.dropdown-user-fullname {
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdown-user-handle {
+    font-size: 11px;
+    color: #71717a !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08) !important;
+    margin: 6px 0;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    color: #d4d4d8 !important;
     text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
     transition: all 0.15s ease;
-    line-height: 1;
 }
 
-.user-logout-btn:hover {
-    background: rgba(239, 68, 68, 0.2);
-    border-color: rgba(239, 68, 68, 0.4);
-    color: #fca5a5;
-    transform: translateY(-0.5px);
+.dropdown-item svg {
+    width: 15px;
+    height: 15px;
+    stroke: #a1a1aa !important;
+    flex-shrink: 0;
+    transition: stroke 0.15s ease;
 }
 
-.user-logout-btn svg {
-    width: 12px;
-    height: 12px;
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+}
+
+.dropdown-item:hover svg {
+    stroke: #ffffff !important;
+}
+
+.dropdown-item-highlight {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    font-weight: 700 !important;
+}
+
+.dropdown-item-highlight svg {
+    stroke: #ffffff !important;
+}
+
+.dropdown-item-highlight:hover {
+    background: #ffffff !important;
+    color: #000000 !important;
+}
+
+.dropdown-item-highlight:hover svg {
+    stroke: #000000 !important;
+}
+
+.dropdown-item-signout {
+    color: #ef4444 !important;
+}
+
+.dropdown-item-signout svg {
+    stroke: #ef4444 !important;
+}
+
+.dropdown-item-signout:hover {
+    background: rgba(239, 68, 68, 0.12) !important;
+    color: #f87171 !important;
+}
+
+.dropdown-item-signout:hover svg {
+    stroke: #f87171 !important;
 }
 
 /* Hide duplicate header brand on desktop since it is in the sidebar */
@@ -270,7 +410,6 @@
     }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .site-header {
         padding: 0 16px;

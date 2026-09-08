@@ -198,12 +198,22 @@ function initAuthModal() {
             e.preventDefault();
             clearAlerts();
 
-            const fullName = document.getElementById('registerName')?.value.trim();
+            const firstName = document.getElementById('registerFirstName')?.value.trim();
+            const lastName = document.getElementById('registerLastName')?.value.trim();
+            const phone = document.getElementById('registerPhone')?.value.trim();
             const email = document.getElementById('registerEmail')?.value.trim();
             const password = document.getElementById('registerPassword')?.value;
             const confirmPassword = document.getElementById('registerConfirmPassword')?.value;
 
             // Client-side validations
+            if (!firstName) {
+                showRegisterError('Please enter your first name.');
+                return;
+            }
+            if (!phone) {
+                showRegisterError('Please enter your phone number.');
+                return;
+            }
             if (!email) {
                 showRegisterError('Please enter your email address.');
                 return;
@@ -231,7 +241,9 @@ function initAuthModal() {
                         'X-CSRFToken': getCsrfToken()
                     },
                     body: JSON.stringify({
-                        full_name: fullName,
+                        first_name: firstName,
+                        last_name: lastName,
+                        phone_number: phone,
                         email: email,
                         password: password,
                         confirm_password: confirmPassword
@@ -265,17 +277,17 @@ function initAuthModal() {
         }
     }
 
-    // 6. AJAX Login Form Handler
+    // 6. AJAX Login Form Handler (Phone Number & Password)
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             clearAlerts();
 
-            const email = document.getElementById('loginEmail')?.value.trim();
+            const phone = document.getElementById('loginPhone')?.value.trim();
             const password = document.getElementById('loginPassword')?.value;
 
-            if (!email || !password) {
-                showLoginError('Please enter both email and password.');
+            if (!phone || !password) {
+                showLoginError('Please enter both phone number and password.');
                 return;
             }
 
@@ -292,7 +304,7 @@ function initAuthModal() {
                         'X-CSRFToken': getCsrfToken()
                     },
                     body: JSON.stringify({
-                        email: email,
+                        phone_number: phone,
                         password: password
                     })
                 });
@@ -313,7 +325,7 @@ function initAuthModal() {
                         });
                         loginAlert.appendChild(resendSpan);
                     } else {
-                        showLoginError(data.error || 'Invalid email or password.');
+                        showLoginError(data.error || 'Invalid phone number or password.');
                     }
                 }
             } catch (err) {

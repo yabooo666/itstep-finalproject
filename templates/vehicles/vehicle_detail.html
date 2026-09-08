@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ vehicle.brand }} {{ vehicle.model }} | Gruzin Auto{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vehicle_detail.css' %}?v=pure_jetblack_v4">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
+
+{% block content %}
+<div class="vehicle-detail-container">
+    <!-- Breadcrumbs -->
+    <div class="detail-nav-bar">
+        <a href="{% url 'vehicles' %}" class="back-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            <span>Back to Vehicles Catalog</span>
+        </a>
+        <div class="detail-tag-group">
+            <span class="location-badge">📍 {{ vehicle.city }}</span>
+            <span class="year-badge">{{ vehicle.year }}</span>
+            <span class="mode-badge">3D Interactive Showroom</span>
+        </div>
+    </div>
+
+    <!-- Main Grid: Left 3D Stage & Details + Right Booking Card -->
+    <div class="detail-main-layout">
+        <!-- Left Column -->
+        <div class="detail-left-col">
+            <!-- Mode Switcher Tabs (3D Showroom vs 2D Photos) -->
+            <div class="view-mode-tabs">
+                <button type="button" class="tab-btn active" id="btnTab3D">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                    <span>3D Interactive Model</span>
+                </button>
+                <button type="button" class="tab-btn" id="btnTabPhotos">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span>Photo Gallery</span>
+                </button>
+            </div>
+
+            <!-- Primary 3D Showroom Stage -->
+            <div class="detail-3d-stage-wrapper" id="detail3dStage" data-model-url="{{ vehicle.get_model_url }}">
+                <div class="stage-3d-header">
+                    <div class="stage-badge">
+                        <span class="pulse-dot"></span>
+                        <span>360° Real-Time 3D Inspector</span>
+                    </div>
+                    <div class="stage-controls">
+                        <button type="button" class="btn-stage-tool active" id="btnAutoRotate" title="Toggle Auto-Rotation">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                            <span>Rotate</span>
+                        </button>
+                        <button type="button" class="btn-stage-tool" id="btnResetView" title="Reset Camera View">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            <span>Reset</span>
+                        </button>
+                        <button type="button" class="btn-stage-tool" id="btnToggleLighting" title="Toggle Studio Lighting">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                            <span>Lighting</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3D WebGL Canvas Container -->
+                <div id="detail3dCanvas" class="detail-3d-canvas"></div>
+
+                <!-- Loading Progress Overlay -->
+                <div class="detail-3d-loading" id="detail3dProgress">
+                    <div class="spinner-3d"></div>
+                    <span class="loading-label">Loading 3D Car Model...</span>
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" id="detail3dProgressBar"></div>
+                    </div>
+                </div>
+
+                <!-- Interaction Hint -->
+                <div class="stage-hint-pill">
+                    <span>Drag to rotate • Scroll to zoom • Right-click to pan</span>
+                </div>
+            </div>
+
+            <!-- Fallback 2D Photo Gallery (Hidden initially) -->
+            <div class="gallery-wrapper" id="detailPhotoGallery" style="display: none;">
+                <div class="main-photo-stage">
+                    <img id="mainGalleryImg" src="{{ primary_image }}" alt="{{ vehicle.brand }} {{ vehicle.model }}" class="main-photo">
+                    <div class="photo-overlay-badge">
+                        <span>{{ vehicle.brand }} {{ vehicle.model }}</span>
+                    </div>
+                </div>
+
+                <div class="thumbnails-row">
+                    {% for img in images %}
+                    <div class="thumb-item {% if forloop.first %}active{% endif %}" onclick="switchDetailPhoto(this, '{{ img }}')">
+                        <img src="{{ img }}" alt="Thumbnail {{ forloop.counter }}">
+                        <span class="thumb-num">Photo {{ forloop.counter }}</span>
+                    </div>
+                    {% empty %}
+                    <div class="thumb-item active">
+                        <img src="{{ primary_image }}" alt="Default view">
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Vehicle Header Info -->
+            <div class="vehicle-heading-block">
+                <div class="title-row">
+                    <h1 class="car-title">{{ vehicle.brand }} {{ vehicle.model }}</h1>
+                    <div class="rating-badge">
+                        <svg viewBox="0 0 24 24" fill="#eab308"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <span>{{ vehicle.rating }} ({{ vehicle.review_count }} verified reviews)</span>
+                    </div>
+                </div>
+                {% if vehicle.trim %}
+                <p class="car-trim-text">{{ vehicle.trim }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Specifications Grid -->
+            <div class="specs-card">
+                <h3 class="specs-heading">Detailed Vehicle Specifications</h3>
+                <div class="specs-grid">
+                    <div class="spec-item">
+                        <span class="spec-label">Year of Manufacture</span>
+                        <span class="spec-val">{{ vehicle.year }}</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Transmission</span>
+                        <span class="spec-val">{{ vehicle.transmission }}</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Seating Capacity</span>
+                        <span class="spec-val">{{ vehicle.seats }} Seats</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Fuel Tank Capacity</span>
+                        <span class="spec-val">{{ vehicle.fuel_capacity }} Liters</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Location / City</span>
+                        <span class="spec-val">{{ vehicle.city }}</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Owner Contact Phone</span>
+                        <span class="spec-val highlight-phone">📞 {{ vehicle.owner_phone|default:"591 29 98 99" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehicle Location Map -->
+            <div class="map-card">
+                <h3 class="specs-heading">Vehicle Parking & Pickup Location</h3>
+                <p class="map-desc">This vehicle is parked at: <strong>{{ vehicle.location_name }}</strong>, {{ vehicle.city }}.</p>
+                <div id="vehicleDetailMap" class="detail-map-canvas" data-lat="{{ vehicle.lat }}" data-lng="{{ vehicle.lng }}"></div>
+            </div>
+        </div>
+
+        <!-- Right Column: Interactive Booking Card -->
+        <div class="detail-right-col">
+            <div class="booking-sticky-card">
+                <div class="price-header">
+                    <div>
+                        <span class="price-big">₾{{ vehicle.daily_price }}</span>
+                        <span class="price-per">/ day</span>
+                    </div>
+                    <div class="hourly-hint">₾{{ vehicle.price_per_hour }} / hr</div>
+                </div>
+
+                <div class="booking-divider"></div>
+
+                <!-- Booking Calculation Form -->
+                <form id="rentalBookingForm" class="rental-booking-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="vehicle_id" value="{{ vehicle.id }}">
+
+                    <!-- City Selection -->
+                    <div class="booking-field">
+                        <label class="booking-label" for="rentCity">Pickup & Return City</label>
+                        <select id="rentCity" name="city" class="booking-select" required>
+                            <option value="{{ vehicle.city }}" selected>{{ vehicle.city }} (Current Vehicle Location)</option>
+                            <option value="Tbilisi">Tbilisi</option>
+                            <option value="Batumi">Batumi</option>
+                            <option value="Kutaisi">Kutaisi</option>
+                            <option value="Rustavi">Rustavi</option>
+                            <option value="Telavi">Telavi</option>
+                        </select>
+                    </div>
+
+                    <!-- Rental Duration (Days) -->
+                    <div class="booking-field">
+                        <div class="label-row">
+                            <label class="booking-label" for="rentDays">Rental Duration</label>
+                            <span class="days-count-badge" id="daysDisplayBadge">1 Day</span>
+                        </div>
+                        <input type="range" id="rentDays" name="rental_days" min="1" max="30" value="1" class="days-range-slider">
+                        <div class="range-labels">
+                            <span>1 Day</span>
+                            <span>15 Days</span>
+                            <span>30 Days</span>
+                        </div>
+                    </div>
+
+                    <!-- Live Calculation Breakdown -->
+                    <div class="price-calc-box">
+                        <div class="calc-row">
+                            <span>₾{{ vehicle.daily_price }} × <span id="calcDaysCount">1</span> Day(s)</span>
+                            <span id="calcSubtotal">₾{{ vehicle.daily_price }}</span>
+                        </div>
+                        <div class="calc-row">
+                            <span>Comprehensive CASCO Insurance</span>
+                            <span class="free-tag">Included Free</span>
+                        </div>
+                        <div class="calc-divider"></div>
+                        <div class="calc-row total-row">
+                            <span class="total-label">Total Amount</span>
+                            <span class="total-val" id="calcTotalAmount">₾{{ vehicle.daily_price }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Booking Alert Box -->
+                    <div id="bookingAlertBox" class="booking-alert" style="display: none;"></div>
+
+                    <!-- Rent Button -->
+                    {% if user.is_authenticated %}
+                    <button type="submit" class="btn-rent-now" id="rentNowBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <span>Confirm Rental Booking</span>
+                    </button>
+                    {% else %}
+                    <button type="button" class="btn-rent-now" onclick="openAuthModal('login')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                        <span>Sign In to Book This Car</span>
+                    </button>
+                    {% endif %}
+                </form>
+
+                <div class="booking-perks">
+                    <div class="perk-item">✓ Instant Booking Confirmation via Email</div>
+                    <div class="perk-item">✓ 24/7 Roadside Assistance & Concierge</div>
+                    <div class="perk-item">✓ Zero Deposit Option Available</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Three.js ES Module Importmap -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<!-- Three.js 3D Viewer Script -->
+<script type="module" src="{% static 'js/vehicle_detail_3d.js' %}?v=g3d1"></script>
+
+<!-- Leaflet.js Mapping Library -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    const dailyPrice = parseFloat("{{ vehicle.daily_price }}") || 90;
+
+    // Photo switcher
+    function switchDetailPhoto(el, imgUrl) {
+        document.querySelectorAll('.thumb-item').forEach(item => item.classList.remove('active'));
+        el.classList.add('active');
+        const mainImg = document.getElementById('mainGalleryImg');
+        if (mainImg) {
+            mainImg.src = imgUrl;
+        }
+    }
+
+    // Days slider & live calculator
+    const daysSlider = document.getElementById('rentDays');
+    const daysBadge = document.getElementById('daysDisplayBadge');
+    const calcDaysCount = document.getElementById('calcDaysCount');
+    const calcSubtotal = document.getElementById('calcSubtotal');
+    const calcTotal = document.getElementById('calcTotalAmount');
+
+    function updatePrice() {
+        const days = parseInt(daysSlider.value, 10);
+        const total = (days * dailyPrice).toFixed(2);
+        daysBadge.textContent = `${days} Day${days > 1 ? 's' : ''}`;
+        calcDaysCount.textContent = days;
+        calcSubtotal.textContent = `₾${total}`;
+        calcTotal.textContent = `₾${total}`;
+    }
+
+    daysSlider?.addEventListener('input', updatePrice);
+
+    // Leaflet map setup
+    const mapEl = document.getElementById('vehicleDetailMap');
+    if (mapEl) {
+        const lat = parseFloat(mapEl.getAttribute('data-lat')) || 41.7151;
+        const lng = parseFloat(mapEl.getAttribute('data-lng')) || 44.8271;
+
+        const map = L.map('vehicleDetailMap', {
+            zoomControl: true,
+            scrollWheelZoom: false
+        }).setView([lat, lng], 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        const carMarker = L.marker([lat, lng]).addTo(map);
+        carMarker.bindPopup(`<b>{{ vehicle.brand }} {{ vehicle.model }}</b><br>{{ vehicle.location_name }}, {{ vehicle.city }}`).openPopup();
+    }
+
+    // AJAX Booking Form Submission
+    const bookingForm = document.getElementById('rentalBookingForm');
+    const bookingAlert = document.getElementById('bookingAlertBox');
+    const rentBtn = document.getElementById('rentNowBtn');
+
+    if (bookingForm) {
+        bookingForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            bookingAlert.style.display = 'none';
+
+            const city = document.getElementById('rentCity').value;
+            const days = document.getElementById('rentDays').value;
+
+            if (rentBtn) {
+                rentBtn.disabled = true;
+                rentBtn.innerHTML = '<span>Processing Booking...</span>';
+            }
+
+            try {
+                const response = await fetch('/vehicles/{{ vehicle.id }}/rent/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({
+                        city: city,
+                        rental_days: parseInt(days, 10)
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    bookingAlert.className = 'booking-alert success';
+                    bookingAlert.innerHTML = `
+                        <div class="success-booking-content">
+                            <strong>🎉 Booking Confirmed!</strong>
+                            <p>Vehicle: <b>{{ vehicle.brand }} {{ vehicle.model }}</b></p>
+                            <p>Pickup Location: <b>${data.city}</b> (${data.rental_days} day${data.rental_days > 1 ? 's' : ''})</p>
+                            <p>Total Paid: <b>₾${data.total_price}</b></p>
+                            <p style="font-size: 11.5px; margin-top: 6px; color: #86efac;">Your booking receipt has been recorded in your profile.</p>
+                        </div>
+                    `;
+                    bookingAlert.style.display = 'block';
+                    rentBtn.style.display = 'none';
+                } else {
+                    bookingAlert.className = 'booking-alert error';
+                    bookingAlert.textContent = data.error || 'Failed to complete booking. Please try again.';
+                    bookingAlert.style.display = 'block';
+                }
+            } catch (err) {
+                bookingAlert.className = 'booking-alert error';
+                bookingAlert.textContent = 'Network error. Please check your connection and try again.';
+                bookingAlert.style.display = 'block';
+            } finally {
+                if (rentBtn && !bookingAlert.classList.contains('success')) {
+                    rentBtn.disabled = false;
+                    rentBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Confirm Rental Booking</span>';
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}
