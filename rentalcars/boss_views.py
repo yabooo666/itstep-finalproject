@@ -169,13 +169,6 @@ def boss_reject_vehicle(request, vehicle_id):
     if not reason:
         reason = "Listing does not satisfy Gruzin Auto vehicle specification or model requirements."
 
-    vehicle.status = 'rejected'
-    vehicle.is_active = False
-    vehicle.rejection_reason = reason
-    vehicle.reviewed_by = request.user
-    vehicle.reviewed_at = timezone.now()
-    vehicle.save()
-
     # Log to AdminAuditLog
     log_admin_action(
         request,
@@ -183,24 +176,29 @@ def boss_reject_vehicle(request, vehicle_id):
         target_type='Vehicle',
         target_id=vehicle.id,
         target_title=f"{vehicle.brand} {vehicle.model} ({vehicle.year})",
-        details=f"Reason: {reason}"
+        details=f"Permanently deleted on rejection. Reason: {reason}"
     )
 
     # Notify vehicle owner
     if vehicle.owner:
         Notification.objects.create(
             user=vehicle.owner,
-            title="Listing Rejected",
-            message=f"Your submission for {vehicle.brand} {vehicle.model} ({vehicle.year}) was rejected. Reason: {reason}",
+            title="Listing Rejected & Removed",
+            message=f"Your submission for {vehicle.brand} {vehicle.model} ({vehicle.year}) was rejected and removed. Reason: {reason}",
             notification_type='rejection',
             link_url="/profile/"
         )
 
+    # Fully delete the vehicle from database
+    vehicle_id_deleted = vehicle.id
+    vehicle_title = f"{vehicle.brand} {vehicle.model}"
+    vehicle.delete()
+
     if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
         return JsonResponse({
             'success': True,
-            'message': f"{vehicle.brand} {vehicle.model} was rejected.",
-            'vehicle_id': vehicle.id,
+            'message': f"{vehicle_title} was rejected and permanently removed.",
+            'vehicle_id': vehicle_id_deleted,
             'reason': reason
         })
 

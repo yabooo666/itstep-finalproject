@@ -348,6 +348,7 @@ def add_vehicle_view(request):
             city=city,
             location_name=location_name,
             lat=lat,
+            lng=lng,
             model_3d_file=model_3d_file,
             status='pending',
             is_active=False
@@ -427,6 +428,12 @@ def rent_vehicle_view(request, vehicle_id):
 
     vehicle = get_object_or_404(Vehicle, pk=vehicle_id, is_active=True)
 
+    if vehicle.owner and vehicle.owner == request.user:
+        return JsonResponse({
+            'success': False,
+            'error': 'You cannot rent your own vehicle.'
+        }, status=400)
+
     try:
         data = json.loads(request.body.decode('utf-8'))
     except (json.JSONDecodeError, UnicodeDecodeError):
@@ -451,6 +458,22 @@ def rent_vehicle_view(request, vehicle_id):
         status='Confirmed'
     )
 
+    # Auto-create or connect ChatRoom between customer and vehicle owner
+    from chat.models import ChatRoom, ChatMessage
+    chat_room = None
+    if vehicle.owner and vehicle.owner != request.user:
+        chat_room = ChatRoom.objects.create(
+            booking=booking,
+            vehicle=vehicle,
+            customer=request.user,
+            seller=vehicle.owner
+        )
+        ChatMessage.objects.create(
+            room=chat_room,
+            sender=request.user,
+            content=f"Hello! I have booked the {vehicle.brand} {vehicle.model} ({rental_days} day(s) in {city}). Let's coordinate pickup and key handover."
+        )
+
     # Notify vehicle owner of new booking
     from accounts.models import Notification
     if vehicle.owner and vehicle.owner != request.user:
@@ -459,7 +482,7 @@ def rent_vehicle_view(request, vehicle_id):
             title="Vehicle Rented!",
             message=f"{request.user.get_full_name() or request.user.username} rented your {vehicle.brand} {vehicle.model} in {city} for {rental_days} day(s) (Total: ₾{total_price}).",
             notification_type='rental',
-            link_url='/profile/'
+            link_url=f"/chat/?room={chat_room.id}" if chat_room else "/profile/"
         )
 
     return JsonResponse({
@@ -469,6 +492,7 @@ def rent_vehicle_view(request, vehicle_id):
         'city': city,
         'rental_days': rental_days,
         'total_price': str(total_price),
+        'chat_url': f"/chat/?room={chat_room.id}" if chat_room else "/chat/",
         'message': f'Successfully rented {vehicle.brand} {vehicle.model} for {rental_days} day(s).'
     })
 

@@ -127,21 +127,12 @@ function getVehiclesData() {
         try {
             let parsed = JSON.parse(dataElement.textContent || '[]');
             if (typeof parsed === 'string') parsed = JSON.parse(parsed);
-            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            if (Array.isArray(parsed)) return parsed;
         } catch (e) {
             console.error('Error parsing vehicles data:', e);
         }
     }
-
-    // Robust Fallback vehicles data with real Tbilisi coordinates
-    return [
-        { id: 1, brand: 'BMW', model: 'E34 Stance Edition', trim: '2.5L Inline-6 (192 hp)', rating: '5.0', review_count: 342, price_per_hour: '35.00', lat: 41.6975, lng: 44.7995, is_favourite: true },
-        { id: 2, brand: 'BMW', model: 'M4 Convertible G83', trim: '3.0L M TwinPower Turbo (503 hp)', rating: '5.0', review_count: 618, price_per_hour: '75.00', lat: 41.7050, lng: 44.7880, is_favourite: true },
-        { id: 3, brand: 'Audi', model: 'R8 V10 Plus', trim: '5.2L FSI V10 (610 hp)', rating: '5.0', review_count: 328, price_per_hour: '55.00', lat: 41.7100, lng: 44.7650, is_favourite: false },
-        { id: 4, brand: 'Mercedes-Benz', model: 'GLS 580 4MATIC', trim: '4.0L V8 Biturbo EQ Boost (483 hp)', rating: '5.0', review_count: 512, price_per_hour: '65.00', lat: 41.7220, lng: 44.7730, is_favourite: false },
-        { id: 5, brand: 'BMW', model: 'M4 Competition G83', trim: '3.0L Twin-Turbo (503 hp)', rating: '5.0', review_count: 415, price_per_hour: '79.00', lat: 41.6930, lng: 44.8015, is_favourite: false },
-        { id: 6, brand: 'BMW', model: 'E34 Classic Motorsport', trim: '2.5L M-Tech Suspension (192 hp)', rating: '4.9', review_count: 287, price_per_hour: '38.00', lat: 41.7030, lng: 44.8150, is_favourite: false },
-    ];
+    return [];
 }
 
 function setupLeafletMap() {
@@ -330,10 +321,12 @@ function renderMapMarkers(list) {
     markersLayer.clearLayers();
 
     const safeList = Array.isArray(list) ? list : getVehiclesData();
+    const points = [];
 
     // Render Individual Vehicle Pins directly from catalog data
     safeList.forEach((car, index) => {
         if (!car.lat || !car.lng) return;
+        points.push([car.lat, car.lng]);
 
         const carIcon = L.divIcon({
             className: 'custom-car-pin-wrapper',
@@ -357,11 +350,7 @@ function renderMapMarkers(list) {
             <div class="map-vehicle-card-popup">
                 <div class="popup-top-meta">
                     <div class="popup-rating">
-                        <svg viewBox="0 0 24 24" fill="#ffffff" class="star-svg" style="color: #ffffff;">
-                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                        </svg>
-                        <span class="score">${car.rating || '5.0'}</span>
-                        <span class="count">(${car.review_count || 120})</span>
+                        <span class="score">${car.views_count || 0} views</span>
                     </div>
                     <button type="button" class="popup-heart ${car.is_favourite ? 'favourited' : ''}" onclick="this.classList.toggle('favourited')">
                         <svg viewBox="0 0 24 24" fill="${car.is_favourite ? '#ffffff' : 'none'}" stroke="currentColor" stroke-width="2">
@@ -433,4 +422,13 @@ function renderMapMarkers(list) {
             setTimeout(() => marker.openPopup(), 450);
         }
     });
+
+    if (points.length > 0 && mapInstance) {
+        if (points.length === 1) {
+            mapInstance.setView(points[0], 14);
+        } else {
+            const bounds = L.latLngBounds(points);
+            mapInstance.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+        }
+    }
 }

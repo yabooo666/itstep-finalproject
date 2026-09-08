@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/vehicle_detail.css' %}?v=pure_jetblack_v4">
+<link rel="stylesheet" href="{% static 'css/payment_modal.css' %}?v=mono_v4">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 {% endblock %}
 
@@ -148,18 +149,8 @@
                     {% csrf_token %}
                     <input type="hidden" name="vehicle_id" value="{{ vehicle.id }}">
 
-                    <!-- City Selection -->
-                    <div class="booking-field">
-                        <label class="booking-label" for="rentCity">Pickup & Return City</label>
-                        <select id="rentCity" name="city" class="booking-select" required>
-                            <option value="{{ vehicle.city }}" selected>{{ vehicle.city }} (Current Vehicle Location)</option>
-                            <option value="Tbilisi">Tbilisi</option>
-                            <option value="Batumi">Batumi</option>
-                            <option value="Kutaisi">Kutaisi</option>
-                            <option value="Rustavi">Rustavi</option>
-                            <option value="Telavi">Telavi</option>
-                        </select>
-                    </div>
+                    <!-- Fixed City (Hidden Input) -->
+                    <input type="hidden" id="rentCity" name="city" value="{{ vehicle.city }}">
 
                     <!-- Rental Duration (Days) -->
                     <div class="booking-field">
@@ -197,10 +188,17 @@
 
                     <!-- Rent Button -->
                     {% if user.is_authenticated %}
-                    <button type="submit" class="btn-rent-now" id="rentNowBtn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                        <span>Confirm Rental Booking</span>
-                    </button>
+                        {% if vehicle.owner and vehicle.owner == request.user %}
+                        <div style="background: #18181b; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 14px; text-align: center; color: #d4d4d8; font-size: 13px; font-weight: 700;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align: middle; margin-right: 6px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <span>You own this vehicle (Cannot book your own listing)</span>
+                        </div>
+                        {% else %}
+                        <button type="submit" class="btn-rent-now" id="rentNowBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            <span>Confirm Rental Booking</span>
+                        </button>
+                        {% endif %}
                     {% else %}
                     <button type="button" class="btn-rent-now" onclick="openAuthModal('login')">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
@@ -365,68 +363,34 @@
         }
     }
 
-    // AJAX Booking Form Submission
+    // Hook Booking Form submission to launch Real Card Payment Modal
     const bookingForm = document.getElementById('rentalBookingForm');
-    const bookingAlert = document.getElementById('bookingAlertBox');
-    const rentBtn = document.getElementById('rentNowBtn');
-
     if (bookingForm) {
-        bookingForm.addEventListener('submit', async function(e) {
+        bookingForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            bookingAlert.style.display = 'none';
-
-            const city = document.getElementById('rentCity').value;
-            const days = document.getElementById('rentDays').value;
-
-            if (rentBtn) {
-                rentBtn.disabled = true;
-                rentBtn.innerHTML = '<span>Processing Booking...</span>';
-            }
-
-            try {
-                const response = await fetch('/vehicles/{{ vehicle.id }}/rent/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    },
-                    body: JSON.stringify({
-                        city: city,
-                        rental_days: parseInt(days, 10)
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    bookingAlert.className = 'booking-alert success';
-                    bookingAlert.innerHTML = `
-                        <div class="success-booking-content">
-                            <strong>🎉 Booking Confirmed!</strong>
-                            <p>Vehicle: <b>{{ vehicle.brand }} {{ vehicle.model }}</b></p>
-                            <p>Pickup Location: <b>${data.city}</b> (${data.rental_days} day${data.rental_days > 1 ? 's' : ''})</p>
-                            <p>Total Paid: <b>₾${data.total_price}</b></p>
-                            <p style="font-size: 11.5px; margin-top: 6px; color: #86efac;">Your booking receipt has been recorded in your profile.</p>
-                        </div>
-                    `;
-                    bookingAlert.style.display = 'block';
-                    rentBtn.style.display = 'none';
-                } else {
-                    bookingAlert.className = 'booking-alert error';
-                    bookingAlert.textContent = data.error || 'Failed to complete booking. Please try again.';
-                    bookingAlert.style.display = 'block';
-                }
-            } catch (err) {
-                bookingAlert.className = 'booking-alert error';
-                bookingAlert.textContent = 'Network error. Please check your connection and try again.';
-                bookingAlert.style.display = 'block';
-            } finally {
-                if (rentBtn && !bookingAlert.classList.contains('success')) {
-                    rentBtn.disabled = false;
-                    rentBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Confirm Rental Booking</span>';
-                }
+            const days = document.getElementById('rentDays')?.value || '1';
+            const city = document.getElementById('rentCity')?.value || '{{ vehicle.city }}';
+            
+            if (window.openPaymentModal) {
+                window.openPaymentModal(
+                    {{ vehicle.id }}, 
+                    '{{ vehicle.brand }} {{ vehicle.model }}', 
+                    days, 
+                    '{{ vehicle.daily_price }}', 
+                    city
+                );
             }
         });
     }
 </script>
+
+<!-- Payment Modal Component -->
+{% include "components/payment_modal.html" %}
+
+<!-- Payment Modal Three.js 3D Viewer & Controller JS -->
+<script>
+    window.LOGGED_IN_USER_NAME = "{{ request.user.get_full_name|default:request.user.username|default:'VIP MEMBER'|upper }}";
+</script>
+<script type="module" src="{% static 'js/three_card_viewer.js' %}?v=3dcard2"></script>
+<script src="{% static 'js/payment_modal.js' %}?v=mono_v4"></script>
 {% endblock %}

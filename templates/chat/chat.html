@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Messages & Rental Coordination | Gruzin Auto{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/chat.css' %}?v=mono_v2">
+{% endblock %}
+
+{% block content %}
+<div class="chat-page-layout">
+    <!-- 1. Left Sidebar: Active Rental Conversations -->
+    <aside class="chat-conversations-sidebar">
+        <div class="chat-sidebar-header">
+            <h2 class="chat-sidebar-title">Rental Messages</h2>
+            <span class="chat-count-badge">{{ rooms_data|length }}</span>
+        </div>
+
+        <div class="chat-rooms-scroll">
+            {% for item in rooms_data %}
+            <a href="{% url 'chat' %}?room={{ item.room.id }}" class="chat-room-item {% if item.is_active %}active{% endif %}">
+                <div class="chat-partner-avatar">
+                    {{ item.partner.first_name|slice:":1"|upper|default:item.partner.username|slice:":1"|upper }}
+                </div>
+                <div class="chat-room-info">
+                    <div class="chat-room-top">
+                        <span class="chat-partner-name">{{ item.partner.first_name|default:item.partner.username }}</span>
+                        {% if item.last_msg %}
+                        <span class="chat-room-time">{{ item.last_msg.created_at|date:"H:i" }}</span>
+                        {% endif %}
+                    </div>
+                    {% if item.room.vehicle %}
+                    <div class="chat-room-car">
+                        🚗 {{ item.room.vehicle.brand }} {{ item.room.vehicle.model }}
+                    </div>
+                    {% endif %}
+                    <div class="chat-room-preview">
+                        {% if item.last_msg %}
+                            {{ item.last_msg.content|truncatechars:38 }}
+                        {% else %}
+                            <i>Start conversation...</i>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if item.unread_count > 0 %}
+                <div class="chat-unread-dot">{{ item.unread_count }}</div>
+                {% endif %}
+            </a>
+            {% empty %}
+            <div class="chat-empty-sidebar">
+                <p>No active rental chats yet.</p>
+                <p style="font-size: 11.5px; opacity: 0.7;">Book a vehicle from the catalog to coordinate pickup with the owner.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </aside>
+
+    <!-- 2. Right Pane: Live Chat Window or Zero State -->
+    {% if active_room %}
+    <main class="chat-main-area" id="chatMainArea">
+        <!-- Chat Header -->
+        <header class="chat-main-header">
+            <div class="chat-header-user-wrap">
+                <div class="chat-header-avatar">
+                    {{ active_partner.first_name|slice:":1"|upper|default:active_partner.username|slice:":1"|upper }}
+                </div>
+                <div>
+                    <h3 class="chat-header-title">{{ active_partner.first_name|default:active_partner.username }}</h3>
+                    <span class="chat-header-status">Active now</span>
+                </div>
+            </div>
+
+            {% if active_room.vehicle %}
+            <a href="{% url 'vehicle_detail' vehicle_id=active_room.vehicle.id %}" class="chat-header-car-badge" title="View vehicle specifications">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                    <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-4.66l.12-.34h13.77l.11.34V17z"/>
+                </svg>
+                <span>{{ active_room.vehicle.brand }} {{ active_room.vehicle.model }} (₾{{ active_room.vehicle.daily_price }}/day)</span>
+            </a>
+            {% endif %}
+        </header>
+
+        <!-- Message Stream -->
+        <div class="chat-messages-stream" id="chatMessagesStream">
+            {% for msg in messages %}
+            <div class="chat-bubble-wrap {% if msg.sender == request.user %}me{% else %}them{% endif %}" data-msg-id="{{ msg.id }}">
+                <span class="chat-bubble-sender">
+                    {% if msg.sender == request.user %}You{% else %}{{ msg.sender.first_name|default:msg.sender.username }}{% endif %}
+                </span>
+                <div class="chat-bubble">
+                    {{ msg.content|linebreaksbr }}
+                </div>
+                <div class="chat-bubble-footer">
+                    <span class="chat-bubble-time">{{ msg.created_at|date:"H:i" }}</span>
+                    {% if msg.sender == request.user %}
+                    <span class="chat-seen-status" data-seen-id="{{ msg.id }}">
+                        {% if msg.is_read %}
+                        <span class="status-seen" title="Seen by partner">✓✓ Seen</span>
+                        {% else %}
+                        <span class="status-sent" title="Delivered">✓ Sent</span>
+                        {% endif %}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div style="text-align: center; color: #71717a; padding: 40px; font-size: 13px;">
+                No messages yet. Send a message to coordinate pickup location and keys.
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Chat Input Form -->
+        <footer class="chat-input-area">
+            <div class="chat-quick-actions">
+                <button type="button" class="quick-chip-btn" onclick="insertQuickMessage('What time is best for pickup today?')">⏰ Pickup Time</button>
+                <button type="button" class="quick-chip-btn" onclick="insertQuickMessage('Where exactly is the parking spot located?')">📍 Exact Location</button>
+                <button type="button" class="quick-chip-btn" onclick="insertQuickMessage('I have arrived at the pickup location.')">👋 I have arrived</button>
+                <button type="button" class="quick-chip-btn" onclick="insertQuickMessage('Keys handed over and vehicle inspected. Thank you!')">🔑 Keys Handed Over</button>
+            </div>
+
+            <form id="chatMessageForm" class="chat-form">
+                {% csrf_token %}
+                <input type="text" 
+                       id="chatMsgInput" 
+                       class="chat-input-field" 
+                       placeholder="Type your message to {{ active_partner.first_name|default:active_partner.username }}..." 
+                       autocomplete="off" 
+                       required>
+                <button type="submit" class="chat-send-btn" id="chatSendBtn">
+                    <span>Send</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </form>
+        </footer>
+    </main>
+    {% else %}
+    <!-- Zero State (No Rooms) -->
+    <main class="chat-empty-canvas">
+        <div class="chat-empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="30" height="30">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+        </div>
+        <h3 class="chat-empty-title">Your Rental Inbox is Empty</h3>
+        <p class="chat-empty-sub">When you book a luxury car or someone books your vehicle, a private direct coordination chat is automatically created here.</p>
+        <a href="{% url 'vehicles' %}" class="chat-empty-btn">Explore Fleet & Rent</a>
+    </main>
+    {% endif %}
+</div>
+
+<!-- Real-time Messaging Script -->
+<script>
+(function() {
+    const activeRoomId = "{{ active_room.id|default:'' }}";
+    const messagesStream = document.getElementById('chatMessagesStream');
+    const chatForm = document.getElementById('chatMessageForm');
+    const msgInput = document.getElementById('chatMsgInput');
+    const sendBtn = document.getElementById('chatSendBtn');
+    let lastMessageId = 0;
+    let isSubmitting = false;
+
+    // Scroll to bottom helper
+    function scrollToBottom() {
+        if (messagesStream) {
+            messagesStream.scrollTop = messagesStream.scrollHeight;
+        }
+    }
+    scrollToBottom();
+
+    // Determine initial max message ID
+    document.querySelectorAll('[data-msg-id]').forEach(el => {
+        const id = parseInt(el.getAttribute('data-msg-id'), 10);
+        if (id > lastMessageId) lastMessageId = id;
+    });
+
+    // Quick Action inserter
+    window.insertQuickMessage = function(text) {
+        if (msgInput) {
+            msgInput.value = text;
+            msgInput.focus();
+        }
+    };
+
+    if (!activeRoomId || !chatForm) return;
+
+    // Send message handler (deduplicated & guarded)
+    chatForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        if (isSubmitting) return;
+
+        const content = msgInput.value.trim();
+        if (!content) return;
+
+        isSubmitting = true;
+        if (sendBtn) sendBtn.disabled = true;
+        msgInput.value = '';
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+
+        try {
+            const res = await fetch(`/chat/api/room/${activeRoomId}/send/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({ content: content })
+            });
+            const data = await res.json();
+            if (data.success && data.message) {
+                if (data.message.id > lastMessageId) {
+                    lastMessageId = data.message.id;
+                }
+                appendMessageToStream(data.message);
+            }
+        } catch (err) {
+            console.error('Error sending message:', err);
+        } finally {
+            isSubmitting = false;
+            if (sendBtn) sendBtn.disabled = false;
+            msgInput.focus();
+        }
+    });
+
+    function appendMessageToStream(msg) {
+        if (!messagesStream) return;
+        
+        // Strict deduplication: check if message element already exists in DOM
+        const existing = messagesStream.querySelector(`[data-msg-id="${msg.id}"]`);
+        if (existing) {
+            // Update seen status if read
+            if (msg.is_me && msg.is_read) {
+                const seenSpan = existing.querySelector('.chat-seen-status');
+                if (seenSpan) {
+                    seenSpan.innerHTML = '<span class="status-seen" title="Seen by partner">✓✓ Seen</span>';
+                }
+            }
+            return;
+        }
+
+        const bubbleWrap = document.createElement('div');
+        bubbleWrap.className = `chat-bubble-wrap ${msg.is_me ? 'me' : 'them'}`;
+        bubbleWrap.setAttribute('data-msg-id', msg.id);
+
+        const seenHtml = msg.is_me
+            ? `<span class="chat-seen-status" data-seen-id="${msg.id}">${msg.is_read ? '<span class="status-seen" title="Seen by partner">✓✓ Seen</span>' : '<span class="status-sent" title="Delivered">✓ Sent</span>'}</span>`
+            : '';
+
+        bubbleWrap.innerHTML = `
+            <span class="chat-bubble-sender">${msg.is_me ? 'You' : escapeHtml(msg.sender_name)}</span>
+            <div class="chat-bubble">${escapeHtml(msg.content).replace(/\n/g, '<br>')}</div>
+            <div class="chat-bubble-footer">
+                <span class="chat-bubble-time">${msg.created_at}</span>
+                ${seenHtml}
+            </div>
+        `;
+        messagesStream.appendChild(bubbleWrap);
+        scrollToBottom();
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Real-Time Poller (every 2 seconds)
+    setInterval(async () => {
+        if (!activeRoomId) return;
+        try {
+            const res = await fetch(`/chat/api/room/${activeRoomId}/messages/?after_id=${lastMessageId}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.success) {
+                    // Update read receipts for my existing messages
+                    if (data.read_ids && Array.isArray(data.read_ids)) {
+                        data.read_ids.forEach(id => {
+                            const statusEl = messagesStream.querySelector(`[data-seen-id="${id}"]`);
+                            if (statusEl && !statusEl.querySelector('.status-seen')) {
+                                statusEl.innerHTML = '<span class="status-seen" title="Seen by partner">✓✓ Seen</span>';
+                            }
+                        });
+                    }
+
+                    // Append new incoming messages
+                    if (data.messages && data.messages.length > 0) {
+                        data.messages.forEach(msg => {
+                            if (msg.id > lastMessageId) {
+                                lastMessageId = msg.id;
+                            }
+                            appendMessageToStream(msg);
+                        });
+                    }
+                }
+            }
+        } catch (e) {
+            // Silently handle network interruptions
+        }
+    }, 2000);
+})();
+</script>
+{% endblock %}

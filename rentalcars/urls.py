@@ -26,7 +26,7 @@ urlpatterns = [
     path('favourites/', vehicles_views.favourites_view, name='favourites'),
     path('', views.home, name='home'),
     path('notifications/', views.notifications, name='notifications'),
-    path('chat/', views.chat, name='chat'),
+    path('chat/', include('chat.urls')),
 ]
 
 if settings.DEBUG:

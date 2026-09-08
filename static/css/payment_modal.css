@@ -1,0 +1,539 @@
+/* ==========================================================================
+   Gruzin Auto - Luxury Card Payment Modal & 3D Interactive Card Styles
+   ========================================================================== */
+
+.payment-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: payModalFadeIn 0.2s ease-out forwards;
+}
+
+@keyframes payModalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.payment-modal-container {
+    width: 100%;
+    max-width: 520px;
+    background: #09090c;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    padding: 28px 26px;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    animation: payModalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes payModalSlideUp {
+    from { transform: translateY(20px) scale(0.97); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.pay-modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #18181b;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #a1a1aa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pay-modal-close:hover {
+    background: #27272a;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.payment-modal-header {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+.pay-lock-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #4ade80;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+}
+
+.pay-modal-title {
+    font-size: 21px;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+}
+
+.pay-modal-sub {
+    font-size: 13px;
+    color: #a1a1aa;
+    margin: 0;
+}
+
+/* ==========================================================================
+   Realistic 3D Luxury Credit Card Design
+   ========================================================================== */
+
+.luxury-card-wrapper {
+    perspective: 1200px;
+    margin-bottom: 20px;
+}
+
+.three-card-stage {
+    width: 100%;
+    height: 255px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-radius: 16px;
+    background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.04) 0%, rgba(5, 5, 8, 0.8) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    cursor: grab;
+    user-select: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.three-card-stage:active {
+    cursor: grabbing;
+}
+
+.three-card-stage:hover {
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+#threeCardCanvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    outline: none;
+    pointer-events: auto;
+}
+
+@keyframes hintPulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 0.95; color: #ffffff; }
+}
+
+.card-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.card-chip-gold {
+    width: 38px;
+    height: 28px;
+    background: linear-gradient(135deg, #eab308 0%, #ca8a04 50%, #fef08a 100%);
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    position: relative;
+    box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.6), 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.chip-line {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.chip-line.horizontal {
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    transform: translateY(-50%);
+}
+
+.chip-line.vertical {
+    top: 0;
+    left: 50%;
+    width: 1px;
+    height: 100%;
+    transform: translateX(-50%);
+}
+
+.card-contactless-icon {
+    color: rgba(255, 255, 255, 0.5);
+    margin-left: 12px;
+}
+
+.card-brand-logo {
+    display: flex;
+    margin-left: auto;
+}
+
+.logo-circle {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    opacity: 0.9;
+}
+
+.logo-circle.red {
+    background: #eb001b;
+    margin-right: -10px;
+}
+
+.logo-circle.gold {
+    background: #f79e1b;
+}
+
+.card-number-display {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 19px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 2.4px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 2px rgba(255, 255, 255, 0.3);
+    word-spacing: 4px;
+}
+
+.card-bottom-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+
+.card-mini-label {
+    display: block;
+    font-size: 8px;
+    font-weight: 800;
+    color: #71717a;
+    letter-spacing: 0.8px;
+    margin-bottom: 2px;
+}
+
+.card-holder-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 170px;
+    display: block;
+}
+
+.card-expiry-val, .card-pin-val {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 1px;
+}
+
+/* ==========================================================================
+   Payment Form Elements
+   ========================================================================== */
+
+.pay-demo-fill-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding: 6px 12px;
+    background: #121216;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+}
+
+.demo-tip {
+    font-size: 11.5px;
+    color: #a1a1aa;
+}
+
+.btn-demo-card {
+    background: #27272a;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.btn-demo-card:hover {
+    background: #ffffff;
+    color: #000000;
+}
+
+.pay-form-group {
+    margin-bottom: 14px;
+}
+
+.pay-form-group.flex-1 {
+    flex: 1;
+}
+
+.pay-form-row {
+    display: flex;
+    gap: 12px;
+}
+
+.pay-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #a1a1aa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.pay-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.pay-field-icon {
+    position: absolute;
+    left: 12px;
+    width: 16px;
+    height: 16px;
+    color: #71717a;
+    pointer-events: none;
+}
+
+.pay-input {
+    width: 100%;
+    background: #121216;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: #ffffff;
+    font-size: 13.5px;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pay-input-wrap .pay-input {
+    padding-left: 38px;
+}
+
+.pay-input:focus {
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.pay-input.font-mono {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.pay-summary-box {
+    background: #121216;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin: 16px 0;
+}
+
+.pay-sum-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12.5px;
+    color: #a1a1aa;
+    margin-bottom: 6px;
+}
+
+.pay-sum-row.total {
+    margin-bottom: 0;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 14px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.total-amount-display {
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 900;
+}
+
+.pay-error-banner {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: #fca5a5;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+.pay-modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.btn-pay-cancel {
+    flex: 1;
+    background: #18181b;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #a1a1aa;
+    font-size: 13.5px;
+    font-weight: 700;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.btn-pay-cancel:hover {
+    background: #27272a;
+    color: #ffffff;
+}
+
+.btn-pay-authorize {
+    flex: 2;
+    background: #ffffff;
+    border: none;
+    color: #000000;
+    font-size: 14px;
+    font-weight: 800;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.btn-pay-authorize:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+}
+
+.btn-pay-authorize:active {
+    transform: translateY(0);
+}
+
+.btn-pay-authorize:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Payment Success State Screen
+   ========================================================================== */
+
+.pay-success-state {
+    text-align: center;
+    padding: 20px 10px;
+    animation: payModalFadeIn 0.3s ease;
+}
+
+.success-icon-ring {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(34, 197, 94, 0.12);
+    border: 2px solid #22c55e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    box-shadow: 0 0 25px rgba(34, 197, 94, 0.3);
+}
+
+.success-title {
+    font-size: 22px;
+    font-weight: 900;
+    color: #ffffff;
+    margin: 0 0 8px;
+}
+
+.success-sub {
+    font-size: 13px;
+    color: #a1a1aa;
+    line-height: 1.5;
+    max-width: 360px;
+    margin: 0 auto 24px;
+}
+
+.success-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-success-chat {
+    background: #ffffff;
+    color: #000000;
+    font-size: 14px;
+    font-weight: 800;
+    padding: 13px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.15s ease;
+}
+
+.btn-success-chat:hover {
+    opacity: 0.9;
+}
+
+.btn-success-profile {
+    background: #18181b;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 11px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease;
+}
+
+.btn-success-profile:hover {
+    background: #27272a;
+}

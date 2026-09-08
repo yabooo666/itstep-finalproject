@@ -329,6 +329,9 @@
                 notifList.innerHTML = html;
             }
 
+            let isInitialLoad = true;
+            let lastNotifiedId = parseInt(localStorage.getItem('gruzin_last_notified_id') || '0', 10);
+
             function fetchNotifications() {
                 fetch('/accounts/notifications/api/list/')
                     .then(res => {
@@ -339,17 +342,27 @@
                         if (data.success) {
                             renderNotifications(data.notifications, data.unread_count);
 
-                            // Trigger Desktop Notification if unread increased and permission granted
-                            if (data.unread_count > lastUnreadCount && "Notification" in window && Notification.permission === "granted") {
-                                const latest = data.notifications && data.notifications[0];
-                                if (latest && !latest.is_read) {
-                                    new Notification(latest.title, {
-                                        body: latest.message,
-                                        icon: '/static/favicon.ico'
-                                    });
+                            const latest = data.notifications && data.notifications[0];
+                            if (latest && !latest.is_read) {
+                                if (isInitialLoad) {
+                                    // On initial page load or refresh, sync tracking ID without spamming
+                                    if (latest.id > lastNotifiedId) {
+                                        lastNotifiedId = latest.id;
+                                        localStorage.setItem('gruzin_last_notified_id', latest.id);
+                                    }
+                                } else {
+                                    // Only notify when a genuinely new notification arrives during active session
+                                    if (latest.id > lastNotifiedId && "Notification" in window && Notification.permission === "granted") {
+                                        new Notification(latest.title, {
+                                            body: latest.message,
+                                            icon: '/static/favicon.ico'
+                                        });
+                                        lastNotifiedId = latest.id;
+                                        localStorage.setItem('gruzin_last_notified_id', latest.id);
+                                    }
                                 }
                             }
-                            lastUnreadCount = data.unread_count;
+                            isInitialLoad = false;
                         }
                     })
                     .catch(e => {
