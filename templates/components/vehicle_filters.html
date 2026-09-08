@@ -65,7 +65,7 @@
 
         <div class="filter-divider"></div>
 
-        <!-- 3. Model & Keyword -->
+        <!-- 3. Model & Year -->
         <div class="filter-section collapsible open" id="modelSection">
             <div class="collapsible-header" onclick="toggleFilterSection('modelSection')">
                 <label class="section-label mb-0">Model & Year</label>
@@ -74,29 +74,31 @@
                 </svg>
             </div>
             <div class="collapsible-content">
-                <div class="sub-filter-row">
+                <div class="model-year-group">
                     <input type="text" 
                            name="model" 
                            id="filterModelInput"
-                           class="filter-text-input" 
+                           class="filter-text-input model-full-input" 
                            placeholder="Model (e.g. M4, 911)" 
                            value="{{ selected_model|default:'' }}">
-                    <input type="number" 
-                           name="year_min" 
-                           id="filterYearMinInput"
-                           class="filter-text-input year-narrow" 
-                           placeholder="Min" 
-                           min="1990" 
-                           max="2030" 
-                           value="{{ selected_year_min|default:'' }}">
-                    <input type="number" 
-                           name="year_max" 
-                           id="filterYearMaxInput"
-                           class="filter-text-input year-narrow" 
-                           placeholder="Max" 
-                           min="1990" 
-                           max="2030" 
-                           value="{{ selected_year_max|default:'' }}">
+                    <div class="sub-filter-row">
+                        <input type="number" 
+                               name="year_min" 
+                               id="filterYearMinInput"
+                               class="filter-text-input" 
+                               placeholder="Min Year" 
+                               min="1990" 
+                               max="2030" 
+                               value="{{ selected_year_min|default:'' }}">
+                        <input type="number" 
+                               name="year_max" 
+                               id="filterYearMaxInput"
+                               class="filter-text-input" 
+                               placeholder="Max Year" 
+                               min="1990" 
+                               max="2030" 
+                               value="{{ selected_year_max|default:'' }}">
+                    </div>
                 </div>
             </div>
         </div>

@@ -319,7 +319,7 @@
         {% if my_vehicles %}
         <div class="profile-vehicles-grid">
             {% for car in my_vehicles %}
-                {% include "components/rental_card.html" with car=car %}
+                {% include "components/rental_card.html" with car=car show_owner_controls=True %}
             {% endfor %}
         </div>
         {% else %}

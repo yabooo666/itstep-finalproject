@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}System Audit & Security Logs (/ban) | Gruzin Auto{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/boss.css' %}?v=boss_audit_v1">
+{% endblock %}
+
+{% block content %}
+<div class="boss-page-container">
+    <!-- Header Command Bar -->
+    <div class="boss-header-bar">
+        <div class="boss-header-left">
+            <div class="boss-badge-row">
+                <span class="boss-root-tag">AUDIT TRAIL</span>
+                <span class="boss-status-live"><span class="boss-pulse-dot"></span> IMMUTABLE LOGS</span>
+            </div>
+            <h1 class="boss-main-title">Admin Activity & Security Logs</h1>
+            <p class="boss-subtitle">Complete chronological trace of all moderator actions: confirmations, rejections, visibility changes, privilege grants, and bans.</p>
+        </div>
+        <div class="boss-header-right">
+            <a href="/boss/" class="boss-btn-ghost">← Back to ROOT Command Center</a>
+            <a href="/vehicles/" class="boss-btn-ghost">Public Catalog</a>
+        </div>
+    </div>
+
+    <!-- Filter & Search Toolbar -->
+    <div class="boss-logs-toolbar-wrap">
+        <form method="GET" action="/ban/" class="boss-logs-filter-form">
+            <div class="filter-field-group">
+                <label for="actionSelect" class="filter-label">Filter by Action:</label>
+                <select name="action" id="actionSelect" class="boss-filter-select" onchange="this.form.submit()">
+                    <option value="">All Action Types ({{ logs_count }})</option>
+                    {% for code, label in action_choices %}
+                    <option value="{{ code }}" {% if selected_action == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-search-group">
+                <input type="text" name="q" value="{{ search_query }}" placeholder="Search by admin, vehicle, user email, reason or IP..." class="boss-search-input">
+                <button type="submit" class="boss-btn-search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <span>Filter</span>
+                </button>
+                {% if selected_action or search_query %}
+                <a href="/ban/" class="boss-btn-reset">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Logs Table -->
+    {% if logs %}
+    <div class="boss-table-wrapper">
+        <table class="boss-table boss-logs-table">
+            <thead>
+                <tr>
+                    <th style="width: 170px;">Timestamp</th>
+                    <th style="width: 160px;">Administrator</th>
+                    <th style="width: 170px;">Action Executed</th>
+                    <th>Target Subject</th>
+                    <th>Audit Details & Reason</th>
+                    <th style="width: 130px; text-align: right;">IP Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <!-- Timestamp -->
+                    <td>
+                        <span class="log-timestamp">{{ log.created_at|date:"Y-m-d H:i:s" }}</span>
+                    </td>
+
+                    <!-- Admin -->
+                    <td>
+                        <div class="table-owner-cell">
+                            <span class="log-admin-name">
+                                {% if log.admin %}
+                                    {{ log.admin.get_full_name|default:log.admin.username }}
+                                {% else %}
+                                    System Automation
+                                {% endif %}
+                            </span>
+                            <span class="table-sub-text">
+                                {% if log.admin %}@{{ log.admin.username }}{% else %}Internal{% endif %}
+                            </span>
+                        </div>
+                    </td>
+
+                    <!-- Action Badge -->
+                    <td>
+                        <span class="log-action-badge action-{{ log.action|lower }}">
+                            {{ log.get_action_display }}
+                        </span>
+                    </td>
+
+                    <!-- Target -->
+                    <td>
+                        <div class="log-target-cell">
+                            <span class="log-target-title">{{ log.target_title }}</span>
+                            <span class="log-target-type">Type: {{ log.target_type }} (ID: {{ log.target_id }})</span>
+                        </div>
+                    </td>
+
+                    <!-- Details / Reason -->
+                    <td>
+                        <div class="table-reason-box log-details-box">
+                            {{ log.details|default:"Action completed successfully." }}
+                        </div>
+                    </td>
+
+                    <!-- IP Address -->
+                    <td style="text-align: right;">
+                        <span class="log-ip-code">{{ log.ip_address|default:"127.0.0.1" }}</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="boss-empty-pane">
+        <div class="empty-icon-shield">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+        <h3 class="empty-pane-title">No matching audit logs found</h3>
+        <p class="empty-pane-sub">
+            {% if selected_action or search_query %}
+            No actions match your current filter parameters. Try clearing the filter.
+            {% else %}
+            All admin decisions and actions will be securely logged here in real-time.
+            {% endif %}
+        </p>
+        {% if selected_action or search_query %}
+        <a href="/ban/" class="boss-btn-ghost" style="margin-top: 14px;">Reset Filters</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

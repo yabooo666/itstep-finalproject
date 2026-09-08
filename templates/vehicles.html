@@ -7,9 +7,9 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="{% static 'css/vehicle_filters.css' %}?v=mono_fix_v6">
-<link rel="stylesheet" href="{% static 'css/rental_catalog.css' %}?v=mono_fix_v6">
-<link rel="stylesheet" href="{% static 'css/desert_garage_modal.css' %}?v=mono_fix_v6">
+<link rel="stylesheet" href="{% static 'css/vehicle_filters.css' %}?v=mono_fix_v10">
+<link rel="stylesheet" href="{% static 'css/rental_catalog.css' %}?v=mono_fix_v8">
+<link rel="stylesheet" href="{% static 'css/desert_garage_modal.css' %}?v=mono_fix_v8">
 {% endblock %}
 
 {% block content %}
@@ -30,10 +30,26 @@
             </h2>
 
             <div class="results-actions">
+                <!-- Customer Location Selector -->
+                <div class="sort-select-wrapper customer-location-wrapper" title="Set your customer / pickup location">
+                    <select class="sort-select" id="customerLocationSelect" aria-label="Set customer location">
+                        <option value="41.7151,44.8271" selected>📍 Tbilisi (Rustaveli Ave)</option>
+                        <option value="41.7220,44.7730">📍 Tbilisi (Saburtalo)</option>
+                        <option value="41.7100,44.7650">📍 Tbilisi (Vake)</option>
+                        <option value="41.9806,44.4256">📍 Kaspi Center</option>
+                        <option value="41.6515,41.6360">📍 Batumi Boulevard</option>
+                        <option value="42.2679,42.7180">📍 Kutaisi Center</option>
+                        <option value="device_gps">📡 Device GPS</option>
+                    </select>
+                </div>
+
                 <!-- Sort Dropdown -->
                 <div class="sort-select-wrapper">
                     <select class="sort-select" id="catalogTopSortSelect" aria-label="Sort vehicles">
                         <option value="" {% if not selected_sort %}selected{% endif %}>Default Sorting</option>
+                        <option value="popular" {% if selected_sort == 'popular' %}selected{% endif %}>🔥 Popular First</option>
+                        <option value="random" {% if selected_sort == 'random' %}selected{% endif %}>🎲 Random List</option>
+                        <option value="nearest" {% if selected_sort == 'nearest' %}selected{% endif %}>📍 Nearest to Me</option>
                         <option value="price_low" {% if selected_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
                         <option value="price_high" {% if selected_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
                         <option value="rating" {% if selected_sort == 'rating' %}selected{% endif %}>Highest Rated</option>
@@ -269,6 +285,193 @@
             if (carId) trackVehicleView(carId);
         }
     });
+
+    // Handle Top Sorting Dropdown (Popular, Random, Nearest, Price, Year)
+    const sortSelect = document.getElementById('catalogTopSortSelect');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            const val = this.value;
+            const url = new URL(window.location.href);
+            if (val) {
+                url.searchParams.set('sort', val);
+            } else {
+                url.searchParams.delete('sort');
+            }
+
+            if (val === 'nearest') {
+                const coords = window.getCustomerActiveCoords ? window.getCustomerActiveCoords() : [41.7151, 44.8271];
+                url.searchParams.set('user_lat', coords[0]);
+                url.searchParams.set('user_lng', coords[1]);
+            }
+            window.location.href = url.toString();
+        });
+    }
+
+    // Customer Location & Distance Controller
+    let currentCustomerLat = 41.7151;
+    let currentCustomerLng = 44.8271;
+
+    // Check existing stored location
+    const storedCustLat = sessionStorage.getItem('customer_loc_lat');
+    const storedCustLng = sessionStorage.getItem('customer_loc_lng');
+    if (storedCustLat && storedCustLng) {
+        currentCustomerLat = parseFloat(storedCustLat);
+        currentCustomerLng = parseFloat(storedCustLng);
+    } else {
+        const deviceLat = sessionStorage.getItem('user_gps_lat');
+        const deviceLng = sessionStorage.getItem('user_gps_lng');
+        if (deviceLat && deviceLng) {
+            const dLat = parseFloat(deviceLat);
+            const dLng = parseFloat(deviceLng);
+            if (dLat >= 41.0 && dLat <= 43.6 && dLng >= 40.0 && dLng <= 46.8) {
+                currentCustomerLat = dLat;
+                currentCustomerLng = dLng;
+            }
+        }
+    }
+
+    window.getCustomerActiveCoords = function() {
+        return [currentCustomerLat, currentCustomerLng];
+    };
+
+    window.updateCustomerGlobalLocation = function(lat, lng, updateSelect = true) {
+        currentCustomerLat = lat;
+        currentCustomerLng = lng;
+        sessionStorage.setItem('customer_loc_lat', lat);
+        sessionStorage.setItem('customer_loc_lng', lng);
+
+        updateAllCardDistances(lat, lng);
+
+        if (window.syncMapCustomerLocation) {
+            window.syncMapCustomerLocation(lat, lng);
+        }
+
+        if (updateSelect) {
+            const locSelect = document.getElementById('customerLocationSelect');
+            if (locSelect) {
+                let matched = false;
+                for (let i = 0; i < locSelect.options.length; i++) {
+                    const optVal = locSelect.options[i].value;
+                    if (optVal.includes(',')) {
+                        const [oLat, oLng] = optVal.split(',').map(parseFloat);
+                        if (Math.abs(oLat - lat) < 0.01 && Math.abs(oLng - lng) < 0.01) {
+                            locSelect.selectedIndex = i;
+                            matched = true;
+                            break;
+                        }
+                    }
+                }
+                if (!matched) {
+                    // Update or create Custom Location option
+                    let customOpt = locSelect.querySelector('option[value="custom_pin"]');
+                    if (!customOpt) {
+                        customOpt = document.createElement('option');
+                        customOpt.value = 'custom_pin';
+                        locSelect.insertBefore(customOpt, locSelect.lastElementChild);
+                    }
+                    customOpt.textContent = `📍 Custom Location (${lat.toFixed(2)}°, ${lng.toFixed(2)}°)`;
+                    locSelect.value = 'custom_pin';
+                }
+            }
+        }
+    };
+
+    // Location Select Listener
+    const locSelect = document.getElementById('customerLocationSelect');
+    if (locSelect) {
+        // Sync initial select with active coordinates
+        for (let i = 0; i < locSelect.options.length; i++) {
+            const optVal = locSelect.options[i].value;
+            if (optVal.includes(',')) {
+                const [oLat, oLng] = optVal.split(',').map(parseFloat);
+                if (Math.abs(oLat - currentCustomerLat) < 0.01 && Math.abs(oLng - currentCustomerLng) < 0.01) {
+                    locSelect.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        locSelect.addEventListener('change', function() {
+            const val = this.value;
+            if (val === 'device_gps') {
+                if (!navigator.geolocation) {
+                    alert('Geolocation is not supported by your browser.');
+                    return;
+                }
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    sessionStorage.setItem('user_gps_lat', pos.coords.latitude);
+                    sessionStorage.setItem('user_gps_lng', pos.coords.longitude);
+                    window.updateCustomerGlobalLocation(pos.coords.latitude, pos.coords.longitude, false);
+                }, (err) => {
+                    alert('Could not retrieve device GPS location. Please check browser permissions.');
+                });
+            } else if (val.includes(',')) {
+                const [nLat, nLng] = val.split(',').map(parseFloat);
+                window.updateCustomerGlobalLocation(nLat, nLng, false);
+            }
+        });
+    }
+
+    // Haversine formula to compute straight-line distance in km
+    function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+
+    // Dynamically update distance on all vehicle cards
+    function updateAllCardDistances(userLat, userLng) {
+        const cards = document.querySelectorAll('.rental-car-card');
+        cards.forEach(card => {
+            const carLat = parseFloat(card.getAttribute('data-lat'));
+            const carLng = parseFloat(card.getAttribute('data-lng'));
+            const carId = card.getAttribute('data-car-id');
+            if (!isNaN(carLat) && !isNaN(carLng)) {
+                const distKm = calculateDistanceKm(userLat, userLng, carLat, carLng);
+                card.setAttribute('data-computed-distance', distKm);
+                const distBadge = card.querySelector(`.car-dist-badge[data-car-id="${carId}"]`);
+                const timeBadge = card.querySelector(`.car-time-badge[data-car-id="${carId}"]`);
+                if (distBadge) {
+                    if (distKm < 1) {
+                        const meters = Math.round(distKm * 1000);
+                        const walkMin = Math.max(1, Math.round(meters / 80));
+                        distBadge.textContent = `${meters}m`;
+                        if (timeBadge) timeBadge.textContent = `(${walkMin} min walk)`;
+                    } else if (distKm < 50) {
+                        const driveMin = Math.max(1, Math.round(distKm / 40 * 60));
+                        distBadge.textContent = `${distKm.toFixed(1)} km`;
+                        if (timeBadge) timeBadge.textContent = `(~${driveMin} min drive)`;
+                    } else {
+                        const hours = Math.floor(distKm / 70);
+                        const mins = Math.round((distKm % 70) / 70 * 60);
+                        distBadge.textContent = `${distKm.toFixed(0)} km`;
+                        if (timeBadge) timeBadge.textContent = `(~${hours}h ${mins}m drive)`;
+                    }
+                }
+            }
+        });
+    }
+
+    // Initial update of all cards
+    updateAllCardDistances(currentCustomerLat, currentCustomerLng);
+
+    // Probe device GPS once in background if not recorded
+    if (!sessionStorage.getItem('user_gps_lat') && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+            sessionStorage.setItem('user_gps_lat', pos.coords.latitude);
+            sessionStorage.setItem('user_gps_lng', pos.coords.longitude);
+            if (pos.coords.latitude >= 41.0 && pos.coords.latitude <= 43.6 && pos.coords.longitude >= 40.0 && pos.coords.longitude <= 46.8) {
+                if (!sessionStorage.getItem('customer_loc_lat')) {
+                    window.updateCustomerGlobalLocation(pos.coords.latitude, pos.coords.longitude, true);
+                }
+            }
+        }, () => {});
+    }
 </script>
 
 <!-- Reusable 3D Desert Garage Modal Popup -->
@@ -279,7 +482,7 @@
 {% block extra_js %}
 <!-- Leaflet.js Mapping Library -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="{% static 'js/vehicles_map.js' %}?v=map5"></script>
+<script src="{% static 'js/vehicles_map.js' %}?v=map_sync_v9"></script>
 
 <!-- Three.js 3D Engine & Interactive Viewer -->
 <script type="importmap">

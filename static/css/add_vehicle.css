@@ -1049,3 +1049,46 @@
 .btn-submit-car:active {
     transform: translateY(0);
 }
+
+/* GPS Auto-Detect Button Styles (Monochrome OLED) */
+.btn-gps-detect-style {
+    background: #18181b !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: none !important;
+}
+
+.btn-gps-detect-style svg {
+    stroke: #ffffff !important;
+}
+
+.btn-gps-detect-style:hover {
+    background: #27272a !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    transform: translateY(-1px);
+}
+
+.btn-modal-gps-style {
+    background: #18181b !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.btn-modal-gps-style svg {
+    stroke: #ffffff !important;
+}
+
+.btn-modal-gps-style:hover {
+    background: #27272a !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+@keyframes spin-gps {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.spin-icon {
+    animation: spin-gps 1s linear infinite;
+}
+

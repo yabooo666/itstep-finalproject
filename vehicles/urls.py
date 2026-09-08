@@ -9,4 +9,6 @@ urlpatterns = [
     path('<int:vehicle_id>/rent/', views.rent_vehicle_view, name='rent_vehicle'),
     path('<int:vehicle_id>/favourite/', views.toggle_favourite_view, name='toggle_favourite'),
     path('<int:vehicle_id>/track-view/', views.track_recent_view, name='track_recent_view'),
+    path('<int:vehicle_id>/toggle-hide/', views.toggle_hide_vehicle_view, name='toggle_hide_vehicle'),
+    path('<int:vehicle_id>/delete/', views.delete_vehicle_view, name='delete_vehicle'),
 ]

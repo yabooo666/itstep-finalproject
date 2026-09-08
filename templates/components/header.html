@@ -21,14 +21,30 @@
         <!-- Right: Premium Auth & Vehicle Actions -->
         <div class="header-right">
             {% if request.user.is_authenticated %}
-            <!-- Notifications Icon Button (at left of Name Lastname) -->
-            <a href="{% url 'notifications' %}" class="header-notif-btn" title="Notifications" aria-label="Notifications">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                </svg>
-                <span class="notif-badge-dot"></span>
-            </a>
+            <!-- Notifications Dropdown Menu (at left of Name Lastname) -->
+            <div class="notif-dropdown-wrap" id="notifDropdownWrap">
+                <button type="button" class="header-notif-btn" id="headerNotifBtn" aria-expanded="false" aria-haspopup="true" aria-label="Notifications" title="Notifications">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span class="notif-badge-count" id="notifBadgeCount" style="display: none;">0</span>
+                </button>
+
+                <!-- Notifications Dropdown Flyout -->
+                <div class="notif-dropdown-menu" id="notifDropdownMenu" role="menu">
+                    <div class="notif-menu-header">
+                        <div class="notif-menu-title-wrap">
+                            <span class="notif-menu-title">Notifications</span>
+                            <span class="notif-unread-pill" id="notifUnreadPill" style="display: none;">0 new</span>
+                        </div>
+                        <button type="button" class="notif-action-btn" id="notifMarkAllReadBtn">Mark all read</button>
+                    </div>
+                    <div class="notif-items-list" id="notifItemsList">
+                        <div class="notif-loading-item">Loading notifications...</div>
+                    </div>
+                </div>
+            </div>
 
             <!-- User Profile Dropdown Menu (Contains Add Vehicle and Sign Out) -->
             <div class="user-profile-dropdown-wrap" id="userProfileDropdownWrap">
@@ -44,7 +60,9 @@
                                 {{ request.user.username }}
                             {% endif %}
                         </span>
-                        <span class="user-role-badge">Member</span>
+                        <span class="user-role-badge {% if request.user.is_staff or request.user.is_superuser %}user-role-root{% endif %}">
+                            {% if request.user.is_staff or request.user.is_superuser %}ROOT{% else %}Member{% endif %}
+                        </span>
                     </div>
                     <svg class="dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="6 9 12 15 18 9"></polyline>
@@ -70,6 +88,20 @@
                     </div>
 
                     <div class="dropdown-divider"></div>
+
+                    {% if request.user.is_staff or request.user.is_superuser %}
+                    <!-- ROOT Boss Control Link (Strictly for Admins) -->
+                    <a href="/boss/" class="dropdown-item dropdown-item-root" role="menuitem">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                            <path d="M2 17l10 5 10-5"></path>
+                            <path d="M2 12l10 5 10-5"></path>
+                        </svg>
+                        <span>ROOT Control</span>
+                        <span class="root-badge-pill">ROOT</span>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    {% endif %}
 
                     <!-- Profile Link -->
                     <a href="{% url 'profile' %}" class="dropdown-item" role="menuitem">
@@ -136,40 +168,244 @@
     </div>
 </header>
 
-<!-- Header Dropdown Controller Script -->
+<!-- Header Dropdowns & Notification Controller Script -->
 <script>
     (function () {
-        function initHeaderDropdown() {
+        // 1. Browser Notification Permission Request on Page Load
+        if ("Notification" in window && Notification.permission === "default") {
+            try {
+                Notification.requestPermission();
+            } catch (e) {
+                console.debug("Notification permission request handled:", e);
+            }
+        }
+
+        // Helper to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // 2. User Profile Dropdown
+        function initProfileDropdown() {
             const wrap = document.getElementById('userProfileDropdownWrap');
             const trigger = document.getElementById('userProfileTrigger');
             if (!wrap || !trigger) return;
 
             trigger.addEventListener('click', function (e) {
                 e.stopPropagation();
+                // Close notif dropdown if open
+                const notifWrap = document.getElementById('notifDropdownWrap');
+                if (notifWrap) notifWrap.classList.remove('open');
+
                 const isOpen = wrap.classList.toggle('open');
                 trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
             });
-
-            document.addEventListener('click', function (e) {
-                if (!wrap.contains(e.target)) {
-                    wrap.classList.remove('open');
-                    trigger.setAttribute('aria-expanded', 'false');
-                }
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' && wrap.classList.contains('open')) {
-                    wrap.classList.remove('open');
-                    trigger.setAttribute('aria-expanded', 'false');
-                    trigger.focus();
-                }
-            });
         }
+
+        // 3. Notifications Dropdown & Real-Time Sync
+        function initNotificationDropdown() {
+            const notifWrap = document.getElementById('notifDropdownWrap');
+            const notifBtn = document.getElementById('headerNotifBtn');
+            const notifBadge = document.getElementById('notifBadgeCount');
+            const notifUnreadPill = document.getElementById('notifUnreadPill');
+            const notifList = document.getElementById('notifItemsList');
+            const markAllBtn = document.getElementById('notifMarkAllReadBtn');
+
+            if (!notifWrap || !notifBtn) return;
+
+            notifBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                // Close user profile dropdown if open
+                const profileWrap = document.getElementById('userProfileDropdownWrap');
+                if (profileWrap) profileWrap.classList.remove('open');
+
+                const isOpen = notifWrap.classList.toggle('open');
+                notifBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                if (isOpen) {
+                    fetchNotifications();
+                }
+            });
+
+            if (markAllBtn) {
+                markAllBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const csrfToken = getCookie('csrftoken');
+                    fetch('/accounts/notifications/api/read-all/', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken || '',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            if (notifBadge) {
+                                notifBadge.style.display = 'none';
+                                notifBadge.textContent = '0';
+                            }
+                            if (notifUnreadPill) {
+                                notifUnreadPill.style.display = 'none';
+                            }
+                            document.querySelectorAll('.notif-item.unread').forEach(el => {
+                                el.classList.remove('unread');
+                            });
+                        }
+                    })
+                    .catch(err => console.debug("Error marking read:", err));
+                });
+            }
+
+            let lastUnreadCount = 0;
+
+            function renderNotifications(notifications, unreadCount) {
+                if (notifBadge) {
+                    if (unreadCount > 0) {
+                        notifBadge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+                        notifBadge.style.display = 'flex';
+                    } else {
+                        notifBadge.style.display = 'none';
+                    }
+                }
+
+                if (notifUnreadPill) {
+                    if (unreadCount > 0) {
+                        notifUnreadPill.textContent = `${unreadCount} new`;
+                        notifUnreadPill.style.display = 'inline-block';
+                    } else {
+                        notifUnreadPill.style.display = 'none';
+                    }
+                }
+
+                if (!notifList) return;
+
+                if (!notifications || notifications.length === 0) {
+                    notifList.innerHTML = '<div class="notif-empty-state"><span class="notif-empty-title">No notifications</span><span class="notif-empty-sub">You are all caught up</span></div>';
+                    return;
+                }
+
+                let html = '';
+                notifications.forEach(n => {
+                    const unreadClass = n.is_read ? '' : 'unread';
+                    const link = n.link_url || '#';
+                    let iconSvg = '';
+                    if (n.notification_type === 'rental') {
+                        iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>';
+                    } else if (n.notification_type === 'approval') {
+                        iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+                    } else if (n.notification_type === 'rejection') {
+                        iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+                    } else {
+                        iconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+                    }
+
+                    html += `
+                        <a href="${link}" class="notif-item ${unreadClass}">
+                            <div class="notif-icon-circle notif-type-${n.notification_type}">
+                                ${iconSvg}
+                            </div>
+                            <div class="notif-content">
+                                <div class="notif-header-line">
+                                    <span class="notif-item-title">${n.title}</span>
+                                    <span class="notif-time">${n.created_at}</span>
+                                </div>
+                                <p class="notif-text">${n.message}</p>
+                            </div>
+                        </a>
+                    `;
+                });
+
+                notifList.innerHTML = html;
+            }
+
+            function fetchNotifications() {
+                fetch('/accounts/notifications/api/list/')
+                    .then(res => {
+                        if (!res.ok) throw new Error('Not authorized');
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            renderNotifications(data.notifications, data.unread_count);
+
+                            // Trigger Desktop Notification if unread increased and permission granted
+                            if (data.unread_count > lastUnreadCount && "Notification" in window && Notification.permission === "granted") {
+                                const latest = data.notifications && data.notifications[0];
+                                if (latest && !latest.is_read) {
+                                    new Notification(latest.title, {
+                                        body: latest.message,
+                                        icon: '/static/favicon.ico'
+                                    });
+                                }
+                            }
+                            lastUnreadCount = data.unread_count;
+                        }
+                    })
+                    .catch(e => {
+                        // User not logged in or network error
+                    });
+            }
+
+            // Initial fetch
+            fetchNotifications();
+            // Polling every 25 seconds
+            setInterval(fetchNotifications, 25000);
+        }
+
+        // Global outside click & escape handler
+        document.addEventListener('click', function (e) {
+            const profileWrap = document.getElementById('userProfileDropdownWrap');
+            const profileTrigger = document.getElementById('userProfileTrigger');
+            if (profileWrap && !profileWrap.contains(e.target)) {
+                profileWrap.classList.remove('open');
+                if (profileTrigger) profileTrigger.setAttribute('aria-expanded', 'false');
+            }
+
+            const notifWrap = document.getElementById('notifDropdownWrap');
+            const notifBtn = document.getElementById('headerNotifBtn');
+            if (notifWrap && !notifWrap.contains(e.target)) {
+                notifWrap.classList.remove('open');
+                if (notifBtn) notifBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                const profileWrap = document.getElementById('userProfileDropdownWrap');
+                const profileTrigger = document.getElementById('userProfileTrigger');
+                if (profileWrap && profileWrap.classList.contains('open')) {
+                    profileWrap.classList.remove('open');
+                    if (profileTrigger) profileTrigger.setAttribute('aria-expanded', 'false');
+                }
+
+                const notifWrap = document.getElementById('notifDropdownWrap');
+                const notifBtn = document.getElementById('headerNotifBtn');
+                if (notifWrap && notifWrap.classList.contains('open')) {
+                    notifWrap.classList.remove('open');
+                    if (notifBtn) notifBtn.setAttribute('aria-expanded', 'false');
+                }
+            }
+        });
 
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initHeaderDropdown);
+            document.addEventListener('DOMContentLoaded', function () {
+                initProfileDropdown();
+                initNotificationDropdown();
+            });
         } else {
-            initHeaderDropdown();
+            initProfileDropdown();
+            initNotificationDropdown();
         }
     })();
-</script>
+</script>

@@ -146,6 +146,7 @@
     position: relative;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     flex-shrink: 0;
+    cursor: pointer;
 }
 
 .header-notif-btn svg {
@@ -155,11 +156,12 @@
     transition: stroke 0.15s ease;
 }
 
-.header-notif-btn:hover {
+.header-notif-btn:hover,
+.notif-dropdown-wrap.open .header-notif-btn {
     background: rgba(255, 255, 255, 0.12) !important;
     color: #ffffff !important;
     border-color: rgba(255, 255, 255, 0.3) !important;
-    transform: scale(1.06);
+    transform: scale(1.04);
 }
 
 .notif-badge-dot {
@@ -173,10 +175,227 @@
     box-shadow: 0 0 6px rgba(255, 255, 255, 0.85);
 }
 
+.notif-badge-count {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 10px;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 10px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    border: 1.5px solid #000000;
+    box-shadow: 0 2px 6px rgba(255, 255, 255, 0.4);
+}
+
+/* Notifications Dropdown Wrap & Menu */
+.notif-dropdown-wrap {
+    position: relative;
+}
+
+.notif-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: -40px;
+    width: 360px;
+    max-width: 90vw;
+    background: #09090c !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.95);
+    display: none;
+    flex-direction: column;
+    z-index: 1060;
+    animation: menuFadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+
+.notif-dropdown-wrap.open .notif-dropdown-menu {
+    display: flex;
+}
+
+.notif-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: #0d0d11;
+}
+
+.notif-menu-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.notif-menu-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.3px;
+}
+
+.notif-unread-pill {
+    font-size: 10px;
+    font-weight: 700;
+    color: #000000;
+    background: #ffffff;
+    padding: 1px 7px;
+    border-radius: 10px;
+    letter-spacing: 0.2px;
+}
+
+.notif-action-btn {
+    background: transparent;
+    border: none;
+    color: #a1a1aa;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+}
+
+.notif-action-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.notif-items-list {
+    max-height: 380px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.notif-items-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.notif-items-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+
+.notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    text-decoration: none;
+    transition: background 0.15s ease;
+}
+
+.notif-item:last-child {
+    border-bottom: none;
+}
+
+.notif-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.notif-item.unread {
+    background: rgba(255, 255, 255, 0.07);
+    border-left: 2px solid #ffffff;
+}
+
+.notif-icon-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #18181b;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.notif-icon-circle svg {
+    width: 14px;
+    height: 14px;
+    stroke: #ffffff;
+}
+
+.notif-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notif-header-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 3px;
+}
+
+.notif-item-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notif-time {
+    font-size: 10px;
+    color: #71717a;
+    flex-shrink: 0;
+}
+
+.notif-text {
+    font-size: 11.5px;
+    color: #a1a1aa;
+    line-height: 1.35;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.notif-empty-state,
+.notif-loading-item {
+    padding: 30px 16px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #71717a;
+    font-size: 12px;
+}
+
+.notif-empty-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 3px;
+}
+
+.notif-empty-sub {
+    font-size: 11px;
+    color: #71717a;
+}
+
 /* User Profile Dropdown */
 .user-profile-dropdown-wrap {
     position: relative;
 }
+
 
 .user-profile-trigger {
     display: inline-flex;
@@ -238,6 +457,13 @@
     color: #71717a !important;
     letter-spacing: 0.4px;
     text-transform: uppercase;
+}
+
+.user-role-root {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.6px;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
 }
 
 .dropdown-chevron {
@@ -386,21 +612,61 @@
     stroke: #000000 !important;
 }
 
+.dropdown-item-root {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dropdown-item-root svg {
+    stroke: #ffffff !important;
+}
+
+.dropdown-item-root:hover {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border-color: #ffffff !important;
+}
+
+.dropdown-item-root:hover svg {
+    stroke: #000000 !important;
+}
+
+.dropdown-item-root:hover .root-badge-pill {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+.root-badge-pill {
+    font-size: 9px;
+    font-weight: 800;
+    color: #000000;
+    background: #ffffff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    margin-left: auto;
+}
+
 .dropdown-item-signout {
-    color: #ef4444 !important;
+    color: #a1a1aa !important;
 }
 
 .dropdown-item-signout svg {
-    stroke: #ef4444 !important;
+    stroke: #a1a1aa !important;
 }
 
 .dropdown-item-signout:hover {
-    background: rgba(239, 68, 68, 0.12) !important;
-    color: #f87171 !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
 }
 
 .dropdown-item-signout:hover svg {
-    stroke: #f87171 !important;
+    stroke: #ffffff !important;
 }
 
 /* Hide duplicate header brand on desktop since it is in the sidebar */

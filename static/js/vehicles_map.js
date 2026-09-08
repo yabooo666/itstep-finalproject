@@ -184,11 +184,144 @@ function setupLeafletMap() {
 
         const vehicles = getVehiclesData();
         renderMapMarkers(vehicles);
-        renderWalkingRoute(tbilisiCenter);
+
+        // Render customer location on map (synced with cards)
+        const initialCoords = window.getCustomerActiveCoords ? window.getCustomerActiveCoords() : [41.7151, 44.8271];
+        renderCustomerLocation(initialCoords[0], initialCoords[1]);
+
+        // Map click anywhere updates customer location
+        mapInstance.on('click', function(e) {
+            if (e.originalEvent && e.originalEvent.target && e.originalEvent.target.closest('.map-car-pin, .leaflet-popup')) {
+                return; // Ignore clicks on car markers or popups
+            }
+            if (window.updateCustomerGlobalLocation) {
+                window.updateCustomerGlobalLocation(e.latlng.lat, e.latlng.lng, false);
+            }
+        });
 
         mapInstance.invalidateSize();
     } catch (err) {
         console.error('Error setting up Leaflet map:', err);
+    }
+}
+
+let customerMarker = null;
+let customerRouteLine = null;
+let customerRouteBadge = null;
+
+function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+}
+
+function renderCustomerLocation(lat, lng) {
+    if (!markersLayer || !window.L) return;
+
+    if (customerMarker) {
+        markersLayer.removeLayer(customerMarker);
+        customerMarker = null;
+    }
+
+    const userPulseIcon = L.divIcon({
+        className: 'user-location-pulse-wrapper',
+        html: `
+            <div class="user-pulse-center" style="background: #ffffff; width: 14px; height: 14px; border: 2px solid #000000; border-radius: 50%;"></div>
+            <div class="user-pulse-wave" style="border-color: rgba(255,255,255,0.7);"></div>
+        `,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
+    });
+
+    customerMarker = L.marker([lat, lng], { 
+        icon: userPulseIcon, 
+        draggable: true,
+        zIndexOffset: 1000 
+    }).addTo(markersLayer);
+
+    customerMarker.bindPopup('<b>📍 Your Location (Customer)</b><br><span style="font-size:11px;color:#a1a1aa;">Drag to change location</span>');
+
+    customerMarker.on('dragend', function(e) {
+        const pos = e.target.getLatLng();
+        if (window.updateCustomerGlobalLocation) {
+            window.updateCustomerGlobalLocation(pos.lat, pos.lng, false);
+        }
+    });
+
+    drawRouteToNearestCar(lat, lng);
+}
+
+window.syncMapCustomerLocation = function(lat, lng) {
+    if (mapInstance && markersLayer) {
+        renderCustomerLocation(lat, lng);
+        mapInstance.panTo([lat, lng], { animate: true, duration: 0.6 });
+    }
+};
+
+function drawRouteToNearestCar(userLat, userLng) {
+    if (!markersLayer || !window.L) return;
+
+    if (customerRouteLine) {
+        markersLayer.removeLayer(customerRouteLine);
+        customerRouteLine = null;
+    }
+    if (customerRouteBadge) {
+        markersLayer.removeLayer(customerRouteBadge);
+        customerRouteBadge = null;
+    }
+
+    const vehicles = getVehiclesData();
+    let nearestCar = null;
+    let minDistance = Infinity;
+
+    vehicles.forEach(car => {
+        if (car.lat && car.lng) {
+            const d = calculateDistanceKm(userLat, userLng, car.lat, car.lng);
+            if (d < minDistance) {
+                minDistance = d;
+                nearestCar = car;
+            }
+        }
+    });
+
+    if (nearestCar && minDistance < 500) {
+        const pathPoints = [
+            [userLat, userLng],
+            [nearestCar.lat, nearestCar.lng]
+        ];
+
+        customerRouteLine = L.polyline(pathPoints, {
+            color: '#ffffff',
+            weight: 2.2,
+            dashArray: '6, 8',
+            opacity: 0.85,
+            lineCap: 'round',
+        }).addTo(markersLayer);
+
+        const midLat = (userLat + nearestCar.lat) / 2;
+        const midLng = (userLng + nearestCar.lng) / 2;
+
+        let tagText = minDistance < 1 
+            ? `${Math.round(minDistance * 1000)}m (~${Math.max(1, Math.round(minDistance * 1000 / 80))} min walk)` 
+            : `${minDistance.toFixed(1)} km (~${Math.max(1, Math.round(minDistance / 40 * 60))} min drive)`;
+
+        const walkingTagIcon = L.divIcon({
+            className: 'walking-time-badge-wrapper',
+            html: `
+                <div class="walking-time-tag" style="background:#09090c; color:#ffffff; border:1px solid rgba(255,255,255,0.25); padding:4px 9px; border-radius:6px; font-size:11.5px; font-weight:700; white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,0.85);">
+                    <span>📍 Nearest: ${tagText}</span>
+                </div>
+            `,
+            iconSize: [140, 26],
+            iconAnchor: [70, 13],
+        });
+
+        customerRouteBadge = L.marker([midLat, midLng], { icon: walkingTagIcon }).addTo(markersLayer);
     }
 }
 
@@ -198,25 +331,7 @@ function renderMapMarkers(list) {
 
     const safeList = Array.isArray(list) ? list : getVehiclesData();
 
-    // 1. Cluster Badges (matching screenshot)
-    const clusters = [
-        { count: 2, lat: 41.7160, lng: 44.7550 },
-        { count: 3, lat: 41.6980, lng: 44.8250 },
-        { count: 6, lat: 41.7280, lng: 44.7890 },
-        { count: 5, lat: 41.6880, lng: 44.8080 },
-    ];
-
-    clusters.forEach(c => {
-        const clusterIcon = L.divIcon({
-            className: 'custom-map-cluster',
-            html: `<div class="map-cluster-bubble">${c.count}</div>`,
-            iconSize: [28, 28],
-            iconAnchor: [14, 14],
-        });
-        L.marker([c.lat, c.lng], { icon: clusterIcon }).addTo(markersLayer);
-    });
-
-    // 2. Individual Vehicle Pins
+    // Render Individual Vehicle Pins directly from catalog data
     safeList.forEach((car, index) => {
         if (!car.lat || !car.lng) return;
 
@@ -237,19 +352,19 @@ function renderMapMarkers(list) {
 
         const marker = L.marker([car.lat, car.lng], { icon: carIcon }).addTo(markersLayer);
 
-        // Rich Custom Popup Card matching user mockup
+        // Rich Custom Popup Card
         const popupHtml = `
             <div class="map-vehicle-card-popup">
                 <div class="popup-top-meta">
                     <div class="popup-rating">
-                        <svg viewBox="0 0 24 24" fill="#eab308" class="star-svg">
+                        <svg viewBox="0 0 24 24" fill="#ffffff" class="star-svg" style="color: #ffffff;">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                         </svg>
                         <span class="score">${car.rating || '5.0'}</span>
                         <span class="count">(${car.review_count || 120})</span>
                     </div>
                     <button type="button" class="popup-heart ${car.is_favourite ? 'favourited' : ''}" onclick="this.classList.toggle('favourited')">
-                        <svg viewBox="0 0 24 24" fill="${car.is_favourite ? '#ef4444' : 'none'}" stroke="currentColor" stroke-width="2">
+                        <svg viewBox="0 0 24 24" fill="${car.is_favourite ? '#ffffff' : 'none'}" stroke="currentColor" stroke-width="2">
                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                         </svg>
                     </button>
@@ -261,12 +376,12 @@ function renderMapMarkers(list) {
                 </div>
 
                 <div class="popup-action-row">
-                    <button type="button" class="popup-book-btn" onclick="window.openAuthModal ? window.openAuthModal('login') : null">
-                        <span>Book</span>
-                    </button>
+                    <a href="/vehicles/${car.id}/" class="popup-book-btn" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">
+                        <span>View 3D</span>
+                    </a>
                     <div class="popup-price-tag">
-                        <span class="price-num">₾${car.price_per_hour}</span>
-                        <span class="price-unit">/ h</span>
+                        <span class="price-num">₾${car.daily_price || car.price_per_hour}</span>
+                        <span class="price-unit">${car.daily_price ? '/ day' : '/ hr'}</span>
                     </div>
                 </div>
             </div>
@@ -280,59 +395,42 @@ function renderMapMarkers(list) {
             offset: [0, -10],
         });
 
+        // Clicking a car marker shows route from customer to this car
+        marker.on('click', () => {
+            const customerCoords = window.getCustomerActiveCoords ? window.getCustomerActiveCoords() : [41.7151, 44.8271];
+            if (customerRouteLine) markersLayer.removeLayer(customerRouteLine);
+            if (customerRouteBadge) markersLayer.removeLayer(customerRouteBadge);
+
+            const dist = calculateDistanceKm(customerCoords[0], customerCoords[1], car.lat, car.lng);
+            const pathPoints = [customerCoords, [car.lat, car.lng]];
+            customerRouteLine = L.polyline(pathPoints, {
+                color: '#ffffff',
+                weight: 2.2,
+                dashArray: '6, 8',
+                opacity: 0.85,
+            }).addTo(markersLayer);
+
+            const midLat = (customerCoords[0] + car.lat) / 2;
+            const midLng = (customerCoords[1] + car.lng) / 2;
+            const tagText = dist < 1 
+                ? `${Math.round(dist * 1000)}m (~${Math.max(1, Math.round(dist * 1000 / 80))} min walk)` 
+                : `${dist.toFixed(1)} km (~${Math.max(1, Math.round(dist / 40 * 60))} min drive)`;
+
+            const badgeIcon = L.divIcon({
+                className: 'walking-time-badge-wrapper',
+                html: `
+                    <div class="walking-time-tag" style="background:#09090c; color:#ffffff; border:1px solid rgba(255,255,255,0.25); padding:4px 9px; border-radius:6px; font-size:11.5px; font-weight:700; white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,0.85);">
+                        <span>📍 ${tagText}</span>
+                    </div>
+                `,
+                iconSize: [140, 26],
+                iconAnchor: [70, 13],
+            });
+            customerRouteBadge = L.marker([midLat, midLng], { icon: badgeIcon }).addTo(markersLayer);
+        });
+
         if (index === 0) {
             setTimeout(() => marker.openPopup(), 450);
         }
     });
-}
-
-function renderWalkingRoute(center) {
-    if (!markersLayer || !window.L) return;
-
-    const userLoc = [41.7010, 44.7920];
-    const carLoc = [41.6975, 44.7995];
-
-    const pathPoints = [
-        userLoc,
-        [41.7005, 44.7935],
-        [41.6990, 44.7950],
-        [41.6980, 44.7975],
-        carLoc,
-    ];
-
-    L.polyline(pathPoints, {
-        color: '#3b82f6',
-        weight: 3,
-        dashArray: '5, 8',
-        opacity: 0.85,
-        lineCap: 'round',
-    }).addTo(markersLayer);
-
-    const midPoint = [41.6990, 44.7950];
-    const walkingTagIcon = L.divIcon({
-        className: 'walking-time-badge-wrapper',
-        html: `
-            <div class="walking-time-tag">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="4" r="2"/>
-                    <path d="M15 22v-6l-3-3l-2 2v7"/>
-                    <path d="M9 13l2-3l3 2l3-2"/>
-                </svg>
-                <span>2 min</span>
-            </div>
-        `,
-        iconSize: [68, 26],
-        iconAnchor: [34, 13],
-    });
-
-    L.marker(midPoint, { icon: walkingTagIcon }).addTo(markersLayer);
-
-    const userPulseIcon = L.divIcon({
-        className: 'user-location-pulse-wrapper',
-        html: `<div class="user-pulse-center"></div><div class="user-pulse-wave"></div>`,
-        iconSize: [22, 22],
-        iconAnchor: [11, 11],
-    });
-
-    L.marker(userLoc, { icon: userPulseIcon }).addTo(markersLayer);
 }

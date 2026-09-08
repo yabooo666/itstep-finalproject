@@ -82,7 +82,11 @@ def catalog_view(request):
 
     # 2. Sorting
     sort_by = request.GET.get('sort', '').strip()
-    if sort_by == 'price_low':
+    if sort_by == 'popular':
+        qs = qs.order_by('-rating', '-review_count', '-id')
+    elif sort_by == 'random':
+        qs = qs.order_by('?')
+    elif sort_by == 'price_low':
         qs = qs.order_by('daily_price')
     elif sort_by == 'price_high':
         qs = qs.order_by('-daily_price')
@@ -94,6 +98,25 @@ def catalog_view(request):
         qs = qs.order_by('-id')
 
     vehicles_list = list(qs)
+
+    # Optional server-side distance sorting if user GPS coordinates are provided
+    user_lat = request.GET.get('user_lat')
+    user_lng = request.GET.get('user_lng')
+    if sort_by == 'nearest' and user_lat and user_lng:
+        try:
+            ulat = float(user_lat)
+            ulng = float(user_lng)
+            import math
+            def haversine(v):
+                R = 6371.0
+                dlat = math.radians(v.lat - ulat)
+                dlng = math.radians(v.lng - ulng)
+                a = math.sin(dlat / 2)**2 + math.cos(math.radians(ulat)) * math.cos(math.radians(v.lat)) * math.sin(dlng / 2)**2
+                c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+                return R * c
+            vehicles_list.sort(key=haversine)
+        except (ValueError, TypeError):
+            pass
 
     # 3. Dynamic distinct values for filter dropdowns
     all_active = Vehicle.objects.filter(is_active=True)
@@ -323,11 +346,33 @@ def add_vehicle_view(request):
             city=city,
             location_name=location_name,
             lat=lat,
-            lng=lng,
             model_3d_file=model_3d_file,
-            is_active=True
+            status='pending',
+            is_active=False
         )
-        return redirect('vehicle_detail', vehicle_id=vehicle.id)
+
+        # Dispatch Discord Webhook notification
+        webhook_url = os.getenv('WEBHOOK_DISCORD')
+        if webhook_url:
+            try:
+                import requests
+                requests.post(webhook_url, json={
+                    "content": "+1 announcement on gruzinauto. <@384838698883350539>"
+                }, timeout=5)
+            except Exception as e:
+                print(f"Discord webhook notice error: {e}")
+
+        # In-app confirmation for vehicle owner
+        from accounts.models import Notification
+        Notification.objects.create(
+            user=request.user,
+            title="Listing Submitted for Review",
+            message=f"Your {brand} {model} ({year}) was submitted and is currently pending review by the moderation team.",
+            notification_type='system',
+            link_url='/profile/'
+        )
+
+        return redirect('/profile/?submitted=1')
 
     return render(request, 'vehicles/add_vehicle.html', {
         'user_phone': user_phone
@@ -354,13 +399,8 @@ def vehicle_detail_view(request, vehicle_id):
     if request.user.is_authenticated:
         is_favourite = UserFavourite.objects.filter(user=request.user, vehicle=vehicle).exists()
 
-    images = vehicle.get_images()
-    primary_image = images[0] if images else "/static/images/bmw_m4.png"
-
     context = {
         'vehicle': vehicle,
-        'images': images,
-        'primary_image': primary_image,
         'is_favourite': is_favourite,
     }
     return render(request, 'vehicles/vehicle_detail.html', context)
@@ -405,6 +445,17 @@ def rent_vehicle_view(request, vehicle_id):
         status='Confirmed'
     )
 
+    # Notify vehicle owner of new booking
+    from accounts.models import Notification
+    if vehicle.owner and vehicle.owner != request.user:
+        Notification.objects.create(
+            user=vehicle.owner,
+            title="Vehicle Rented!",
+            message=f"{request.user.get_full_name() or request.user.username} rented your {vehicle.brand} {vehicle.model} in {city} for {rental_days} day(s) (Total: ₾{total_price}).",
+            notification_type='rental',
+            link_url='/profile/'
+        )
+
     return JsonResponse({
         'success': True,
         'booking_id': booking.id,
@@ -414,4 +465,93 @@ def rent_vehicle_view(request, vehicle_id):
         'total_price': str(total_price),
         'message': f'Successfully rented {vehicle.brand} {vehicle.model} for {rental_days} day(s).'
     })
+
+
+@require_http_methods(["POST"])
+def toggle_hide_vehicle_view(request, vehicle_id):
+    """
+    Temporarily hides or unhides a vehicle from the public catalog.
+    Only the vehicle owner or an administrator (staff/superuser) can toggle visibility.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Authentication required.'}, status=401)
+
+    vehicle = get_object_or_404(Vehicle, pk=vehicle_id)
+
+    # Permission check: owner or admin
+    if vehicle.owner != request.user and not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({'success': False, 'error': 'Permission denied.'}, status=403)
+
+    vehicle.is_active = not vehicle.is_active
+    vehicle.save()
+
+    # Log to AdminAuditLog
+    from accounts.models import log_admin_action
+    action = 'UNHIDE_VEHICLE' if vehicle.is_active else 'HIDE_VEHICLE'
+    details = f"Vehicle was {'unhidden / restored to catalog' if vehicle.is_active else 'temporarily hidden from public view'}."
+    log_admin_action(
+        request,
+        action=action,
+        target_type='Vehicle',
+        target_id=vehicle.id,
+        target_title=f"{vehicle.brand} {vehicle.model} ({vehicle.year})",
+        details=details
+    )
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
+        return JsonResponse({
+            'success': True,
+            'vehicle_id': vehicle.id,
+            'is_active': vehicle.is_active,
+            'message': f"{vehicle.brand} {vehicle.model} is now {'visible' if vehicle.is_active else 'temporarily hidden'}."
+        })
+
+    referer = request.META.get('HTTP_REFERER')
+    if referer:
+        return redirect(referer)
+    return redirect('profile')
+
+
+@require_http_methods(["POST"])
+def delete_vehicle_view(request, vehicle_id):
+    """
+    Permanently deletes a vehicle from the database.
+    Only the vehicle owner or an administrator (staff/superuser) can perform deletion.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Authentication required.'}, status=401)
+
+    vehicle = get_object_or_404(Vehicle, pk=vehicle_id)
+
+    # Permission check: owner or admin
+    if vehicle.owner != request.user and not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({'success': False, 'error': 'Permission denied.'}, status=403)
+
+    car_name = f"{vehicle.brand} {vehicle.model}"
+    car_id = vehicle.id
+    car_year = vehicle.year
+    vehicle.delete()
+
+    # Log to AdminAuditLog
+    from accounts.models import log_admin_action
+    log_admin_action(
+        request,
+        action='DELETE_VEHICLE',
+        target_type='Vehicle',
+        target_id=car_id,
+        target_title=f"{car_name} ({car_year})",
+        details="Permanently deleted vehicle record."
+    )
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
+        return JsonResponse({
+            'success': True,
+            'message': f"{car_name} was deleted permanently."
+        })
+
+    referer = request.META.get('HTTP_REFERER')
+    if referer and str(vehicle_id) not in referer:
+        return redirect(referer)
+    return redirect('profile')
+
 

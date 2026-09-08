@@ -354,3 +354,51 @@ def profile_view(request):
         'my_vehicles_count': my_vehicles.count(),
     }
     return render(request, 'accounts/profile.html', context)
+
+
+@require_http_methods(["GET"])
+def notifications_api_list(request):
+    """
+    Returns JSON list of notifications for authenticated user,
+    along with unread count.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'notifications': [], 'unread_count': 0})
+
+    from .models import Notification
+    notifs = Notification.objects.filter(user=request.user).order_by('-created_at')[:30]
+    unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
+
+    notif_data = [
+        {
+            'id': n.id,
+            'title': n.title,
+            'message': n.message,
+            'notification_type': n.notification_type,
+            'link_url': n.link_url,
+            'is_read': n.is_read,
+            'created_at': n.created_at.strftime('%b %d, %H:%M'),
+            'created_at_iso': n.created_at.isoformat(),
+        }
+        for n in notifs
+    ]
+
+    return JsonResponse({
+        'success': True,
+        'notifications': notif_data,
+        'unread_count': unread_count,
+    })
+
+
+@require_http_methods(["POST"])
+def notifications_api_read_all(request):
+    """
+    Marks all notifications for authenticated user as read.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Unauthorized'}, status=401)
+
+    from .models import Notification
+    Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+    return JsonResponse({'success': True, 'unread_count': 0})
+

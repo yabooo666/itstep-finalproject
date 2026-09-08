@@ -1,0 +1,575 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}ROOT Command Center | Gruzin Auto{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/boss.css' %}?v=boss_v1">
+{% endblock %}
+
+{% block content %}
+<div class="boss-page-container">
+    <!-- Header Command Bar -->
+    <div class="boss-header-bar">
+        <div class="boss-header-left">
+            <div class="boss-badge-row">
+                <span class="boss-root-tag">ROOT ACCESS</span>
+                <span class="boss-status-live"><span class="boss-pulse-dot"></span> LIVE SYSTEM</span>
+            </div>
+            <h1 class="boss-main-title">Admin Command Center</h1>
+            <p class="boss-subtitle">Vehicle listing moderation, real-time asset verification, and platform management.</p>
+        </div>
+        <div class="boss-header-right">
+            <a href="/ban/" class="boss-btn-ghost" title="View Immutable Audit & Security Logs">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" style="display:inline; vertical-align: -1px; margin-right: 4px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                Audit Logs (/ban)
+            </a>
+            <a href="/vehicles/add/" class="boss-btn-ghost">+ Add Vehicle Direct</a>
+            <a href="/vehicles/" class="boss-btn-ghost">View Public Catalog</a>
+        </div>
+    </div>
+
+    <!-- Stats Overview Grid -->
+    <div class="boss-stats-grid">
+        <div class="boss-stat-card stat-pending">
+            <div class="stat-meta">
+                <span class="stat-label">Pending Verification</span>
+                <span class="stat-badge-pulse">{{ stats.pending_count }} QUEUED</span>
+            </div>
+            <div class="stat-val-row">
+                <span class="stat-number">{{ stats.pending_count }}</span>
+                <span class="stat-sub">Awaiting admin review</span>
+            </div>
+        </div>
+
+        <div class="boss-stat-card">
+            <div class="stat-meta">
+                <span class="stat-label">Approved Fleet</span>
+                <span class="stat-badge">ACTIVE</span>
+            </div>
+            <div class="stat-val-row">
+                <span class="stat-number">{{ stats.approved_count }}</span>
+                <span class="stat-sub">Live on catalog</span>
+            </div>
+        </div>
+
+        <div class="boss-stat-card">
+            <div class="stat-meta">
+                <span class="stat-label">Rejected Submissions</span>
+                <span class="stat-badge">ARCHIVED</span>
+            </div>
+            <div class="stat-val-row">
+                <span class="stat-number">{{ stats.rejected_count }}</span>
+                <span class="stat-sub">Disapproved entries</span>
+            </div>
+        </div>
+
+        <div class="boss-stat-card">
+            <div class="stat-meta">
+                <span class="stat-label">User Accounts</span>
+                <span class="stat-badge">{{ stats.admins_count }} ROOT</span>
+            </div>
+            <div class="stat-val-row">
+                <span class="stat-number">{{ stats.users_count }}</span>
+                <span class="stat-sub">Registered users</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Tabs Navigation -->
+    <div class="boss-tabs-nav">
+        <button type="button" class="boss-tab-btn active" data-tab="pending">
+            <span>Pending Review</span>
+            <span class="tab-counter">{{ stats.pending_count }}</span>
+        </button>
+        <button type="button" class="boss-tab-btn" data-tab="approved">
+            <span>Approved Fleet</span>
+            <span class="tab-counter">{{ stats.approved_count }}</span>
+        </button>
+        <button type="button" class="boss-tab-btn" data-tab="rejected">
+            <span>Rejected Submissions</span>
+            <span class="tab-counter">{{ stats.rejected_count }}</span>
+        </button>
+        <button type="button" class="boss-tab-btn" data-tab="users">
+            <span>User Management</span>
+            <span class="tab-counter">{{ stats.users_count }}</span>
+        </button>
+    </div>
+
+    <!-- TAB 1: PENDING QUEUE -->
+    <div class="boss-tab-pane active" id="tab-pending">
+        {% if pending_vehicles %}
+        <div class="pending-cards-grid">
+            {% for car in pending_vehicles %}
+            <div class="pending-review-card" id="pendingCard-{{ car.id }}">
+                <!-- 3D Interactive Model Preview Header -->
+                <div class="card-3d-preview-wrap">
+                    <div class="card-3d-viewport" data-model-url="{{ car.get_model_url }}" data-car-id="{{ car.id }}">
+                        <div class="preview-loading-hint">Initializing 3D Model...</div>
+                    </div>
+                    <div class="preview-3d-controls-hint">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                        </svg>
+                        <span>Interactive 3D Inspector</span>
+                    </div>
+                    <div class="preview-pill-tag">PENDING REVIEW</div>
+                </div>
+
+                <!-- Vehicle Details & Metadata -->
+                <div class="card-review-body">
+                    <div class="card-header-row">
+                        <div class="card-title-group">
+                            <h2 class="card-car-title">{{ car.brand }} {{ car.model }}</h2>
+                            <span class="card-car-trim">{{ car.trim|default:"Standard Edition" }} • {{ car.year }}</span>
+                        </div>
+                        <div class="card-pricing-group">
+                            <span class="card-daily-price">₾{{ car.daily_price }} <small>/day</small></span>
+                            <span class="card-hourly-price">₾{{ car.price_per_hour }} /hr</span>
+                        </div>
+                    </div>
+
+                    <div class="card-specs-matrix">
+                        <div class="spec-matrix-cell">
+                            <span class="spec-cell-label">Owner</span>
+                            <span class="spec-cell-val">
+                                {% if car.owner %}{{ car.owner.get_full_name|default:car.owner.username }}{% else %}System{% endif %}
+                            </span>
+                        </div>
+                        <div class="spec-matrix-cell">
+                            <span class="spec-cell-label">Phone</span>
+                            <span class="spec-cell-val">{{ car.owner_phone|default:"Not specified" }}</span>
+                        </div>
+                        <div class="spec-matrix-cell">
+                            <span class="spec-cell-label">Location</span>
+                            <span class="spec-cell-val">{{ car.city }} ({{ car.location_name }})</span>
+                        </div>
+                        <div class="spec-matrix-cell">
+                            <span class="spec-cell-label">Transmission</span>
+                            <span class="spec-cell-val">{{ car.transmission }}</span>
+                        </div>
+                        <div class="spec-matrix-cell">
+                            <span class="spec-cell-label">Capacity</span>
+                            <span class="spec-cell-val">{{ car.seats }} Seats • {{ car.fuel_capacity }}L</span>
+                        </div>
+                        <div class="spec-matrix-cell">
+                            <span class="spec-cell-label">Submitted</span>
+                            <span class="spec-cell-val">{{ car.created_at|date:"M d, Y H:i" }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Controls Bar -->
+                    <div class="card-actions-bar">
+                        <form method="POST" action="{% url 'boss_approve_vehicle' car.id %}" class="action-form">
+                            {% csrf_token %}
+                            <button type="submit" class="boss-action-confirm-btn" onclick="return confirm('Confirm and publish {{ car.brand }} {{ car.model }}?');">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                <span>Confirm & Publish</span>
+                            </button>
+                        </form>
+
+                        <button type="button" class="boss-action-reject-btn" 
+                                data-car-id="{{ car.id }}" 
+                                data-car-title="{{ car.brand }} {{ car.model }} ({{ car.year }})"
+                                onclick="openRejectModal('{{ car.id }}', '{{ car.brand }} {{ car.model }} ({{ car.year }})')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                <line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                            <span>Reject with Reason</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="boss-empty-pane">
+            <div class="empty-icon-shield">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <polyline points="9 12 11 14 15 10"/>
+                </svg>
+            </div>
+            <h3 class="empty-pane-title">All Clear: No Pending Submissions</h3>
+            <p class="empty-pane-sub">New vehicle announcements will instantly appear here for moderator review and trigger Discord webhook notifications.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- TAB 2: APPROVED FLEET -->
+    <div class="boss-tab-pane" id="tab-approved">
+        {% if approved_vehicles %}
+        <div class="boss-table-wrapper">
+            <table class="boss-table">
+                <thead>
+                    <tr>
+                        <th>Vehicle</th>
+                        <th>Owner & Phone</th>
+                        <th>Pricing</th>
+                        <th>City / Location</th>
+                        <th>Verified By</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for car in approved_vehicles %}
+                    <tr>
+                        <td>
+                            <div class="table-vehicle-cell">
+                                <span class="table-vehicle-name">{{ car.brand }} {{ car.model }}</span>
+                                <span class="table-vehicle-trim">{{ car.trim|default:"Standard" }} ({{ car.year }})</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-owner-cell">
+                                <span>{% if car.owner %}{{ car.owner.get_full_name|default:car.owner.username }}{% else %}System{% endif %}</span>
+                                <span class="table-sub-text">{{ car.owner_phone|default:"No phone" }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="table-price">₾{{ car.daily_price }} / day</span>
+                        </td>
+                        <td>
+                            <span class="table-sub-text">{{ car.city }}</span>
+                        </td>
+                        <td>
+                            <div class="table-owner-cell">
+                                <span>{% if car.reviewed_by %}{{ car.reviewed_by.username }}{% else %}Admin{% endif %}</span>
+                                <span class="table-sub-text">{{ car.reviewed_at|date:"M d, H:i"|default:"Auto-approved" }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            {% if car.is_active %}
+                            <span class="table-badge-approved">LIVE</span>
+                            {% else %}
+                            <span class="table-badge-rejected">HIDDEN</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: right;">
+                            <div style="display: inline-flex; align-items: center; gap: 8px; justify-content: flex-end;">
+                                <a href="/vehicles/{{ car.id }}/" class="table-view-link" title="View details">View</a>
+                                
+                                <form method="POST" action="{% url 'toggle_hide_vehicle' car.id %}" style="margin: 0; display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" style="background: #18181b; border: 1px solid rgba(255,255,255,0.18); color: #d4d4d8; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 5px; cursor: pointer;">
+                                        {% if car.is_active %}Hide{% else %}Unhide{% endif %}
+                                    </button>
+                                </form>
+
+                                <form method="POST" action="{% url 'delete_vehicle' car.id %}" style="margin: 0; display: inline;" onsubmit="return confirm('Permanently delete {{ car.brand }} {{ car.model }}?');">
+                                    {% csrf_token %}
+                                    <button type="submit" style="background: #09090c; border: 1px solid rgba(255,255,255,0.18); color: #a1a1aa; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 5px; cursor: pointer;">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="boss-empty-pane">
+            <h3 class="empty-pane-title">No approved vehicles yet</h3>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- TAB 3: REJECTED SUBMISSIONS -->
+    <div class="boss-tab-pane" id="tab-rejected">
+        {% if rejected_vehicles %}
+        <div class="boss-table-wrapper">
+            <table class="boss-table">
+                <thead>
+                    <tr>
+                        <th>Vehicle</th>
+                        <th>Owner & Phone</th>
+                        <th>Rejection Reason</th>
+                        <th>Reviewed By</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for car in rejected_vehicles %}
+                    <tr>
+                        <td>
+                            <div class="table-vehicle-cell">
+                                <span class="table-vehicle-name">{{ car.brand }} {{ car.model }}</span>
+                                <span class="table-vehicle-trim">{{ car.year }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-owner-cell">
+                                <span>{% if car.owner %}{{ car.owner.get_full_name|default:car.owner.username }}{% else %}System{% endif %}</span>
+                                <span class="table-sub-text">{{ car.owner_phone|default:"No phone" }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-reason-box">
+                                {{ car.rejection_reason|default:"Non-compliant listing" }}
+                            </div>
+                        </td>
+                        <td>
+                            <span>{% if car.reviewed_by %}{{ car.reviewed_by.username }}{% else %}Admin{% endif %}</span>
+                        </td>
+                        <td>
+                            <span class="table-sub-text">{{ car.reviewed_at|date:"M d, Y H:i"|default:"-" }}</span>
+                        </td>
+                        <td>
+                            <span class="table-badge-rejected">REJECTED</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="boss-empty-pane">
+            <h3 class="empty-pane-title">No rejected submissions</h3>
+            <p class="empty-pane-sub">Rejected vehicle listings will be archived here with logged reasons.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- TAB 4: USER PRIVILEGES & ACCOUNTS MANAGEMENT -->
+    <div class="boss-tab-pane" id="tab-users">
+        {% if users_list %}
+        <div class="boss-table-wrapper">
+            <table class="boss-table">
+                <thead>
+                    <tr>
+                        <th>User Account</th>
+                        <th>Contact Phone</th>
+                        <th>Role & Access</th>
+                        <th>Status</th>
+                        <th>Platform Activity</th>
+                        <th>Joined</th>
+                        <th style="text-align: right;">Privilege & Account Controls</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users_list %}
+                    <tr>
+                        <!-- User Cell -->
+                        <td>
+                            <div class="table-user-cell" style="display: flex; align-items: center; gap: 10px;">
+                                <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 11.5px; flex-shrink: 0;">
+                                    <span>{{ u.full_name|slice:":1"|upper }}</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-weight: 700; color: #ffffff;">{{ u.full_name }}</span>
+                                    <span style="font-size: 11px; color: #71717a;">{{ u.email }}</span>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Phone -->
+                        <td>
+                            <span style="font-size: 12px; color: #d4d4d8;">{{ u.phone|default:"No phone" }}</span>
+                        </td>
+
+                        <!-- Role -->
+                        <td>
+                            {% if u.is_staff or u.is_superuser %}
+                            <span class="user-role-badge-tag root-pill">ROOT / ADMIN</span>
+                            {% else %}
+                            <span class="user-role-badge-tag member-pill">MEMBER</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Status -->
+                        <td>
+                            {% if u.is_active %}
+                            <span class="table-badge-approved">ACTIVE</span>
+                            {% else %}
+                            <span class="table-badge-rejected">BANNED</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Activity -->
+                        <td>
+                            <div style="display: flex; flex-direction: column; font-size: 11px; color: #a1a1aa;">
+                                <span>{{ u.vehicles_count }} listed vehicle(s)</span>
+                                <span>{{ u.rentals_count }} car(s) rented</span>
+                            </div>
+                        </td>
+
+                        <!-- Joined -->
+                        <td>
+                            <span style="font-size: 11.5px; color: #71717a;">{{ u.date_joined|date:"M d, Y" }}</span>
+                        </td>
+
+                        <!-- Actions -->
+                        <td style="text-align: right;">
+                            <div style="display: inline-flex; align-items: center; gap: 8px; justify-content: flex-end;">
+                                {% if u.id == request.user.id %}
+                                <span style="font-size: 11px; color: #71717a; font-style: italic;">(Your Account)</span>
+                                {% else %}
+                                <!-- Toggle Privilege -->
+                                <form method="POST" action="{% url 'boss_toggle_user_privilege' u.id %}" style="margin: 0; display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-table-action" style="background: #18181b; border: 1px solid rgba(255,255,255,0.2); color: #ffffff; padding: 5px 9px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                                        {% if u.is_staff or u.is_superuser %}Demote to Member{% else %}Grant ROOT{% endif %}
+                                    </button>
+                                </form>
+
+                                <!-- Toggle Ban -->
+                                <form method="POST" action="{% url 'boss_toggle_user_ban' u.id %}" style="margin: 0; display: inline;" onsubmit="return confirm('{% if u.is_active %}Ban and deactivate{% else %}Unban and activate{% endif %} user {{ u.full_name }}?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-table-action" style="background: #09090c; border: 1px solid rgba(255,255,255,0.2); color: #d4d4d8; padding: 5px 9px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                                        {% if u.is_active %}Ban{% else %}Unban{% endif %}
+                                    </button>
+                                </form>
+
+                                <!-- Delete Account -->
+                                <form method="POST" action="{% url 'boss_delete_user' u.id %}" style="margin: 0; display: inline;" onsubmit="return confirm('WARNING: Permanently delete account for {{ u.full_name }} ({{ u.email }})? All their vehicles and profile records will be permanently removed!');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-table-action" style="background: #09090c; border: 1px solid rgba(255,255,255,0.18); color: #a1a1aa; padding: 5px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;" title="Permanently delete user">
+                                        Delete
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="boss-empty-pane">
+            <h3 class="empty-pane-title">No user records found</h3>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+
+<!-- Modal: Reject Vehicle Submission with Reason -->
+<div class="boss-modal-overlay" id="bossRejectModal" role="dialog" aria-modal="true" aria-labelledby="rejectModalTitle">
+    <div class="boss-modal-window">
+        <div class="boss-modal-header">
+            <div class="boss-modal-title-group">
+                <span class="boss-modal-kicker">DISAPPROVAL ACTION</span>
+                <h3 class="boss-modal-title" id="rejectModalTitle">Reject Vehicle Submission</h3>
+            </div>
+            <button type="button" class="boss-modal-close" onclick="closeRejectModal()" aria-label="Close dialog">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+
+        <form id="bossRejectForm" method="POST" action="">
+            {% csrf_token %}
+            <div class="boss-modal-body">
+                <p class="boss-modal-desc">
+                    Target: <strong id="rejectTargetCarTitle">Vehicle</strong>.<br>
+                    Provide a rejection reason. This message will be sent directly to the owner's notifications dropdown and displayed on their profile.
+                </p>
+
+                <!-- Quick Reason Preset Chips -->
+                <div class="reason-preset-label">Quick Presets:</div>
+                <div class="reason-preset-chips">
+                    <button type="button" class="preset-chip" onclick="applyPresetReason('Uploaded 3D model file is corrupted or unsupported format.')">Invalid 3D Model</button>
+                    <button type="button" class="preset-chip" onclick="applyPresetReason('Inaccurate or misleading vehicle specifications provided.')">Incorrect Specs</button>
+                    <button type="button" class="preset-chip" onclick="applyPresetReason('Suspicious pricing or unrealistic daily rate.')">Unrealistic Price</button>
+                    <button type="button" class="preset-chip" onclick="applyPresetReason('Duplicate listing detected in catalog.')">Duplicate Listing</button>
+                    <button type="button" class="preset-chip" onclick="applyPresetReason('Contact phone number could not be verified.')">Invalid Phone</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="rejectReasonInput" class="form-label">Detailed Rejection Reason <span class="required">*</span></label>
+                    <textarea name="reason" id="rejectReasonInput" class="boss-textarea" rows="4" required placeholder="Specify why this vehicle listing was not approved..."></textarea>
+                </div>
+            </div>
+
+            <div class="boss-modal-footer">
+                <button type="button" class="boss-btn-cancel" onclick="closeRejectModal()">Cancel</button>
+                <button type="submit" class="boss-btn-confirm-reject">Confirm Rejection</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Boss Control Script -->
+<script>
+    (function () {
+        // Tab switching
+        const tabBtns = document.querySelectorAll('.boss-tab-btn');
+        const tabPanes = document.querySelectorAll('.boss-tab-pane');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.getAttribute('data-tab');
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabPanes.forEach(p => p.classList.remove('active'));
+
+                btn.classList.add('active');
+                const targetPane = document.getElementById('tab-' + targetTab);
+                if (targetPane) targetPane.classList.add('active');
+            });
+        });
+    })();
+
+    function openRejectModal(carId, carTitle) {
+        const modal = document.getElementById('bossRejectModal');
+        const form = document.getElementById('bossRejectForm');
+        const titleEl = document.getElementById('rejectTargetCarTitle');
+        const reasonInput = document.getElementById('rejectReasonInput');
+
+        if (!modal || !form) return;
+
+        form.action = '/boss/reject/' + carId + '/';
+        if (titleEl) titleEl.textContent = carTitle;
+        if (reasonInput) {
+            reasonInput.value = '';
+            setTimeout(() => reasonInput.focus(), 100);
+        }
+
+        modal.classList.add('open');
+    }
+
+    function closeRejectModal() {
+        const modal = document.getElementById('bossRejectModal');
+        if (modal) modal.classList.remove('open');
+    }
+
+    function applyPresetReason(text) {
+        const input = document.getElementById('rejectReasonInput');
+        if (input) {
+            input.value = text;
+            input.focus();
+        }
+    }
+
+    // Close modal on Escape or background click
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeRejectModal();
+    });
+
+    document.getElementById('bossRejectModal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'bossRejectModal') closeRejectModal();
+    });
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Three.js Engine & Interactive 3D Model Inspector for Admin Review -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="{% static 'js/car_3d_viewer.js' %}?v=boss_3d_v1"></script>
+{% endblock %}

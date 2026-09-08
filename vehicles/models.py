@@ -56,10 +56,6 @@ class Vehicle(models.Model):
         null=True, 
         help_text="Uploaded .glb 3D car model"
     )
-    image_1 = models.ImageField(upload_to='vehicles/', blank=True, null=True)
-    image_2 = models.ImageField(upload_to='vehicles/', blank=True, null=True)
-    image_3 = models.ImageField(upload_to='vehicles/', blank=True, null=True)
-    image_url = models.CharField(max_length=255, blank=True, default='images/bmw_m4.png')
     lat = models.FloatField(help_text="Latitude coordinate for map pin", default=41.7151)
     lng = models.FloatField(help_text="Longitude coordinate for map pin", default=44.8271)
     location_name = models.CharField(max_length=128, default="Rustaveli Ave, Tbilisi")
@@ -69,6 +65,15 @@ class Vehicle(models.Model):
     distance = models.CharField(max_length=32, default="100m")
     walk_time = models.CharField(max_length=32, default="3 min")
     is_active = models.BooleanField(default=True)
+    STATUS_CHOICES = [
+        ('pending', 'Pending Review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default='approved', db_index=True)
+    rejection_reason = models.TextField(blank=True, default='')
+    reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_vehicles')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -89,23 +94,6 @@ class Vehicle(models.Model):
             return f"/static/{self.model_3d}"
         return "/static/models/bmw_m4_convertible_g83_2021.glb"
 
-    def get_images(self):
-        """Returns a list of image URLs (up to 3) for galleries and cards."""
-        images = []
-        if self.image_1:
-            images.append(self.image_1.url)
-        if self.image_2:
-            images.append(self.image_2.url)
-        if self.image_3:
-            images.append(self.image_3.url)
-        if not images and self.image_url:
-            images.append(f"/static/{self.image_url}")
-        return images
-
-    def get_primary_image(self):
-        images = self.get_images()
-        return images[0] if images else "/static/images/bmw_m4.png"
-
     def to_dict(self, is_favourite=False):
         """Converts vehicle record to JSON-serializable dictionary for templates & map."""
         return {
@@ -120,7 +108,6 @@ class Vehicle(models.Model):
             'rating': str(self.rating),
             'review_count': self.review_count,
             'model_3d': self.get_model_url(),
-            'primary_image': self.get_primary_image(),
             'lat': self.lat,
             'lng': self.lng,
             'location_name': self.location_name,

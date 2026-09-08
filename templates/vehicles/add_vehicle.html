@@ -4,7 +4,7 @@
 {% block title %}Add Vehicle | Gruzin Auto{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/add_vehicle.css' %}?v=mono_fix_v7">
+<link rel="stylesheet" href="{% static 'css/add_vehicle.css' %}?v=mono_fix_v8">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 {% endblock %}
 
@@ -181,6 +181,17 @@
                             </svg>
                             <span>Pick on Map</span>
                         </button>
+                        <button type="button" class="btn-open-map-picker btn-gps-detect-style" id="gpsAutoDetectBtn" title="Auto-detect current GPS location">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <circle cx="12" cy="12" r="3"/>
+                                <line x1="12" y1="2" x2="12" y2="6"/>
+                                <line x1="12" y1="18" x2="12" y2="22"/>
+                                <line x1="2" y1="12" x2="6" y2="12"/>
+                                <line x1="18" y1="12" x2="22" y2="12"/>
+                            </svg>
+                            <span>Current GPS</span>
+                        </button>
                     </div>
                     <div class="location-current-meta" id="displayLocationMeta">
                         <span class="meta-coords" id="displayLocationCoords">Coordinates: 41.7151° N, 44.8271° E</span>
@@ -287,6 +298,17 @@
                     <line x1="16" y1="6" x2="16" y2="22"></line>
                 </svg>
                 <span>Locate on Map</span>
+            </button>
+            <button type="button" class="btn-locate-address btn-modal-gps-style" id="btnModalGpsDetect" title="Auto-detect current GPS location">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <circle cx="12" cy="12" r="3"/>
+                    <line x1="12" y1="2" x2="12" y2="6"/>
+                    <line x1="12" y1="18" x2="12" y2="22"/>
+                    <line x1="2" y1="12" x2="6" y2="12"/>
+                    <line x1="18" y1="12" x2="22" y2="12"/>
+                </svg>
+                <span>Current GPS</span>
             </button>
         </div>
 
@@ -756,5 +778,86 @@
         }
         closeMap();
     });
+
+    // Device GPS Auto-Detect Handler
+    function detectCurrentGpsLocation() {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser.');
+            return;
+        }
+
+        const btns = [document.getElementById('gpsAutoDetectBtn'), document.getElementById('btnModalGpsDetect')];
+        btns.forEach(b => {
+            if (b) {
+                b.disabled = true;
+                b.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-icon">
+                        <line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/>
+                        <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/>
+                        <line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/>
+                    </svg>
+                    <span>Detecting GPS...</span>
+                `;
+            }
+        });
+
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            tempLat = lat;
+            tempLng = lng;
+
+            if (latInput) latInput.value = lat.toFixed(6);
+            if (lngInput) lngInput.value = lng.toFixed(6);
+
+            if (pickerMap) {
+                pickerMap.setView([lat, lng], 15);
+                if (pickerMarker) pickerMarker.setLatLng([lat, lng]);
+            }
+
+            await reverseGeocodeLocation(lat, lng);
+
+            if (locationNameInput) locationNameInput.value = tempAddress;
+            if (modalAddressInput) modalAddressInput.value = tempAddress;
+            if (footerAddressText) footerAddressText.textContent = tempAddress;
+            if (displayLocationCoords) {
+                displayLocationCoords.textContent = `Coordinates: ${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E (GPS Verified)`;
+            }
+
+            btns.forEach(b => {
+                if (b) {
+                    b.disabled = false;
+                    b.innerHTML = `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <circle cx="12" cy="12" r="3"/>
+                            <line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/>
+                            <line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/>
+                        </svg>
+                        <span>Current GPS</span>
+                    `;
+                }
+            });
+        }, (err) => {
+            alert('Unable to retrieve your current location. Please ensure location permissions are granted.');
+            btns.forEach(b => {
+                if (b) {
+                    b.disabled = false;
+                    b.innerHTML = `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <circle cx="12" cy="12" r="3"/>
+                            <line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/>
+                            <line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/>
+                        </svg>
+                        <span>Current GPS</span>
+                    `;
+                }
+            });
+        }, { enableHighAccuracy: true, timeout: 9000 });
+    }
+
+    document.getElementById('gpsAutoDetectBtn')?.addEventListener('click', detectCurrentGpsLocation);
+    document.getElementById('btnModalGpsDetect')?.addEventListener('click', detectCurrentGpsLocation);
 </script>
 {% endblock %}
