@@ -45,6 +45,7 @@ class Vehicle(models.Model):
     )
     rating = models.DecimalField(max_digits=3, decimal_places=1, default=5.0)
     review_count = models.PositiveIntegerField(default=0)
+    views_count = models.PositiveIntegerField(default=0, db_index=True, help_text="Total number of times vehicle was opened/viewed")
     model_3d = models.CharField(
         max_length=255, 
         blank=True,
@@ -107,6 +108,7 @@ class Vehicle(models.Model):
             'fuel_capacity': self.fuel_capacity,
             'rating': str(self.rating),
             'review_count': self.review_count,
+            'views_count': self.views_count,
             'model_3d': self.get_model_url(),
             'lat': self.lat,
             'lng': self.lng,

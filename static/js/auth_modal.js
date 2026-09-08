@@ -4,6 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initAuthModal() {
+    // If session exists or user is authenticated, completely disable auth modal
+    if (document.body.dataset.userAuthenticated === 'true' || window.USER_AUTHENTICATED === true) {
+        return;
+    }
+
     const backdrop = document.getElementById('authModalBackdrop');
     const card = document.getElementById('authModalCard');
     const closeBtn = document.getElementById('authModalCloseBtn');
@@ -162,12 +167,13 @@ function initAuthModal() {
         if (e.key === 'Escape' && backdrop.classList.contains('is-open')) closeModal();
     });
 
-    // 3. Global Trigger Binding
+    // 3. Global Trigger Binding (Strictly data-open-auth only, never generic buttons)
     document.addEventListener('click', (e) => {
-        const trigger = e.target.closest('[data-open-auth], .auth-login-btn, .auth-register-btn');
+        if (document.body.dataset.userAuthenticated === 'true') return;
+        const trigger = e.target.closest('[data-open-auth]');
         if (trigger) {
             e.preventDefault();
-            const tab = trigger.dataset.openAuth || (trigger.classList.contains('auth-register-btn') ? 'register' : 'login');
+            const tab = trigger.dataset.openAuth || 'login';
             openModal(tab);
         }
     });

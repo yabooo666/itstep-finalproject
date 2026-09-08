@@ -30,7 +30,7 @@
     {% block extra_css %}{% endblock %}
 </head>
 
-<body>
+<body data-user-authenticated="{% if request.user.is_authenticated %}true{% else %}false{% endif %}">
 
     <div class="app-layout {% block layout_class %}{% endblock %}">
         <!-- Reusable Sidebar Component -->
@@ -58,10 +58,22 @@
         </div>
     </div>
 
-    <!-- Reusable Login / Register Popup Modal -->
+    {% if not request.user.is_authenticated %}
+    <!-- Reusable Login / Register Popup Modal (Strictly for unauthenticated visitors) -->
     {% include "components/auth_modal.html" %}
 
-    <script src="{% static 'js/auth_modal.js' %}?v=auth3"></script>
+    <script src="{% static 'js/auth_modal.js' %}?v=auth5"></script>
+    {% endif %}
+
+    <script>
+        window.USER_AUTHENTICATED = {% if request.user.is_authenticated %}true{% else %}false{% endif %};
+        if (window.USER_AUTHENTICATED) {
+            window.openAuthModal = function() {
+                console.debug("Auth modal prevented: user session already active.");
+            };
+        }
+    </script>
+
 
     {% block extra_js %}{% endblock %}
 </body>

@@ -21,31 +21,18 @@
                 <span class="dist-time car-time-badge" data-car-id="{{ car.id }}">({{ car.walk_time }})</span>
             </div>
 
-            <!-- Star Rating & Review Count -->
-            <div class="meta-stat meta-rating">
-                <svg class="star-icon" viewBox="0 0 24 24" fill="#ffffff">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            <!-- Views Count -->
+            <div class="meta-stat meta-views" title="Total times viewed">
+                <svg class="views-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                    <circle cx="12" cy="12" r="3"/>
                 </svg>
-                <span class="rating-score">{{ car.rating }}</span>
-                <span class="rating-count">({{ car.review_count }})</span>
+                <span class="views-score">{{ car.views_count|default:0 }}</span>
+                <span class="views-label">views</span>
             </div>
         </div>
 
         <div class="card-top-actions">
-            <!-- 3D Desert Garage View Button (Eye Icon) -->
-            <button type="button" 
-                    class="card-garage-eye-btn" 
-                    data-car-id="{{ car.id }}" 
-                    data-car-title="{{ car.brand }} {{ car.model }}"
-                    {% if car.model_3d %}data-model-url="{% static car.model_3d %}"{% else %}data-model-url="{% static 'models/bmw_m4_convertible_g83_2021.glb' %}"{% endif %}
-                    title="Inspect in 3D Desert Garage" 
-                    aria-label="View in 3D Desert Garage">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                    <circle cx="12" cy="12" r="3"/>
-                </svg>
-            </button>
-
             <!-- Favourite Heart Toggle Button -->
             <button type="button" 
                     class="card-heart-btn {% if car.is_favourite %}favourited{% endif %}" 

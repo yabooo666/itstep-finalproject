@@ -1,5 +1,6 @@
+import os
 import json
-from django.db.models import Q
+from django.db.models import Q, F
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_http_methods
@@ -83,15 +84,13 @@ def catalog_view(request):
     # 2. Sorting
     sort_by = request.GET.get('sort', '').strip()
     if sort_by == 'popular':
-        qs = qs.order_by('-rating', '-review_count', '-id')
+        qs = qs.order_by('-views_count', '-id')
     elif sort_by == 'random':
         qs = qs.order_by('?')
     elif sort_by == 'price_low':
         qs = qs.order_by('daily_price')
     elif sort_by == 'price_high':
         qs = qs.order_by('-daily_price')
-    elif sort_by == 'rating':
-        qs = qs.order_by('-rating', '-review_count')
     elif sort_by == 'year':
         qs = qs.order_by('-year')
     else:
@@ -240,6 +239,9 @@ def track_recent_view(request, vehicle_id):
         request.session.save()
     session_key = request.session.session_key
 
+    # Increment global views count for vehicle popularity
+    Vehicle.objects.filter(pk=vehicle.pk).update(views_count=F('views_count') + 1)
+
     if request.user.is_authenticated:
         obj, created = UserRecentView.objects.update_or_create(
             user=request.user,
@@ -385,6 +387,10 @@ def vehicle_detail_view(request, vehicle_id):
     and interactive rental booking calculator (/vehicles/<id>/).
     """
     vehicle = get_object_or_404(Vehicle, pk=vehicle_id, is_active=True)
+
+    # Increment views count for vehicle popularity
+    Vehicle.objects.filter(pk=vehicle.pk).update(views_count=F('views_count') + 1)
+    vehicle.refresh_from_db(fields=['views_count'])
 
     # Track recent view
     if not request.session.session_key:

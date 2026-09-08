@@ -30,29 +30,15 @@
             </h2>
 
             <div class="results-actions">
-                <!-- Customer Location Selector -->
-                <div class="sort-select-wrapper customer-location-wrapper" title="Set your customer / pickup location">
-                    <select class="sort-select" id="customerLocationSelect" aria-label="Set customer location">
-                        <option value="41.7151,44.8271" selected>📍 Tbilisi (Rustaveli Ave)</option>
-                        <option value="41.7220,44.7730">📍 Tbilisi (Saburtalo)</option>
-                        <option value="41.7100,44.7650">📍 Tbilisi (Vake)</option>
-                        <option value="41.9806,44.4256">📍 Kaspi Center</option>
-                        <option value="41.6515,41.6360">📍 Batumi Boulevard</option>
-                        <option value="42.2679,42.7180">📍 Kutaisi Center</option>
-                        <option value="device_gps">📡 Device GPS</option>
-                    </select>
-                </div>
-
-                <!-- Sort Dropdown -->
+                <!-- Sort Dropdown (Clean, No Emojis) -->
                 <div class="sort-select-wrapper">
                     <select class="sort-select" id="catalogTopSortSelect" aria-label="Sort vehicles">
                         <option value="" {% if not selected_sort %}selected{% endif %}>Default Sorting</option>
-                        <option value="popular" {% if selected_sort == 'popular' %}selected{% endif %}>🔥 Popular First</option>
-                        <option value="random" {% if selected_sort == 'random' %}selected{% endif %}>🎲 Random List</option>
-                        <option value="nearest" {% if selected_sort == 'nearest' %}selected{% endif %}>📍 Nearest to Me</option>
+                        <option value="popular" {% if selected_sort == 'popular' %}selected{% endif %}>Popular First</option>
+                        <option value="random" {% if selected_sort == 'random' %}selected{% endif %}>Random List</option>
+                        <option value="nearest" {% if selected_sort == 'nearest' %}selected{% endif %}>Nearest to Me</option>
                         <option value="price_low" {% if selected_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
                         <option value="price_high" {% if selected_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
-                        <option value="rating" {% if selected_sort == 'rating' %}selected{% endif %}>Highest Rated</option>
                         <option value="year" {% if selected_sort == 'year' %}selected{% endif %}>Newest Year</option>
                     </select>
                 </div>
@@ -114,16 +100,16 @@
                         </p>
                         {% if is_favourites_page %}
                             {% if login_required_notice %}
-                                <button type="button" class="auth-pill-btn auth-register-btn" onclick="window.openAuthModal ? window.openAuthModal('login') : null" style="padding: 10px 26px; font-size: 13.5px; font-weight: 800; border-radius: 10px; cursor: pointer;">
+                                <button type="button" class="empty-action-btn" onclick="window.openAuthModal ? window.openAuthModal('login') : null" style="display: inline-block; padding: 10px 26px; font-size: 13.5px; font-weight: 800; border-radius: 10px; cursor: pointer; background: #ffffff; color: #000000; border: none;">
                                     Sign In / Register
                                 </button>
                             {% else %}
-                                <a href="{% url 'vehicles' %}" class="auth-pill-btn auth-register-btn" style="display: inline-block; padding: 10px 26px; font-size: 13.5px; font-weight: 800; border-radius: 10px; text-decoration: none;">
+                                <a href="{% url 'vehicles' %}" class="empty-action-btn" style="display: inline-block; padding: 10px 26px; font-size: 13.5px; font-weight: 800; border-radius: 10px; text-decoration: none; background: #ffffff; color: #000000;">
                                     Browse All Vehicles
                                 </a>
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'vehicles' %}" class="auth-pill-btn auth-register-btn" style="display: inline-block; padding: 10px 26px; font-size: 13.5px; font-weight: 800; border-radius: 10px; text-decoration: none;">
+                            <a href="{% url 'vehicles' %}" class="empty-action-btn" style="display: inline-block; padding: 10px 26px; font-size: 13.5px; font-weight: 800; border-radius: 10px; text-decoration: none; background: #ffffff; color: #000000;">
                                 Clear Filters
                             </a>
                         {% endif %}
